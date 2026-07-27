@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Config: public read, no direct write
+    match /reunion_config/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Family members: public read, no direct write (admin API only)
+    match /family_members/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Schedule: public read, no direct write (admin API only)
+    match /schedule_items/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Gallery: public read, anyone can create (light moderation via approved field)
+    match /gallery_photos/{doc} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    // RSVPs: public read, anyone can create, no update/delete
+    match /rsvps/{doc} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    // Chat: public read & create, no update/delete
+    match /chat_messages/{doc} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    // Trivia
+    match /trivia_questions/{doc} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /trivia_scores/{doc} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+  }
+}
