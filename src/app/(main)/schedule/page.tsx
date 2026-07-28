@@ -61,6 +61,7 @@ export default function SchedulePage() {
   const [items, setItems] = useState<ScheduleItem[]>([]);
   const [config, setConfig] = useState<ReunionConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState<Date>(new Date());
 
   useEffect(() => {
     Promise.all([getSchedule(), getConfig()])
@@ -71,6 +72,11 @@ export default function SchedulePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const grouped = items.reduce<Record<number, ScheduleItem[]>>((acc, item) => {
     (acc[item.day] = acc[item.day] || []).push(item);
     return acc;
@@ -79,6 +85,38 @@ export default function SchedulePage() {
   const days = Object.keys(grouped)
     .map(Number)
     .sort((a, b) => a - b);
+
+  function getItemStatus(item: ScheduleItem): "happening" | "next" | "past" | "future" {
+    if (!config?.eventDates?.start) return "future";
+    const eventStart = config.eventDates.start.toDate();
+    const itemDate = new Date(eventStart);
+    itemDate.setDate(itemDate.getDate() + item.day - 1);
+    const [h, m] = item.startTime.split(":").map(Number);
+    itemDate.setHours(h, m, 0, 0);
+    const endTime = item.endTime ? (() => {
+      const [eh, em] = item.endTime.split(":").map(Number);
+      const e = new Date(eventStart);
+      e.setDate(e.getDate() + item.day - 1);
+      e.setHours(eh, em, 0, 0);
+      return e;
+    })() : new Date(itemDate.getTime() + 60 * 60 * 1000);
+
+    if (now >= itemDate && now <= endTime) return "happening";
+    if (now > endTime) return "past";
+    return "future";
+  }
+
+  function getNextItem(): ScheduleItem | null {
+    for (const day of days) {
+      const sorted = grouped[day].sort((a, b) => a.startTime.localeCompare(b.startTime));
+      for (const item of sorted) {
+        if (getItemStatus(item) === "future" || getItemStatus(item) === "next") return item;
+      }
+    }
+    return null;
+  }
+
+  const nextItem = getNextItem();
 
   return (
     <div className="max-w-lg mx-auto px-4 py-8">
@@ -136,6 +174,43 @@ export default function SchedulePage() {
         </div>
       )}
 
+      {!loading && days.length > 0 && (nextItem || items.some(i => getItemStatus(i) === "happening")) && (
+        <div className="mb-8 space-y-3 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+          {items.filter(i => getItemStatus(i) === "happening").map(item => (
+            <div key={`live-${item.id}`} className="glass-card rounded-2xl p-4 border-l-4 border-hibiscus animate-glow-pulse">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-hibiscus uppercase tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-hibiscus animate-pulse" />
+                  Happening now
+                </span>
+              </div>
+              <h3 className="font-sans font-medium text-ink">{item.title}</h3>
+              <p className="text-soft text-sm font-sans mt-0.5">
+                <span className="font-mono text-hibiscus">{item.startTime}{item.endTime ? `–${item.endTime}` : ""}</span>
+                {item.location && <span className="text-rattan"> · {item.location}</span>}
+              </p>
+            </div>
+          ))}
+          {nextItem && getItemStatus(nextItem) === "future" && (
+            <div className="glass-card rounded-2xl p-4 border-l-4 border-mango">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-mango uppercase tracking-wider">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  Up next
+                </span>
+              </div>
+              <h3 className="font-sans font-medium text-ink">{nextItem.title}</h3>
+              <p className="text-soft text-sm font-sans mt-0.5">
+                <span className="font-mono text-mango">{nextItem.startTime}{nextItem.endTime ? `–${nextItem.endTime}` : ""}</span>
+                {nextItem.location && <span className="text-rattan"> · {nextItem.location}</span>}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -171,14 +246,20 @@ export default function SchedulePage() {
                 <div className="space-y-3">
                   {grouped[day]
                     .sort((a, b) => a.startTime.localeCompare(b.startTime))
-                    .map((item, i) => (
+                    .map((item, i) => {
+                      const status = getItemStatus(item);
+                      return (
                       <div
                         key={item.id}
-                        className="glass-card rounded-2xl p-4 flex gap-4 relative animate-fade-in"
+                        className={`glass-card rounded-2xl p-4 flex gap-4 relative animate-fade-in ${
+                          status === "happening" ? "ring-2 ring-hibiscus/40 bg-hibiscus/5" : ""
+                        }`}
                         style={{ animationDelay: `${i * 0.08}s` }}
                       >
                         {/* Timeline dot */}
-                        <div className="absolute left-[15px] top-4 w-2 h-2 rounded-full bg-hibiscus/60 z-10" />
+                        <div className={`absolute left-[15px] top-4 w-2 h-2 rounded-full z-10 ${
+                          status === "happening" ? "bg-hibiscus animate-pulse" : status === "past" ? "bg-rattan/30" : "bg-hibiscus/60"
+                        }`} />
 
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hibiscus/10 to-hibiscus/5 flex items-center justify-center flex-shrink-0 text-hibiscus ml-2">
                           <ScheduleIcon type={item.icon} />
@@ -209,7 +290,8 @@ export default function SchedulePage() {
                           )}
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                 </div>
               </div>
             </div>

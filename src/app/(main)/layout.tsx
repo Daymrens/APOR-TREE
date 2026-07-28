@@ -23,6 +23,9 @@ export default function MainLayout({
 
   return (
     <div className="min-h-screen flex flex-col bg-parchment">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-hibiscus focus:text-parchment focus:px-4 focus:py-2 focus:rounded-xl focus:font-sans focus:text-sm focus:outline-none focus:ring-2 focus:ring-hibiscus focus:ring-offset-2">
+        Skip to content
+      </a>
       <header className="glass-dark sticky top-0 z-50 px-4 py-3 shadow-lg">
         <div className="max-w-[1100px] mx-auto flex items-center justify-between">
           <Link href="/" className="font-heading text-xl font-semibold text-parchment tracking-wide">
@@ -34,9 +37,9 @@ export default function MainLayout({
         </div>
       </header>
 
-      <main className="flex-1 pb-20 sm:pb-0">{children}</main>
+      <main id="main-content" className="flex-1 pb-20 sm:pb-0">{children}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 sm:border-0 sm:static sm:bg-transparent sm:backdrop-filter-none sm:pb-0 z-50">
+      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 glass-dark border-t border-white/10 sm:border-0 sm:static sm:bg-transparent sm:backdrop-filter-none sm:pb-0 z-50">
         <div className="max-w-[1100px] mx-auto flex sm:justify-center sm:gap-1">
           {navItems.map((item) => {
             const isActive =
@@ -47,6 +50,7 @@ export default function MainLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={`relative flex flex-col items-center flex-1 sm:flex-initial sm:flex-row sm:gap-2 sm:px-4 sm:py-2 sm:rounded-full transition-all duration-200 ${
                   isActive
                     ? "text-hibiscus sm:bg-hibiscus/10"

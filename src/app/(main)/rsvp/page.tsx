@@ -245,11 +245,13 @@ export default function RsvpPage() {
 
         <div className="animate-slide-up" style={{ animationDelay: "0.25s" }}>
           <label className="block text-sm font-sans text-ink mb-2">Are you coming?</label>
-          <div className="flex gap-3">
+          <div className="flex gap-3" role="radiogroup" aria-label="Attendance">
             {(["yes", "no", "maybe"] as const).map((option) => (
               <button
                 key={option}
                 type="button"
+                role="radio"
+                aria-checked={form.attending === option}
                 onClick={() => setForm({ ...form, attending: option })}
                 className={`flex-1 py-3 rounded-xl border font-sans text-sm transition-all duration-200 ${
                   form.attending === option

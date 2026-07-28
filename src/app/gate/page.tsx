@@ -236,6 +236,7 @@ function GateForm() {
               type="button"
               onClick={() => { setName(""); setSelectedMember(null); }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment/40 hover:text-parchment/70 transition-colors"
+              aria-label="Clear name"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -318,6 +319,7 @@ function GateForm() {
             type="button"
             onClick={() => { setSelectedMember(null); setName(""); }}
             className="text-parchment/30 hover:text-parchment/60 transition-colors"
+            aria-label="Clear selection"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
