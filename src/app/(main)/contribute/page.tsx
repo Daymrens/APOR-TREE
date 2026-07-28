@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import BackButton from "@/components/ui/BackButton";
 import ShareButton from "@/components/ShareButton";
-import type { Contribution } from "@/lib/types";
+import type { Contribution, MemberContributionData } from "@/lib/types";
 
 const CATEGORIES = [
   { value: "schedule", label: "Schedule" },
@@ -14,10 +14,122 @@ const CATEGORIES = [
 ];
 
 const TYPES = [
-  { value: "correction", label: "Correction" },
   { value: "suggestion", label: "Suggestion" },
+  { value: "correction", label: "Correction" },
   { value: "addition", label: "Addition" },
+  { value: "add_member", label: "Add member" },
 ];
+
+function MemberDataForm({
+  data,
+  onChange,
+  errors,
+}: {
+  data: MemberContributionData;
+  onChange: (d: MemberContributionData) => void;
+  errors: Record<string, string>;
+}) {
+  const inputClass =
+    "w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 [&>option]:bg-parchment";
+  const labelClass = "block text-sm font-sans font-medium text-balete mb-1.5";
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Parents / Root connection</label>
+        <input
+          type="text"
+          value={data.parentName}
+          onChange={(e) => onChange({ ...data, parentName: e.target.value })}
+          placeholder="e.g. Juan & Maria Apor"
+          className={inputClass}
+        />
+        {errors.parentName && (
+          <p className="text-hibiscus text-xs font-sans mt-1">{errors.parentName}</p>
+        )}
+      </div>
+
+      <div>
+        <label className={labelClass}>Full name</label>
+        <input
+          type="text"
+          value={data.fullName}
+          onChange={(e) => onChange({ ...data, fullName: e.target.value })}
+          placeholder="Full name of the person to add"
+          className={inputClass}
+        />
+        {errors.fullName && (
+          <p className="text-hibiscus text-xs font-sans mt-1">{errors.fullName}</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelClass}>Sex</label>
+          <select
+            value={data.sex}
+            onChange={(e) => onChange({ ...data, sex: e.target.value as "male" | "female" })}
+            className={inputClass}
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Date of birth</label>
+          <input
+            type="date"
+            value={data.dateOfBirth}
+            onChange={(e) => onChange({ ...data, dateOfBirth: e.target.value })}
+            className={inputClass}
+            max={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className={labelClass}>Marital status</label>
+          <select
+            value={data.maritalStatus}
+            onChange={(e) =>
+              onChange({ ...data, maritalStatus: e.target.value as "married" | "single" })
+            }
+            className={inputClass}
+          >
+            <option value="single">Single</option>
+            <option value="married">Married</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass}>Status</label>
+          <select
+            value={data.livingStatus}
+            onChange={(e) =>
+              onChange({ ...data, livingStatus: e.target.value as "living" | "deceased" })
+            }
+            className={inputClass}
+          >
+            <option value="living">Living</option>
+            <option value="deceased">Deceased</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className={labelClass}>Siblings (optional)</label>
+        <input
+          type="text"
+          value={data.siblings}
+          onChange={(e) => onChange({ ...data, siblings: e.target.value })}
+          placeholder="e.g. Maria, Jose, Ana"
+          className={inputClass}
+        />
+        <p className="text-soft/40 text-[10px] font-sans mt-1">Comma-separated names</p>
+      </div>
+    </div>
+  );
+}
 
 export default function ContributePage() {
   const [title, setTitle] = useState("");
@@ -30,6 +142,20 @@ export default function ContributePage() {
   const [memberName, setMemberName] = useState<string | null>(null);
   const [memberBranch, setMemberBranch] = useState<string | null>(null);
 
+  const [memberData, setMemberData] = useState<MemberContributionData>({
+    parentName: "",
+    fullName: "",
+    sex: "male",
+    dateOfBirth: "",
+    maritalStatus: "single",
+    livingStatus: "living",
+    siblings: "",
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const isAddMember = type === "add_member";
+
   useEffect(() => {
     setMemberName(
       document.cookie.split("; ").find((c) => c.startsWith("family-member-name="))?.split("=")[1] || null
@@ -39,28 +165,46 @@ export default function ContributePage() {
     );
   }, []);
 
+  function validate(): boolean {
+    const errs: Record<string, string> = {};
+    if (isAddMember) {
+      if (!memberData.parentName.trim()) errs.parentName = "Parent or root connection is required.";
+      if (!memberData.fullName.trim()) errs.fullName = "Full name is required.";
+    } else {
+      if (!title.trim()) errs.title = "Title is required.";
+      if (!description.trim()) errs.description = "Description is required.";
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !description.trim()) {
-      setError("Please fill in both title and description.");
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
     setError("");
 
     try {
+      const body: Record<string, unknown> = {
+        authorName: memberName || "Anonymous",
+        authorBranch: memberBranch || null,
+        type,
+        category: isAddMember ? null : category,
+        title: isAddMember ? `Add member: ${memberData.fullName}` : title.trim(),
+        description: isAddMember
+          ? `Parent: ${memberData.parentName}\nSex: ${memberData.sex}\nDOB: ${memberData.dateOfBirth || "—"}\nMarital status: ${memberData.maritalStatus}\nStatus: ${memberData.livingStatus}\nSiblings: ${memberData.siblings || "—"}`
+          : description.trim(),
+      };
+
+      if (isAddMember) {
+        body.data = memberData;
+      }
+
       const res = await fetch("/api/contributions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          authorName: memberName || "Anonymous",
-          authorBranch: memberBranch || null,
-          type,
-          category,
-          title: title.trim(),
-          description: description.trim(),
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error("Failed to submit");
@@ -121,7 +265,10 @@ export default function ContributePage() {
                 <button
                   key={t.value}
                   type="button"
-                  onClick={() => setType(t.value as Contribution["type"])}
+                  onClick={() => {
+                    setType(t.value as Contribution["type"]);
+                    setErrors({});
+                  }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                     type === t.value
                       ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
@@ -134,65 +281,77 @@ export default function ContributePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-sans font-medium text-balete mb-1.5">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as Contribution["category"])}
-                className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
-            </div>
+          {isAddMember ? (
+            <MemberDataForm data={memberData} onChange={setMemberData} errors={errors} />
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-sans font-medium text-balete mb-1.5">
+                    Category
+                  </label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value as Contribution["category"])}
+                    className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
 
-            <div>
-              <label className="block text-sm font-sans font-medium text-balete mb-1.5">
-                Your name
-              </label>
-              <input
-                type="text"
-                value={memberName || ""}
-                readOnly
-                className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-sm font-sans font-medium text-balete mb-1.5">
+                    Your name
+                  </label>
+                  <input
+                    type="text"
+                    value={memberName || ""}
+                    readOnly
+                    className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-sm font-sans font-medium text-balete mb-1.5">
-              Title
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Date change for Saturday dinner"
-              className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
-              maxLength={120}
-            />
-          </div>
+              <div>
+                <label className="block text-sm font-sans font-medium text-balete mb-1.5">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Date change for Saturday dinner"
+                  className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                  maxLength={120}
+                />
+                {errors.title && (
+                  <p className="text-hibiscus text-xs font-sans mt-1">{errors.title}</p>
+                )}
+              </div>
 
-          <div>
-            <label className="block text-sm font-sans font-medium text-balete mb-1.5">
-              Details
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what needs to change or what you&apos;d like to add..."
-              rows={5}
-              className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 resize-y"
-              maxLength={500}
-            />
-            <p className="text-soft/50 text-[10px] font-sans mt-1">
-              {description.length}/500
-            </p>
-          </div>
+              <div>
+                <label className="block text-sm font-sans font-medium text-balete mb-1.5">
+                  Details
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Describe what needs to change or what you&apos;d like to add..."
+                  rows={5}
+                  className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 resize-y"
+                  maxLength={500}
+                />
+                <p className="text-soft/50 text-[10px] font-sans mt-1">
+                  {description.length}/500
+                </p>
+                {errors.description && (
+                  <p className="text-hibiscus text-xs font-sans mt-1">{errors.description}</p>
+                )}
+              </div>
+            </>
+          )}
 
           <button
             type="submit"

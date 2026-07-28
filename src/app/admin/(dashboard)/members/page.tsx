@@ -17,6 +17,7 @@ interface FamilyMember {
   photoUrl: string | null;
   livingStatus: "living" | "deceased";
   notes: string;
+  dateOfBirth?: string;
 }
 
 function Toast({
@@ -69,6 +70,7 @@ function MemberForm({
     birthOrder: initial?.birthOrder ?? 0,
     livingStatus: (initial?.livingStatus ?? "living") as "living" | "deceased",
     notes: initial?.notes ?? "",
+    dateOfBirth: initial?.dateOfBirth ?? "",
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(
@@ -120,6 +122,7 @@ function MemberForm({
       livingStatus: form.livingStatus,
       notes: form.notes,
       birthOrder: form.birthOrder,
+      dateOfBirth: form.dateOfBirth || null,
     });
   }
 
@@ -264,17 +267,27 @@ function MemberForm({
           {/* Details */}
           <div>
             <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-soft/50 mb-3">Details</p>
-            <select
-              value={form.livingStatus}
-              onChange={(e) =>
-                setForm({ ...form, livingStatus: e.target.value as "living" | "deceased" })
-              }
-              className={inputClass}
-              aria-label="Living status"
-            >
-              <option value="living">Living</option>
-              <option value="deceased">Deceased</option>
-            </select>
+            <div className="grid grid-cols-2 gap-3">
+              <select
+                value={form.livingStatus}
+                onChange={(e) =>
+                  setForm({ ...form, livingStatus: e.target.value as "living" | "deceased" })
+                }
+                className={inputClass}
+                aria-label="Living status"
+              >
+                <option value="living">Living</option>
+                <option value="deceased">Deceased</option>
+              </select>
+              <input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
+                className={inputClass}
+                aria-label="Date of birth"
+                max={new Date().toISOString().split("T")[0]}
+              />
+            </div>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -610,6 +623,9 @@ export default function AdminMembersPage() {
                     Gen
                   </th>
                   <th className="px-5 py-3 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em]">
+                    DOB
+                  </th>
+                  <th className="px-5 py-3 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em]">
                     Status
                   </th>
                   <th className="px-5 py-3 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em] text-right">
@@ -653,6 +669,9 @@ export default function AdminMembersPage() {
                     </td>
                     <td className="px-5 py-3 font-sans text-sm text-ink tabular-nums">
                       {m.generation}
+                    </td>
+                    <td className="px-5 py-3 font-sans text-sm text-soft tabular-nums">
+                      {m.dateOfBirth || "—"}
                     </td>
                     <td className="px-5 py-3">
                       <span

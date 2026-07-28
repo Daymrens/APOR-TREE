@@ -15,6 +15,7 @@ const TYPE_LABELS: Record<string, string> = {
   correction: "Correction",
   suggestion: "Suggestion",
   addition: "Addition",
+  add_member: "Add member",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -23,6 +24,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   food: "Food",
   activities: "Activities",
   general: "General",
+};
+
+const SEX_LABELS: Record<string, string> = {
+  male: "Male",
+  female: "Female",
 };
 
 export default function AdminContributionsPage() {
@@ -133,6 +139,8 @@ export default function AdminContributionsPage() {
             <div className="space-y-3">
               {filtered.map((c) => {
                 const statusStyle = STATUS_STYLES[c.status] || STATUS_STYLES.pending;
+                const isMember = c.type === "add_member";
+
                 return (
                   <div
                     key={c.id}
@@ -144,7 +152,11 @@ export default function AdminContributionsPage() {
                           {c.title}
                         </h3>
                         <p className="text-soft text-xs font-sans mt-0.5">
-                          {c.authorName} · {c.authorBranch || "No branch"} · {CATEGORY_LABELS[c.category] || c.category} · {TYPE_LABELS[c.type] || c.type}
+                          {c.authorName}
+                          {c.authorBranch ? ` · ${c.authorBranch}` : ""}
+                          {!isMember && c.category ? ` · ${CATEGORY_LABELS[c.category] || c.category}` : ""}
+                          {" · "}
+                          {TYPE_LABELS[c.type] || c.type}
                         </p>
                       </div>
                       <span
@@ -154,9 +166,28 @@ export default function AdminContributionsPage() {
                       </span>
                     </div>
 
-                    <p className="text-ink text-sm font-sans leading-relaxed mb-3 line-clamp-3">
-                      {c.description}
-                    </p>
+                    {/* Add member structured data */}
+                    {isMember && c.data ? (
+                      <div className="mb-3 p-3 rounded-xl bg-balete/5 border border-balete/10 text-xs font-sans space-y-1">
+                        <p><span className="text-soft">Parent / Root:</span> <span className="text-ink font-medium">{c.data.parentName}</span></p>
+                        <p><span className="text-soft">Full name:</span> <span className="text-ink font-medium">{c.data.fullName}</span></p>
+                        <div className="flex gap-4">
+                          <p><span className="text-soft">Sex:</span> <span className="text-ink">{SEX_LABELS[c.data.sex] || c.data.sex}</span></p>
+                          <p><span className="text-soft">DOB:</span> <span className="text-ink">{c.data.dateOfBirth || "—"}</span></p>
+                        </div>
+                        <div className="flex gap-4">
+                          <p><span className="text-soft">Marital status:</span> <span className="text-ink capitalize">{c.data.maritalStatus}</span></p>
+                          <p><span className="text-soft">Status:</span> <span className="text-ink capitalize">{c.data.livingStatus}</span></p>
+                        </div>
+                        {c.data.siblings && (
+                          <p><span className="text-soft">Siblings:</span> <span className="text-ink">{c.data.siblings}</span></p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-ink text-sm font-sans leading-relaxed mb-3 line-clamp-3">
+                        {c.description}
+                      </p>
+                    )}
 
                     {c.status === "pending" && (
                       <div className="flex items-center gap-2">

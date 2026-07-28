@@ -33,16 +33,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const db = getAdminDb();
 
-    const data = {
+    const data: Record<string, unknown> = {
       authorName: body.authorName || "Anonymous",
       authorBranch: body.authorBranch || null,
       type: body.type || "suggestion",
-      category: body.category || "general",
+      category: body.category || null,
       title: body.title || "",
       description: body.description || "",
       status: "pending",
       createdAt: FieldValue.serverTimestamp(),
     };
+
+    if (body.data) {
+      data.data = body.data;
+    }
 
     const docRef = await db.collection(COLLECTION).add(data);
     return NextResponse.json({ id: docRef.id, ...data });

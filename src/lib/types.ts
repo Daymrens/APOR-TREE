@@ -39,6 +39,17 @@ export interface FamilyMember {
   photoUrl: string | null;
   livingStatus: "living" | "deceased";
   notes: string;
+  dateOfBirth?: string;
+}
+
+export interface MemberContributionData {
+  parentName: string;
+  fullName: string;
+  sex: "male" | "female";
+  dateOfBirth: string;
+  maritalStatus: "married" | "single";
+  livingStatus: "living" | "deceased";
+  siblings: string;
 }
 
 export interface ScheduleItem {
@@ -93,10 +104,11 @@ export interface Contribution {
   id: string;
   authorName: string;
   authorBranch: string | null;
-  type: "correction" | "suggestion" | "addition";
-  category: "schedule" | "venue" | "food" | "activities" | "general";
+  type: "correction" | "suggestion" | "addition" | "add_member";
+  category?: "schedule" | "venue" | "food" | "activities" | "general";
   title: string;
   description: string;
   status: "pending" | "approved" | "rejected";
   createdAt: Timestamp;
+  data?: MemberContributionData;
 }
