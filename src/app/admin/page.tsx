@@ -69,12 +69,8 @@ function AdminForm() {
 
 export default function AdminPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-balete px-4">
+    <div className="flex-1 flex items-center justify-center bg-balete px-4">
       <div className="w-full max-w-sm">
-        <nav className="flex gap-3 mb-6 justify-center">
-          <a href="/admin/dashboard" className="px-4 py-2 bg-hibiscus/10 text-hibiscus rounded-full font-sans text-sm font-medium hover:bg-hibiscus/20 transition-colors">Dashboard</a>
-          <a href="/admin/rsvps" className="px-4 py-2 bg-rattan/20 text-soft rounded-full font-sans text-sm font-medium hover:bg-rattan/30 transition-colors">RSVPs</a>
-        </nav>
         <div className="text-center mb-8">
           <h1 className="font-heading text-2xl text-parchment mb-2">Admin Access</h1>
           <p className="text-parchment/60 text-sm font-sans">

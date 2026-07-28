@@ -2,6 +2,10 @@ import { db } from "@/lib/firebase";
 import {
   collection,
   getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
   query,
   orderBy,
 } from "firebase/firestore";
@@ -21,4 +25,17 @@ export async function getSchedule(): Promise<ScheduleItem[]> {
     console.warn("Firestore not available:", error);
     return [];
   }
+}
+
+export async function addScheduleItem(data: Omit<ScheduleItem, "id">): Promise<string> {
+  const docRef = await addDoc(collection(db, COLLECTION), data);
+  return docRef.id;
+}
+
+export async function updateScheduleItem(id: string, data: Partial<Omit<ScheduleItem, "id">>): Promise<void> {
+  await updateDoc(doc(db, COLLECTION, id), data);
+}
+
+export async function deleteScheduleItem(id: string): Promise<void> {
+  await deleteDoc(doc(db, COLLECTION, id));
 }

@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import type { ReunionConfig } from "@/lib/types";
 
 const DOC_ID = "main";
@@ -13,4 +13,9 @@ export async function getConfig(): Promise<ReunionConfig | null> {
     console.warn("Firestore not available:", error);
     return null;
   }
+}
+
+export async function updateConfig(data: Partial<ReunionConfig>): Promise<void> {
+  const ref = doc(db, "reunion_config", DOC_ID);
+  await setDoc(ref, data, { merge: true });
 }
