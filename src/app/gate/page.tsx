@@ -392,7 +392,12 @@ export default function GatePage() {
           <h1 className="font-heading text-5xl text-parchment mb-2 tracking-wide">
             APOR
           </h1>
-          <p className="text-parchment/50 text-sm font-sans">Family Reunion</p>
+          <p className="text-parchment/50 text-sm font-sans mb-3">Family Reunion</p>
+          <p className="text-parchment/40 text-xs font-sans leading-relaxed max-w-[260px] mx-auto">
+            <span className="text-mango/60">A</span>ng <span className="text-mango/60">P</span>anaghiusa · <span className="text-mango/60">O</span>ras · <span className="text-mango/60">R</span>elasyon
+            <br />
+            <span className="italic text-parchment/30">"Unity, Time, and Connection"</span>
+          </p>
         </div>
 
         <div className="glass rounded-2xl p-6 shadow-2xl animate-slide-up" style={{ animationDelay: "0.15s" }}>
