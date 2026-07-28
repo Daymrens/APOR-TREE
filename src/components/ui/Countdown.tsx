@@ -26,46 +26,45 @@ function calculateTimeLeft(target: Date): TimeLeft {
 
 export default function Countdown({ targetDate }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => calculateTimeLeft(targetDate));
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  if (!mounted) return null;
-
   const isPast = timeLeft.days === 0 && timeLeft.hours === 0 && timeLeft.minutes === 0 && timeLeft.seconds === 0;
-
-  if (isPast) {
-    return (
-      <div className="text-center glass-card rounded-2xl p-6">
-        <p className="font-heading text-2xl text-hibiscus mb-1">The reunion is happening!</p>
-        <p className="text-soft text-sm font-sans">We hope to see you there.</p>
-      </div>
-    );
-  }
 
   const blocks = [
     { label: "Days", value: timeLeft.days },
     { label: "Hours", value: timeLeft.hours },
-    { label: "Minutes", value: timeLeft.minutes },
-    { label: "Seconds", value: timeLeft.seconds },
+    { label: "Mins", value: timeLeft.minutes },
+    { label: "Secs", value: timeLeft.seconds },
   ];
 
   return (
-    <div className="flex gap-3 justify-center">
-      {blocks.map(({ label, value }) => (
-        <div key={label} className="glass-card rounded-xl p-3 min-w-[64px] text-center">
-          <p className="font-mono text-2xl text-hibiscus tabular-nums">
-            {String(value).padStart(2, "0")}
-          </p>
-          <p className="text-soft text-xs font-sans mt-1">{label}</p>
+    <div className="glass-card rounded-2xl p-5 animate-fade-in">
+      {isPast ? (
+        <div className="text-center py-4">
+          <p className="font-heading text-2xl text-hibiscus mb-1">The reunion has started!</p>
+          <p className="text-soft text-sm font-sans">Welcome everyone!</p>
         </div>
-      ))}
+      ) : (
+        <>
+          <p className="font-heading text-xl text-balete text-center mb-3">Countdown to Reunion</p>
+          <div className="flex justify-center gap-2 sm:gap-4">
+            {blocks.map((block) => (
+              <div key={block.label} className="glass-card rounded-xl px-3 py-2 min-w-[60px] text-center">
+                <p className="font-mono text-2xl text-hibiscus tabular-nums">
+                  {String(block.value).padStart(2, "0")}
+                </p>
+                <p className="text-soft text-xs font-sans mt-1">{block.label}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

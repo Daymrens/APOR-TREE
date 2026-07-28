@@ -68,12 +68,15 @@ export interface TriviaQuestion {
   choices: string[];
   correctIndex: number;
   points: number;
+  explanation: string;
 }
 
 export interface TriviaScore {
   id: string;
   playerName: string;
   score: number;
+  correctCount: number;
+  totalQuestions: number;
   completedAt: Timestamp;
 }
 
