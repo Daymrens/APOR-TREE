@@ -4,15 +4,15 @@ import { useState } from "react";
 import type { FamilyMember } from "@/lib/types";
 import { getBranchColor } from "@/lib/tree/layout";
 
-const CARD_WIDTH = 160;
-const CARD_HEIGHT = 100;
-const AVATAR_SIZE = 48;
+const MANGO = "#E8A63D";
+const RATTAN = "#C9A876";
 
 interface TreeNodeCardProps {
   node: {
     id: string;
     x: number;
     y: number;
+    radius: number;
     member: FamilyMember;
     spouseId: string | null;
     isSpouse: boolean;
@@ -42,6 +42,9 @@ export default function TreeNodeCard({
   const member = node.member;
   const color = getBranchColor(member.branch, allBranches);
   const isDimmed = activeBranch && member.branch !== activeBranch;
+  const isDeceased = member.livingStatus === "deceased";
+  const r = node.radius;
+  const ringColor = isDeceased ? RATTAN : MANGO;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -54,6 +57,9 @@ export default function TreeNodeCard({
     setHoveredId(null);
     onHover(null);
   };
+
+  const initial = member.fullName.charAt(0).toUpperCase();
+  const displayName = member.nickname || member.fullName.split(" ")[0];
 
   return (
     <g
@@ -68,196 +74,197 @@ export default function TreeNodeCard({
     >
       <defs>
         {member.photoUrl && (
-          <clipPath id={`clip-card-${member.id}`}>
-            <rect
-              x={node.x - CARD_WIDTH / 2 + 8}
-              y={node.y - CARD_HEIGHT / 2 + 8}
-              width={AVATAR_SIZE}
-              height={AVATAR_SIZE}
-              rx={AVATAR_SIZE / 2}
-            />
+          <clipPath id={`clip-circle-${member.id}`}>
+            <circle cx={node.x} cy={node.y} r={r - 4} />
           </clipPath>
         )}
+        <radialGradient id={`glow-${member.id}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={ringColor} stopOpacity={isHovered ? 0.3 : 0} />
+          <stop offset="100%" stopColor={ringColor} stopOpacity={0} />
+        </radialGradient>
       </defs>
 
-      {/* Card background with branch border */}
-      <rect
-        x={node.x - CARD_WIDTH / 2}
-        y={node.y - CARD_HEIGHT / 2}
-        width={CARD_WIDTH}
-        height={CARD_HEIGHT}
-        rx={12}
-        fill="rgba(241, 232, 214, 0.95)"
-        stroke={color}
-        strokeWidth={isHovered ? 2.5 : 1.5}
-        strokeOpacity={isHovered ? 0.9 : 0.5}
-        style={{
-          filter: isHovered
-            ? "drop-shadow(0 6px 16px rgba(194, 59, 110, 0.3))"
-            : "drop-shadow(0 3px 8px rgba(0,0,0,0.12))",
-          transition: "filter 0.3s ease, transform 0.3s ease, stroke 0.3s ease, opacity 0.5s ease",
-          transform: isHovered ? "scale(1.05)" : "scale(1)",
-          transformOrigin: `${node.x}px ${node.y}px`,
-          opacity: loaded ? 1 : 0,
-        }}
-      />
-
-      {/* Deceased overlay */}
-      {member.livingStatus === "deceased" && (
-        <rect
-          x={node.x - CARD_WIDTH / 2}
-          y={node.y - CARD_HEIGHT / 2}
-          width={CARD_WIDTH}
-          height={CARD_HEIGHT}
-          rx={12}
-          fill="rgba(0,0,0,0.08)"
+      {/* Hover glow */}
+      {isHovered && (
+        <circle
+          cx={node.x}
+          cy={node.y}
+          r={r + 12}
+          fill={`url(#glow-${member.id})`}
           style={{ pointerEvents: "none" }}
         />
       )}
 
-      {/* Photo or initial - top left */}
-      <g transform={`translate(${node.x - CARD_WIDTH / 2 + 8}, ${node.y - CARD_HEIGHT / 2 + 8})`}>
-        {member.photoUrl ? (
-          <image
-            href={member.photoUrl}
-            width={AVATAR_SIZE}
-            height={AVATAR_SIZE}
-            clipPath={`url(#clip-card-${member.id})`}
-            preserveAspectRatio="xMidYMid slice"
-            style={{
-              opacity: loaded ? 1 : 0,
-              transition: `opacity 0.5s ease ${index * 0.06}s`,
-            }}
-          />
-        ) : (
+      {/* Outer ring — mango gold (living) or rattan (deceased) */}
+      <circle
+        cx={node.x}
+        cy={node.y}
+        r={r + 3}
+        fill="none"
+        stroke={ringColor}
+        strokeWidth={isHovered ? 3.5 : 2.5}
+        strokeOpacity={isHovered ? 1 : isDeceased ? 0.5 : 0.7}
+        style={{
+          transition: "stroke-width 0.3s ease, stroke-opacity 0.3s ease",
+          transform: isHovered ? "scale(1.08)" : "scale(1)",
+          transformOrigin: `${node.x}px ${node.y}px`,
+        }}
+      />
+
+      {/* Background circle */}
+      <circle
+        cx={node.x}
+        cy={node.y}
+        r={r}
+        fill="rgba(241, 232, 214, 0.95)"
+        style={{
+          filter: isHovered
+            ? "drop-shadow(0 4px 12px rgba(194, 59, 110, 0.25))"
+            : "drop-shadow(0 2px 6px rgba(0,0,0,0.1))",
+          transition: "filter 0.3s ease",
+          opacity: loaded ? 1 : 0,
+        }}
+      />
+
+      {/* Deceased semi-transparent overlay */}
+      {isDeceased && (
+        <circle
+          cx={node.x}
+          cy={node.y}
+          r={r}
+          fill="rgba(0,0,0,0.06)"
+          style={{ pointerEvents: "none" }}
+        />
+      )}
+
+      {/* Photo or initial */}
+      {member.photoUrl ? (
+        <image
+          href={member.photoUrl}
+          x={node.x - (r - 4)}
+          y={node.y - (r - 4)}
+          width={(r - 4) * 2}
+          height={(r - 4) * 2}
+          clipPath={`url(#clip-circle-${member.id})`}
+          preserveAspectRatio="xMidYMid slice"
+          style={{
+            opacity: loaded ? 1 : 0,
+            transition: `opacity 0.5s ease ${index * 0.06}s`,
+          }}
+        />
+      ) : (
+        <>
           <circle
-            cx={AVATAR_SIZE / 2}
-            cy={AVATAR_SIZE / 2}
-            r={AVATAR_SIZE / 2}
+            cx={node.x}
+            cy={node.y}
+            r={r - 4}
             fill={color}
+            fillOpacity={0.15}
             style={{
               opacity: loaded ? 1 : 0,
               transition: `opacity 0.5s ease ${index * 0.06}s`,
             }}
           />
-        )}
-        {!member.photoUrl && (
           <text
-            x={AVATAR_SIZE / 2}
-            y={AVATAR_SIZE / 2 + 4}
+            x={node.x}
+            y={node.y + r * 0.12}
             textAnchor="middle"
-            className="text-base font-heading fill-parchment"
-            fontWeight="bold"
+            fill={color}
+            fontWeight="700"
             style={{
+              fontSize: r * 0.7,
+              fontFamily: "Fraunces, serif",
               opacity: loaded ? 1 : 0,
               transition: `opacity 0.5s ease ${index * 0.06}s`,
             }}
           >
-            {member.fullName.charAt(0)}
+            {initial}
           </text>
-        )}
-      </g>
+        </>
+      )}
 
-      {/* Name and info - right of avatar */}
-      <g
-        transform={`translate(${node.x - CARD_WIDTH / 2 + 8 + AVATAR_SIZE + 10}, ${node.y - CARD_HEIGHT / 2 + 14})`}
+      {/* Name label below node */}
+      <text
+        x={node.x}
+        y={node.y + r + 18}
+        textAnchor="middle"
+        fill="#2B2620"
+        fontWeight="600"
         style={{
+          fontSize: Math.max(10, r * 0.32),
+          fontFamily: "Fraunces, serif",
           opacity: loaded ? 1 : 0,
           transition: `opacity 0.5s ease ${index * 0.06}s`,
         }}
       >
-        <text
-          x={0}
-          y={0}
-          className="text-sm font-heading fill-balete"
-          fontWeight="600"
-        >
-          {member.nickname || member.fullName.split(" ")[0]}
-        </text>
-        <text
-          x={0}
-          y={20}
-          className="text-[10px] font-sans fill-ink"
-        >
-          {member.fullName.split(" ").slice(1).join(" ")}
-        </text>
-        <text
-          x={0}
-          y={36}
-          className="text-[10px] font-sans"
-          fill={color}
-          fontWeight="500"
-        >
-          <tspan>{member.branch}</tspan>
-          <tspan dx="6" fill="#5C5445">•</tspan>
-          <tspan dx="6">Gen {member.generation}</tspan>
-        </text>
-        {member.livingStatus === "deceased" && (
-          <text
-            x={0}
-            y={52}
-            className="text-[10px] font-sans"
-            fill="#8B5E3C"
-          >
-            🕊 In memoriam
-          </text>
-        )}
-      </g>
+        {displayName}
+      </text>
 
-      {/* Branch indicator bar - left edge */}
-      <rect
-        x={node.x - CARD_WIDTH / 2}
-        y={node.y - CARD_HEIGHT / 2}
-        width={4}
-        height={CARD_HEIGHT}
-        rx={12}
-        fill={color}
-        fillOpacity={0.3}
+      {/* Branch + Gen subtitle */}
+      <text
+        x={node.x}
+        y={node.y + r + 18 + Math.max(10, r * 0.32) + 4}
+        textAnchor="middle"
+        fill="#5C5445"
         style={{
-          opacity: loaded ? 1 : 0,
+          fontSize: Math.max(8, r * 0.24),
+          fontFamily: "Inter, sans-serif",
+          opacity: loaded ? 0.7 : 0,
           transition: `opacity 0.5s ease ${index * 0.06}s`,
         }}
-      />
+      >
+        {member.branch} · Gen {member.generation}
+      </text>
 
-      {/* Deceased cross - top right */}
-      {member.livingStatus === "deceased" && (
-        <g
-          transform={`translate(${node.x + CARD_WIDTH / 2 - 24}, ${node.y - CARD_HEIGHT / 2 + 8})`}
-          style={{ pointerEvents: "none" }}
-        >
+      {/* Deceased cross overlay */}
+      {isDeceased && (
+        <g style={{ pointerEvents: "none" }} opacity={0.45}>
           <line
-            x1={0}
-            y1={0}
-            x2={16}
-            y2={16}
+            x1={node.x - r * 0.3}
+            y1={node.y - r * 0.3}
+            x2={node.x + r * 0.3}
+            y2={node.y + r * 0.3}
             stroke={color}
             strokeWidth={2}
-            strokeOpacity={0.5}
             strokeLinecap="round"
           />
           <line
-            x1={16}
-            y1={0}
-            x2={0}
-            y2={16}
+            x1={node.x + r * 0.3}
+            y1={node.y - r * 0.3}
+            x2={node.x - r * 0.3}
+            y2={node.y + r * 0.3}
             stroke={color}
             strokeWidth={2}
-            strokeOpacity={0.5}
             strokeLinecap="round"
           />
         </g>
       )}
 
-      {/* Spouse indicator - small heart icon on right */}
+      {/* Branch color indicator — small dot at bottom-right of ring */}
+      <circle
+        cx={node.x + r * 0.65}
+        cy={node.y + r * 0.65}
+        r={4}
+        fill={color}
+        stroke="rgba(241, 232, 214, 0.95)"
+        strokeWidth={2}
+        style={{
+          opacity: loaded ? 0.8 : 0,
+          transition: `opacity 0.5s ease ${index * 0.06}s`,
+        }}
+      />
+
+      {/* Spouse heart indicator */}
       {node.spouseId && !node.isSpouse && (
         <g
-          transform={`translate(${node.x + CARD_WIDTH / 2 - 20}, ${node.y - 8})`}
+          transform={`translate(${node.x + r - 2}, ${node.y - r - 2})`}
           style={{ pointerEvents: "none" }}
         >
           <path
-            d="M8 4c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"
-            fill={color}
-            fillOpacity={0.4}
+            d="M6 3C4.9 1.9 3.1 1.9 2 3 .9 4.1.9 5.9 2 7l4 4 4-4c1.1-1.1 1.1-2.9 0-4-1.1-1.1-2.9-1.1-4 0L6 3z"
+            fill={MANGO}
+            fillOpacity={0.6}
+            transform="scale(0.7)"
           />
         </g>
       )}

@@ -7,6 +7,7 @@ export interface Connector {
   fromPos: { x: number; y: number };
   toPos: { x: number; y: number };
   branch: string;
+  depth: number;
 }
 
 interface TreeNode {
@@ -16,6 +17,7 @@ interface TreeNode {
   y: number;
   width: number;
   height: number;
+  radius: number;
   children: TreeNode[];
   spouse: TreeNode | null;
   parent: TreeNode | null;
@@ -23,12 +25,21 @@ interface TreeNode {
   generation: number;
 }
 
+export interface NodeSize {
+  width: number;
+  height: number;
+  radius: number;
+}
+
 interface LayoutOptions {
-  nodeWidth: number;
-  nodeHeight: number;
+  getNodeSize: (generation: number) => NodeSize;
   nodeSpacingX: number;
   spouseGap: number;
   generationGapY: number;
+}
+
+function getNodeForGeneration(member: FamilyMember, options: LayoutOptions): NodeSize {
+  return options.getNodeSize(member.generation);
 }
 
 function buildNodeTree(
@@ -41,13 +52,15 @@ function buildNodeTree(
   const allMembersSet = new Set(members.map((m) => m.id));
 
   members.forEach((member) => {
+    const size = getNodeForGeneration(member, options);
     const node: TreeNode = {
       id: member.id,
       member,
       x: 0,
       y: 0,
-      width: options.nodeWidth,
-      height: options.nodeHeight,
+      width: size.width,
+      height: size.height,
+      radius: size.radius,
       children: [],
       spouse: null,
       parent: null,
@@ -75,7 +88,6 @@ function buildNodeTree(
     }
   });
 
-  // Sort children by birthOrder
   nodeMap.forEach((node) => {
     node.children.sort((a, b) => a.member.birthOrder - b.member.birthOrder);
   });
@@ -93,13 +105,11 @@ function computeSubtreeWidth(node: TreeNode, options: LayoutOptions, visited: Se
     return 0;
   }
 
-  // Width of this node + spouse side-by-side
   let selfWidth = node.width;
   if (node.spouse && !visited.has(node.spouse.id)) {
     selfWidth += options.spouseGap + node.spouse.width;
   }
 
-  // Filter children that will actually be positioned
   const activeChildren = node.children.filter(
     (c) => !visited.has(c.id)
   );
@@ -109,7 +119,6 @@ function computeSubtreeWidth(node: TreeNode, options: LayoutOptions, visited: Se
     return node.subtreeWidth;
   }
 
-  // Compute total children width
   let childrenWidth = 0;
   for (let i = 0; i < activeChildren.length; i++) {
     if (i > 0) childrenWidth += options.nodeSpacingX;
@@ -133,32 +142,29 @@ function positionSubtree(
   node.x = centerX;
   node.y = y;
 
-  // Position spouse to the right
   if (node.spouse && !visited.has(node.spouse.id)) {
     node.spouse.x = node.x + node.width + options.spouseGap;
     node.spouse.y = y;
     visited.add(node.spouse.id);
   }
 
-  // Filter children that will actually be positioned
   const activeChildren = node.children.filter(
     (c) => !visited.has(c.id)
   );
 
   if (activeChildren.length === 0) return;
 
-  // Compute total children width
   let childrenTotalWidth = 0;
   for (let i = 0; i < activeChildren.length; i++) {
     if (i > 0) childrenTotalWidth += options.nodeSpacingX;
     childrenTotalWidth += activeChildren[i].subtreeWidth;
   }
 
-  // Position children, centered under parent
   let childX = centerX - childrenTotalWidth / 2;
   for (const child of activeChildren) {
     const childCenterX = childX + child.subtreeWidth / 2;
-    positionSubtree(child, childCenterX, y + options.generationGapY, options, visited);
+    const childY = child.generation * options.generationGapY;
+    positionSubtree(child, childCenterX, childY, options, visited);
     childX += child.subtreeWidth + options.nodeSpacingX;
   }
 }
@@ -185,7 +191,7 @@ function assignYByGeneration(roots: TreeNode[], options: LayoutOptions): void {
 }
 
 export interface TreeLayoutResult {
-  positions: Map<string, { x: number; y: number }>;
+  positions: Map<string, { x: number; y: number; radius: number }>;
   connectors: Connector[];
   bounds: {
     width: number;
@@ -208,21 +214,17 @@ export function computeTreePositions(
 
   const rootNodes = buildNodeTree(members, memberMap, roots, options);
 
-  // Compute subtree widths bottom-up (skip visited to avoid duplicates from spouse links)
   const visitedWidths = new Set<string>();
   rootNodes.forEach((root) => computeSubtreeWidth(root, options, visitedWidths));
 
-  // Assign Y positions by generation
-  assignYByGeneration(rootNodes, options);
-
-  // Position nodes top-down, centering parents over children
   const visitedPositions = new Set<string>();
-  // Start roots at x = 0, they'll be shifted to positive coordinates later
   rootNodes.forEach((root) => {
-    positionSubtree(root, 0, root.generation * options.generationGapY, options, visitedPositions);
+    const y = root.generation * options.generationGapY;
+    positionSubtree(root, 0, y, options, visitedPositions);
   });
 
-  // Shift all nodes so minX is at 0
+  assignYByGeneration(rootNodes, options);
+
   let minX = Infinity;
   let maxX = -Infinity;
   let maxY = 0;
@@ -246,34 +248,29 @@ export function computeTreePositions(
   allNodes.forEach((node) => {
     minX = Math.min(minX, node.x - node.width / 2);
     maxX = Math.max(maxX, node.x + node.width / 2);
-    maxY = Math.max(maxY, node.y + node.height / 2);
+    maxY = Math.max(maxY, node.y + node.radius);
   });
 
-  // Shift all nodes so minX = 0
   const offsetX = -minX;
   allNodes.forEach((node) => {
     node.x += offsetX;
   });
 
-  // Recalculate bounds after shift
   minX = 0;
   maxX = 0;
   maxY = 0;
   allNodes.forEach((node) => {
     maxX = Math.max(maxX, node.x + node.width / 2);
-    maxY = Math.max(maxY, node.y + node.height / 2);
+    maxY = Math.max(maxY, node.y + node.radius);
   });
 
-  // Build positions map
-  const positions = new Map<string, { x: number; y: number }>();
+  const positions = new Map<string, { x: number; y: number; radius: number }>();
   allNodes.forEach((node) => {
-    positions.set(node.id, { x: node.x, y: node.y });
+    positions.set(node.id, { x: node.x, y: node.y, radius: node.radius });
   });
 
-  // Build connectors
   const connectors: Connector[] = [];
 
-  // Parent-child connectors: bottom-center of parent to top-center of child
   members.forEach((child) => {
     const childPos = positions.get(child.id);
     if (!childPos) return;
@@ -282,25 +279,26 @@ export function computeTreePositions(
       const parentPos = positions.get(parentId);
       if (parentPos) {
         const parentMember = memberMap.get(parentId);
+        const depth = parentMember ? parentMember.generation : 0;
         connectors.push({
           type: "parent-child",
           from: parentId,
           to: child.id,
           fromPos: {
             x: parentPos.x,
-            y: parentPos.y + options.nodeHeight / 2,
+            y: parentPos.y + parentPos.radius,
           },
           toPos: {
             x: childPos.x,
-            y: childPos.y - options.nodeHeight / 2,
+            y: childPos.y - childPos.radius,
           },
           branch: child.branch,
+          depth,
         });
       }
     });
   });
 
-  // Spouse connectors: right-center of left card to left-center of right card
   members.forEach((member) => {
     if (member.spouseId && member.id < member.spouseId) {
       const fromPos = positions.get(member.id);
@@ -311,20 +309,20 @@ export function computeTreePositions(
           from: member.id,
           to: member.spouseId,
           fromPos: {
-            x: fromPos.x + options.nodeWidth / 2,
+            x: fromPos.x + fromPos.radius,
             y: fromPos.y,
           },
           toPos: {
-            x: toPos.x - options.nodeWidth / 2,
+            x: toPos.x - toPos.radius,
             y: toPos.y,
           },
           branch: member.branch,
+          depth: member.generation,
         });
       }
     }
   });
 
-  // Final bounds with padding
   const PADDING = 80;
   const bounds = {
     width: maxX + PADDING * 2,

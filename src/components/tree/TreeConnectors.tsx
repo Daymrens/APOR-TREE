@@ -2,6 +2,9 @@
 
 import { Connector, getBranchColor } from "@/lib/tree/layout";
 
+const BALETE = "#1E3B2C";
+const RATTAN = "#C9A876";
+
 interface TreeConnectorsProps {
   connectors: Connector[];
   bounds: { width: number; height: number; minX: number; maxX: number; maxY: number };
@@ -9,6 +12,27 @@ interface TreeConnectorsProps {
   hoveredId: string | null;
   loaded: boolean;
   allBranches: string[];
+}
+
+function getStrokeWidth(conn: Connector): number {
+  if (conn.type === "spouse") return 2;
+  if (conn.depth <= 0) return 4;
+  if (conn.depth === 1) return 3;
+  return 2.5;
+}
+
+function getOpacity(conn: Connector, isDimmed: boolean, isHighlighted: boolean): number {
+  if (isDimmed) return 0.06;
+  if (isHighlighted) return 1;
+  if (conn.type === "spouse") return 0.5;
+  if (conn.depth <= 0) return 0.85;
+  return 0.6;
+}
+
+function getStroke(conn: Connector, allBranches: string[]): string {
+  if (conn.type === "spouse") return RATTAN;
+  if (conn.depth <= 0) return BALETE;
+  return `url(#grad-${conn.branch})`;
 }
 
 export default function TreeConnectors({
@@ -22,9 +46,19 @@ export default function TreeConnectors({
   return (
     <g>
       <defs>
+        {Array.from(new Set(connectors.filter(c => c.type === "parent-child").map(c => c.branch))).map((branch) => {
+          const color = getBranchColor(branch, allBranches);
+          return (
+            <linearGradient key={branch} id={`grad-${branch}`} x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+              <stop offset="100%" stopColor={color} stopOpacity={0.5} />
+            </linearGradient>
+          );
+        })}
+
         <filter id="connector-glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feFlood floodColor="#E8A63D" floodOpacity="0.4" result="color" />
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feFlood floodColor="#E8A63D" floodOpacity="0.5" result="color" />
           <feComposite in="color" in2="blur" operator="in" result="glow" />
           <feMerge>
             <feMergeNode in="glow" />
@@ -36,74 +70,74 @@ export default function TreeConnectors({
       {connectors.map((conn) => {
         const isDimmed = activeBranch && conn.branch !== activeBranch;
         const isHighlighted = hoveredId && (conn.from === hoveredId || conn.to === hoveredId);
+        const strokeWidth = getStrokeWidth(conn);
+        const opacity = getOpacity(conn, !!isDimmed, !!isHighlighted);
+        const stroke = getStroke(conn, allBranches);
 
         if (conn.type === "spouse") {
           const { fromPos, toPos } = conn;
+          const midX = (fromPos.x + toPos.x) / 2;
 
           return (
-            <g key={`spouse-${conn.from}-${conn.to}`}>
-              <line
-                x1={fromPos.x}
-                y1={fromPos.y}
-                x2={toPos.x}
-                y2={toPos.y}
-                stroke="#C9A876"
+            <g key={`spouse-${conn.from}-${conn.to}`} opacity={opacity} style={{ transition: "opacity 0.3s ease" }}>
+              <path
+                d={`M ${fromPos.x} ${fromPos.y} C ${midX} ${fromPos.y - 12}, ${midX} ${toPos.y + 12}, ${toPos.x} ${toPos.y}`}
+                fill="none"
+                stroke={RATTAN}
                 strokeWidth={2}
                 strokeLinecap="round"
-                strokeDasharray="4 4"
-                opacity={isDimmed ? 0.08 : isHighlighted ? 0.9 : 0.5}
-                style={{ transition: "opacity 0.3s ease" }}
+                strokeDasharray="5 5"
               />
-              <line
-                x1={fromPos.x}
-                y1={fromPos.y - 4}
-                x2={toPos.x}
-                y2={toPos.y - 4}
-                stroke="#C9A876"
-                strokeWidth={1.5}
+              <path
+                d={`M ${fromPos.x} ${fromPos.y - 3} C ${midX} ${fromPos.y - 15}, ${midX} ${toPos.y + 9}, ${toPos.x} ${toPos.y - 3}`}
+                fill="none"
+                stroke={RATTAN}
+                strokeWidth={1.2}
                 strokeLinecap="round"
-                opacity={isDimmed ? 0.08 : isHighlighted ? 0.7 : 0.35}
-                style={{ transition: "opacity 0.3s ease" }}
+                opacity={0.35}
               />
-              <line
-                x1={fromPos.x}
-                y1={fromPos.y + 4}
-                x2={toPos.x}
-                y2={toPos.y + 4}
-                stroke="#C9A876"
-                strokeWidth={1.5}
+              <path
+                d={`M ${fromPos.x} ${fromPos.y + 3} C ${midX} ${fromPos.y + 9}, ${midX} ${toPos.y - 15}, ${toPos.x} ${toPos.y + 3}`}
+                fill="none"
+                stroke={RATTAN}
+                strokeWidth={1.2}
                 strokeLinecap="round"
-                opacity={isDimmed ? 0.08 : isHighlighted ? 0.7 : 0.35}
-                style={{ transition: "opacity 0.3s ease" }}
+                opacity={0.35}
               />
             </g>
           );
         }
 
-        // Parent-child: bezier from bottom-center of parent to top-center of child
         const { fromPos, toPos } = conn;
-        const midY = (fromPos.y + toPos.y) / 2;
-        const variance = (conn.from.charCodeAt(0) * 7 + conn.to.charCodeAt(0) * 3) % 20 - 10;
-        const ctrlX1 = fromPos.x + variance;
-        const ctrlX2 = toPos.x + variance;
-        const path = `M ${fromPos.x} ${fromPos.y} C ${ctrlX1} ${midY}, ${ctrlX2} ${midY}, ${toPos.x} ${toPos.y}`;
+        const dy = toPos.y - fromPos.y;
+        const dx = toPos.x - fromPos.x;
+
+        const varianceBase = (conn.from.charCodeAt(0) * 7 + conn.to.charCodeAt(0) * 3 + conn.from.charCodeAt(Math.min(1, conn.from.length - 1)) * 5) % 50 - 25;
+        const variance2 = (conn.to.charCodeAt(0) * 11 + conn.from.charCodeAt(0) * 13) % 40 - 20;
+
+        const ctrlY1 = fromPos.y + dy * 0.35;
+        const ctrlY2 = fromPos.y + dy * 0.65;
+        const ctrlX1 = fromPos.x + varianceBase;
+        const ctrlX2 = toPos.x + variance2;
+
+        const path = `M ${fromPos.x} ${fromPos.y} C ${ctrlX1} ${ctrlY1}, ${ctrlX2} ${ctrlY2}, ${toPos.x} ${toPos.y}`;
 
         return (
           <path
             key={`${conn.from}-${conn.to}`}
             d={path}
             fill="none"
-            stroke={`url(#grad-${conn.branch})`}
-            strokeWidth={isHighlighted ? 3.5 : 2.5}
+            stroke={stroke}
+            strokeWidth={isHighlighted ? strokeWidth + 1.5 : strokeWidth}
             strokeLinecap="round"
             filter={isHighlighted ? "url(#connector-glow)" : "none"}
             style={{
-              opacity: isDimmed ? 0.08 : isHighlighted ? 1 : 0.65,
+              opacity,
               transition: "opacity 0.3s ease, stroke-width 0.3s ease",
-              strokeDasharray: loaded ? "none" : "800",
-              strokeDashoffset: loaded ? "0" : "800",
+              strokeDasharray: loaded ? "none" : "1000",
+              strokeDashoffset: loaded ? "0" : "1000",
               transitionProperty: "opacity, stroke-width, stroke-dashoffset",
-              transitionDuration: "0.3s, 0.3s, 1.5s",
+              transitionDuration: "0.3s, 0.3s, 1.2s",
               transitionTimingFunction: "ease, ease, ease-out",
             }}
           />

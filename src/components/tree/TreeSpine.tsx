@@ -2,16 +2,23 @@
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import type { FamilyMember } from "@/lib/types";
-import { computeTreePositions, getBranchColor as layoutGetBranchColor } from "@/lib/tree/layout";
+import { computeTreePositions, getBranchColor as layoutGetBranchColor, type NodeSize } from "@/lib/tree/layout";
 import TreeNodeCard from "@/components/tree/TreeNodeCard";
 import TreeConnectors from "@/components/tree/TreeConnectors";
 
-const CARD_WIDTH = 160;
-const CARD_HEIGHT = 100;
-const NODE_SPACING_X = CARD_WIDTH + 50;  // 210px between cards horizontally
-const NODE_SPACING_Y = CARD_HEIGHT + 60; // 160px between generations vertically
-const SPOUSE_GAP = 40;  // smaller gap for spouse cards
-const PADDING = 100;
+const NODE_SIZES: Record<number, NodeSize> = {
+  0: { width: 80, height: 80, radius: 40 },
+  1: { width: 64, height: 64, radius: 32 },
+};
+const DEFAULT_NODE_SIZE: NodeSize = { width: 52, height: 52, radius: 26 };
+
+function getNodeSize(generation: number): NodeSize {
+  return NODE_SIZES[generation] || DEFAULT_NODE_SIZE;
+}
+
+const NODE_SPACING_X = 180;
+const NODE_SPACING_Y = 140;
+const SPOUSE_GAP = 50;
 
 function getBranchColor(branch: string, allBranchesList: string[]): string {
   return layoutGetBranchColor(branch, allBranchesList);
@@ -31,6 +38,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
+  const hasAutoFit = useRef(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -57,13 +65,36 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
 
   const { positions, connectors, bounds } = useMemo(() => {
     return computeTreePositions(members, {
-      nodeWidth: CARD_WIDTH,
-      nodeHeight: CARD_HEIGHT,
+      getNodeSize,
       nodeSpacingX: NODE_SPACING_X,
       spouseGap: SPOUSE_GAP,
       generationGapY: NODE_SPACING_Y,
     });
   }, [members]);
+
+  const fitToScreen = useCallback(() => {
+    if (!containerRef.current) return;
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    const scaleX = (containerWidth - 16) / bounds.width;
+    const scaleY = (containerHeight - 16) / bounds.height;
+    const fitZoom = Math.min(scaleX, scaleY, 1.2);
+    setZoom(Math.max(fitZoom, 0.3));
+
+    setTimeout(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollLeft = 0;
+        containerRef.current.scrollTop = 0;
+      }
+    }, 50);
+  }, [bounds.width, bounds.height]);
+
+  useEffect(() => {
+    if (loaded && !hasAutoFit.current && bounds.width > 0) {
+      hasAutoFit.current = true;
+      requestAnimationFrame(() => fitToScreen());
+    }
+  }, [loaded, bounds.width, fitToScreen]);
 
   if (!isMobile) {
     return (
@@ -85,6 +116,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
         setZoom={setZoom}
         getBranchColor={getBranchColor}
         allBranchesList={allBranchesList}
+        fitToScreen={fitToScreen}
       />
     );
   }
@@ -92,7 +124,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
   return (
     <MobileTree
       members={members}
-allBranchesList={allBranchesList}
+      allBranchesList={allBranchesList}
       activeBranch={activeBranch}
       onSelect={onSelect}
       getBranchColor={getBranchColor}
@@ -118,6 +150,7 @@ function DesktopTree({
   zoom,
   setZoom,
   getBranchColor,
+  fitToScreen,
 }: {
   members: FamilyMember[];
   memberMap: Map<string, FamilyMember>;
@@ -128,7 +161,7 @@ function DesktopTree({
   loaded: boolean;
   svgRef: React.RefObject<SVGSVGElement | null>;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  positions: Map<string, { x: number; y: number }>;
+  positions: Map<string, { x: number; y: number; radius: number }>;
   connectors: Array<{
     type: "parent-child" | "spouse";
     from: string;
@@ -136,6 +169,7 @@ function DesktopTree({
     fromPos: { x: number; y: number };
     toPos: { x: number; y: number };
     branch: string;
+    depth: number;
   }>;
   bounds: { width: number; height: number; minX: number; maxX: number; maxY: number };
   hoveredId: string | null;
@@ -143,6 +177,7 @@ function DesktopTree({
   zoom: number;
   setZoom: (z: number | ((prev: number) => number)) => void;
   getBranchColor: (branch: string, branches: string[]) => string;
+  fitToScreen: () => void;
 }) {
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
@@ -151,28 +186,6 @@ function DesktopTree({
       setZoom(z => Math.min(Math.max(z + delta, 0.3), 2.5));
     }
   }, []);
-
-  const fitToScreen = useCallback(() => {
-    if (!containerRef.current) return;
-    const containerWidth = containerRef.current.clientWidth;
-    const containerHeight = containerRef.current.clientHeight;
-    const scaleX = containerWidth / bounds.width;
-    const scaleY = containerHeight / bounds.height;
-    const fitZoom = Math.min(scaleX, scaleY, 1.5);
-    setZoom(fitZoom);
-
-    setTimeout(() => {
-      if (containerRef.current) {
-        containerRef.current.scrollLeft = 0;
-        containerRef.current.scrollTop = 0;
-      }
-    }, 50);
-  }, [bounds.width, bounds.height]);
-
-  const uniqueBranches = useMemo(() => {
-    const set = new Set(connectors.map(c => c.branch));
-    return Array.from(set);
-  }, [connectors]);
 
   return (
     <div className="relative">
@@ -223,36 +236,6 @@ function DesktopTree({
           onWheel={handleWheel}
         >
           <defs>
-            {uniqueBranches.map((branch) => {
-              const color = getBranchColor(branch, allBranchesList);
-              return (
-                <linearGradient key={branch} id={`grad-${branch}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor={color} stopOpacity={0.8} />
-                  <stop offset="100%" stopColor={color} stopOpacity={0.35} />
-                </linearGradient>
-              );
-            })}
-
-            <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feFlood floodColor="#C23B6E" floodOpacity="0.3" result="color" />
-              <feComposite in="color" in2="blur" operator="in" result="glow" />
-              <feMerge>
-                <feMergeNode in="glow" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
-            <filter id="hover-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="blur" />
-              <feFlood floodColor="#E8A63D" floodOpacity="0.4" result="color" />
-              <feComposite in="color" in2="blur" operator="in" result="glow" />
-              <feMerge>
-                <feMergeNode in="glow" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
             <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.5" fill="rgba(201, 168, 118, 0.15)" />
             </pattern>
@@ -273,8 +256,6 @@ function DesktopTree({
             const member = memberMap.get(id);
             if (!member) return null;
 
-            const color = getBranchColor(member.branch, allBranchesList);
-            const isDimmed = activeBranch && member.branch !== activeBranch;
             const spouseId = member.spouseId;
 
             return (
@@ -284,6 +265,7 @@ function DesktopTree({
                   id,
                   x: pos.x,
                   y: pos.y,
+                  radius: pos.radius,
                   member,
                   spouseId,
                   isSpouse: false,
