@@ -19,21 +19,9 @@ export default function TreeConnectors({
   loaded,
   allBranches,
 }: TreeConnectorsProps) {
-  const uniqueBranches = Array.from(new Set(connectors.map((c) => c.branch)));
-
   return (
     <g>
       <defs>
-        {uniqueBranches.map((branch) => {
-          const color = getBranchColor(branch, allBranches);
-          return (
-            <linearGradient key={branch} id={`grad-${branch}`} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={color} stopOpacity={0.8} />
-              <stop offset="100%" stopColor={color} stopOpacity={0.35} />
-            </linearGradient>
-          );
-        })}
-
         <filter id="connector-glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
           <feFlood floodColor="#E8A63D" floodOpacity="0.4" result="color" />
@@ -50,16 +38,15 @@ export default function TreeConnectors({
         const isHighlighted = hoveredId && (conn.from === hoveredId || conn.to === hoveredId);
 
         if (conn.type === "spouse") {
-          const fromX = conn.fromPos.x;
-          const fromY = conn.fromPos.y;
-          const toX = conn.toPos.x;
-          const toY = conn.toPos.y;
+          const { fromPos, toPos } = conn;
 
           return (
             <g key={`spouse-${conn.from}-${conn.to}`}>
-              <path
-                d={`M ${fromX} ${fromY} L ${toX} ${toY}`}
-                fill="none"
+              <line
+                x1={fromPos.x}
+                y1={fromPos.y}
+                x2={toPos.x}
+                y2={toPos.y}
                 stroke="#C9A876"
                 strokeWidth={2}
                 strokeLinecap="round"
@@ -67,18 +54,22 @@ export default function TreeConnectors({
                 opacity={isDimmed ? 0.08 : isHighlighted ? 0.9 : 0.5}
                 style={{ transition: "opacity 0.3s ease" }}
               />
-              <path
-                d={`M ${fromX} ${fromY - 4} L ${toX} ${toY - 4}`}
-                fill="none"
+              <line
+                x1={fromPos.x}
+                y1={fromPos.y - 4}
+                x2={toPos.x}
+                y2={toPos.y - 4}
                 stroke="#C9A876"
                 strokeWidth={1.5}
                 strokeLinecap="round"
                 opacity={isDimmed ? 0.08 : isHighlighted ? 0.7 : 0.35}
                 style={{ transition: "opacity 0.3s ease" }}
               />
-              <path
-                d={`M ${fromX} ${fromY + 4} L ${toX} ${toY + 4}`}
-                fill="none"
+              <line
+                x1={fromPos.x}
+                y1={fromPos.y + 4}
+                x2={toPos.x}
+                y2={toPos.y + 4}
                 stroke="#C9A876"
                 strokeWidth={1.5}
                 strokeLinecap="round"
@@ -89,16 +80,13 @@ export default function TreeConnectors({
           );
         }
 
-        const fromX = conn.fromPos.x;
-        const fromY = conn.fromPos.y;
-        const toX = conn.toPos.x;
-        const toY = conn.toPos.y;
-
-        const midY = (fromY + toY) / 2;
+        // Parent-child: bezier from bottom-center of parent to top-center of child
+        const { fromPos, toPos } = conn;
+        const midY = (fromPos.y + toPos.y) / 2;
         const variance = (conn.from.charCodeAt(0) * 7 + conn.to.charCodeAt(0) * 3) % 20 - 10;
-        const ctrlX1 = fromX + variance;
-        const ctrlX2 = toX + variance;
-        const path = `M ${fromX} ${fromY} C ${ctrlX1} ${midY}, ${ctrlX2} ${midY}, ${toX} ${toY}`;
+        const ctrlX1 = fromPos.x + variance;
+        const ctrlX2 = toPos.x + variance;
+        const path = `M ${fromPos.x} ${fromPos.y} C ${ctrlX1} ${midY}, ${ctrlX2} ${midY}, ${toPos.x} ${toPos.y}`;
 
         return (
           <path

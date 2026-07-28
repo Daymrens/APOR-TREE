@@ -61,6 +61,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
   const { positions, connectors, bounds } = useMemo(() => {
     return computeTreePositions(members, {
       nodeWidth: CARD_WIDTH,
+      nodeHeight: CARD_HEIGHT,
       nodeSpacingX: NODE_SPACING_X,
       spouseGap: SPOUSE_GAP,
       generationGapY: NODE_SPACING_Y,
@@ -320,13 +321,12 @@ return (
                 }}
                 allBranches={allBranchesList}
                 onSelect={onSelect}
-onHover={onHover ?? (() => {})}
+                onHover={onHover ?? (() => {})}
                 activeBranch={activeBranch}
                 hoveredId={hoveredId}
                 setHoveredId={setHoveredId}
                 loaded={loaded}
                 index={i}
-                bounds={{ offsetX: 0, offsetY: 0 }}
               />
             );
           })}

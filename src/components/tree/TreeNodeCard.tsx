@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import type { FamilyMember } from "@/lib/types";
 import { getBranchColor } from "@/lib/tree/layout";
 
@@ -25,7 +25,6 @@ interface TreeNodeCardProps {
   setHoveredId: (id: string | null) => void;
   loaded: boolean;
   index: number;
-  bounds: { offsetX: number; offsetY: number };
 }
 
 export default function TreeNodeCard({
@@ -38,13 +37,11 @@ export default function TreeNodeCard({
   setHoveredId,
   loaded,
   index,
-  bounds,
 }: TreeNodeCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const member = node.member;
   const color = getBranchColor(member.branch, allBranches);
   const isDimmed = activeBranch && member.branch !== activeBranch;
-  const isSpouseHovered = hoveredId === node.spouseId;
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -58,9 +55,6 @@ export default function TreeNodeCard({
     onHover(null);
   };
 
-  const cardX = node.x - CARD_WIDTH / 2 + bounds.offsetX;
-  const cardY = node.y - CARD_HEIGHT / 2 + bounds.offsetY;
-
   return (
     <g
       onClick={() => onSelect(member)}
@@ -71,7 +65,6 @@ export default function TreeNodeCard({
         opacity: isDimmed ? 0.2 : 1,
         transition: "opacity 0.3s ease",
       }}
-      transform={`translate(${bounds.offsetX}, ${bounds.offsetY})`}
     >
       <defs>
         {member.photoUrl && (
