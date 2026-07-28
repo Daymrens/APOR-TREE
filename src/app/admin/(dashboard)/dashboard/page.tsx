@@ -167,48 +167,55 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
         <BackButton />
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-6 mt-4">
-          <p className="text-soft font-sans text-sm">Loading dashboard...</p>
+        <div className="mt-4 space-y-3">
+          <div className="h-8 w-40 bg-rattan/10 rounded-lg animate-pulse" />
+          <div className="grid grid-cols-4 gap-4 mt-6">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-24 bg-rattan/10 rounded-2xl animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-6 py-8">
       <BackButton />
       <h1 className="font-heading text-2xl text-balete mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-5">
-          <p className="text-soft font-sans text-xs uppercase tracking-wide mb-1">Total RSVPs</p>
-          <p className="font-heading text-3xl text-balete tabular-nums font-mono">{total}</p>
+      {/* Stats cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+          <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Total RSVPs</p>
+          <p className="font-heading text-3xl text-balete tabular-nums">{total}</p>
         </div>
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-5">
-          <p className="text-soft font-sans text-xs uppercase tracking-wide mb-1">Confirmed</p>
-          <p className="font-heading text-3xl tabular-nums font-mono" style={{ color: ATTENDING_COLORS.yes }}>{counts.yes}</p>
+        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+          <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Confirmed</p>
+          <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.yes }}>{counts.yes}</p>
         </div>
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-5">
-          <p className="text-soft font-sans text-xs uppercase tracking-wide mb-1">Maybe</p>
-          <p className="font-heading text-3xl tabular-nums font-mono" style={{ color: ATTENDING_COLORS.maybe }}>{counts.maybe}</p>
+        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+          <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Maybe</p>
+          <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.maybe }}>{counts.maybe}</p>
         </div>
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-5">
-          <p className="text-soft font-sans text-xs uppercase tracking-wide mb-1">Declined</p>
-          <p className="font-heading text-3xl tabular-nums font-mono" style={{ color: ATTENDING_COLORS.no }}>{counts.no}</p>
+        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+          <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Declined</p>
+          <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.no }}>{counts.no}</p>
         </div>
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-6 flex flex-col items-center">
+        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm flex flex-col items-center">
           <h2 className="font-heading text-lg text-balete mb-4 self-start">Attendance</h2>
           {total === 0 ? (
             <p className="text-soft font-sans text-sm py-8">No RSVPs yet.</p>
           ) : (
             <div className="flex items-center gap-6">
               <DonutChart />
-              <div className="space-y-2 font-sans text-sm">
+              <div className="space-y-2.5 font-sans text-sm">
                 {CHART_SEGMENTS.map((seg) => (
                   <div key={seg.key} className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: seg.color }} />
@@ -221,7 +228,7 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-6">
+        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
           <h2 className="font-heading text-lg text-balete mb-4">Branch Breakdown</h2>
           {branches.length === 0 ? (
             <p className="text-soft font-sans text-sm py-8">No RSVPs yet.</p>
@@ -229,21 +236,21 @@ export default function AdminDashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm font-sans">
                 <thead>
-                  <tr className="border-b border-rattan/30">
-                    <th className="text-left py-2 px-3 text-soft font-medium">Branch</th>
-                    <th className="text-left py-2 px-3 text-soft font-medium">RSVPs</th>
-                    <th className="text-left py-2 px-3 text-soft font-medium">Guests</th>
+                  <tr className="border-b border-rattan/20">
+                    <th className="text-left py-2 px-3 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Branch</th>
+                    <th className="text-left py-2 px-3 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">RSVPs</th>
+                    <th className="text-left py-2 px-3 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Guests</th>
                   </tr>
                 </thead>
                 <tbody>
                   {branchCounts.map((b) => (
-                    <tr key={b.name} className="border-b border-rattan/10">
-                      <td className="py-2 px-3">
-                        <span className="inline-block w-2 h-2 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: b.color }} />
+                    <tr key={b.name} className="border-b border-rattan/10 last:border-0">
+                      <td className="py-2.5 px-3 flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: b.color }} />
                         <span className="text-ink">{b.name}</span>
                       </td>
-                      <td className="py-2 px-3 text-ink tabular-nums font-mono">{b.count}</td>
-                      <td className="py-2 px-3 text-soft tabular-nums font-mono">{b.guests}</td>
+                      <td className="py-2.5 px-3 text-ink tabular-nums font-mono">{b.count}</td>
+                      <td className="py-2.5 px-3 text-soft tabular-nums font-mono">{b.guests}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -253,7 +260,8 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-6 mb-6">
+      {/* Headcount */}
+      <div className="bg-white border border-rattan/20 rounded-2xl p-6 mb-6 shadow-sm">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="font-heading text-lg text-balete mb-1">Headcount Summary</h2>
@@ -263,47 +271,54 @@ export default function AdminDashboardPage() {
           </div>
           <button
             onClick={downloadCsv}
-            className="px-5 py-2 bg-balete text-parchment rounded-full font-sans text-sm font-medium hover:bg-balete/90 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-balete text-parchment rounded-xl font-sans text-sm font-medium hover:bg-balete/90 transition-colors shadow-sm"
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
             Download CSV
           </button>
         </div>
       </div>
 
-      <div className="glass-card bg-white/50 backdrop-blur rounded-2xl p-6">
-        <h2 className="font-heading text-lg text-balete mb-4">Recent RSVPs</h2>
+      {/* Recent RSVPs */}
+      <div className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b border-rattan/20">
+          <h2 className="font-heading text-lg text-balete">Recent RSVPs</h2>
+        </div>
         {recent.length === 0 ? (
-          <p className="text-soft font-sans text-sm py-4">No RSVPs yet.</p>
+          <p className="text-soft font-sans text-sm p-6 text-center">No RSVPs yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm font-sans">
               <thead>
-                <tr className="border-b border-rattan/30">
-                  <th className="text-left py-2 px-3 text-soft font-medium">Name</th>
-                  <th className="text-left py-2 px-3 text-soft font-medium">Branch</th>
-                  <th className="text-left py-2 px-3 text-soft font-medium">Status</th>
-                  <th className="text-left py-2 px-3 text-soft font-medium">Guests</th>
-                  <th className="text-left py-2 px-3 text-soft font-medium">Contact</th>
+                <tr className="border-b border-rattan/20 bg-rattan/5">
+                  <th className="text-left py-2.5 px-5 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Name</th>
+                  <th className="text-left py-2.5 px-5 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Branch</th>
+                  <th className="text-left py-2.5 px-5 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Status</th>
+                  <th className="text-left py-2.5 px-5 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Guests</th>
+                  <th className="text-left py-2.5 px-5 text-soft font-medium text-[10px] uppercase tracking-[0.1em]">Contact</th>
                 </tr>
               </thead>
               <tbody>
                 {recent.map((r) => (
-                  <tr key={r.id} className="border-b border-rattan/10">
-                    <td className="py-2 px-3 text-ink font-medium">{r.respondentName}</td>
-                    <td className="py-2 px-3 text-soft">{r.familyBranch}</td>
-                    <td className="py-2 px-3">
+                  <tr key={r.id} className="border-b border-rattan/10 last:border-0 hover:bg-rattan/5 transition-colors">
+                    <td className="py-3 px-5 text-ink font-medium">{r.respondentName}</td>
+                    <td className="py-3 px-5 text-soft">{r.familyBranch}</td>
+                    <td className="py-3 px-5">
                       <span
-                        className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium"
                         style={{
-                          backgroundColor: `${ATTENDING_COLORS[r.attending]}20`,
+                          backgroundColor: `${ATTENDING_COLORS[r.attending]}15`,
                           color: ATTENDING_COLORS[r.attending],
                         }}
                       >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: ATTENDING_COLORS[r.attending] }} />
                         {ATTENDING_LABELS[r.attending]}
                       </span>
                     </td>
-                    <td className="py-2 px-3 text-soft tabular-nums font-mono">{r.guestCount}</td>
-                    <td className="py-2 px-3 text-soft">{r.contactNumber}</td>
+                    <td className="py-3 px-5 text-soft tabular-nums font-mono">{r.guestCount}</td>
+                    <td className="py-3 px-5 text-soft">{r.contactNumber}</td>
                   </tr>
                 ))}
               </tbody>

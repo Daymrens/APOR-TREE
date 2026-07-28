@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
 
   if (pathname.startsWith("/admin")) {
     if (!adminSession) {
-      const gateUrl = new URL("/gate", request.url);
-      gateUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(gateUrl);
+      const adminUrl = new URL("/admin", request.url);
+      adminUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(adminUrl);
     }
     return NextResponse.next();
   }

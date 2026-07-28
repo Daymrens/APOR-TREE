@@ -34,7 +34,6 @@ export default function AdminImportPage() {
   function handleValidate() {
     setValidationError("");
     setResults(null);
-
     try {
       const parsed = JSON.parse(jsonInput);
       if (!Array.isArray(parsed)) {
@@ -62,7 +61,6 @@ export default function AdminImportPage() {
   async function handleImport() {
     setValidationError("");
     setResults(null);
-
     let parsed: Record<string, unknown>[];
     try {
       parsed = JSON.parse(jsonInput);
@@ -74,7 +72,6 @@ export default function AdminImportPage() {
       setValidationError("Invalid JSON. Please check the format and try again.");
       return;
     }
-
     setImporting(true);
     try {
       const res = await fetch("/api/admin/bulk-import", {
@@ -101,10 +98,10 @@ export default function AdminImportPage() {
   const failCount = results?.filter((r) => r.error).length ?? 0;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-6 py-8">
       {toast && (
         <div
-          className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl font-sans text-sm backdrop-blur shadow-lg ${
+          className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl font-sans text-sm backdrop-blur shadow-lg animate-in slide-in-from-top-4 ${
             toast.type === "success"
               ? "bg-balete/15 text-balete border border-balete/20"
               : "bg-hibiscus/15 text-hibiscus border border-hibiscus/20"
@@ -115,13 +112,13 @@ export default function AdminImportPage() {
       )}
 
       <BackButton />
-      <h1 className="font-heading text-2xl text-balete mb-2">Bulk import members</h1>
-      <p className="text-soft font-sans mb-6 text-sm">
+      <h1 className="font-heading text-2xl text-balete mb-1">Bulk Import</h1>
+      <p className="text-soft font-sans text-sm mb-6">
         Paste a JSON array of family members to add them all at once.
       </p>
 
-      <div className="glass-card bg-white/50 backdrop-blur-xl rounded-2xl p-6 mb-6">
-        <label className="block text-sm font-sans text-ink mb-2 font-medium">
+      <div className="bg-white border border-rattan/20 rounded-2xl p-6 mb-5 shadow-sm">
+        <label className="block text-xs font-sans font-semibold text-soft uppercase tracking-[0.1em] mb-3">
           JSON input
         </label>
         <textarea
@@ -129,89 +126,80 @@ export default function AdminImportPage() {
           onChange={(e) => setJsonInput(e.target.value)}
           rows={12}
           placeholder='[{"fullName": "Juan Dela Cruz", ...}]'
-          className="w-full px-4 py-3 bg-white border border-rattan rounded-xl font-mono text-sm focus:outline-none focus:ring-2 focus:ring-hibiscus focus:border-transparent resize-none"
+          className="w-full px-4 py-3 bg-rattan/5 border border-rattan/30 rounded-xl font-mono text-sm focus:outline-none focus:ring-2 focus:ring-hibiscus/30 focus:border-hibiscus/50 resize-none transition-colors placeholder:text-soft/30"
         />
-
         {validationError && (
-          <p className="text-hibiscus text-sm font-sans mt-2">{validationError}</p>
+          <p className="text-hibiscus text-sm font-sans mt-2 flex items-center gap-1.5">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+            {validationError}
+          </p>
         )}
-
         <div className="flex gap-3 mt-4">
           <button
             onClick={handleValidate}
             disabled={!jsonInput.trim() || importing}
-            className="px-5 py-2.5 bg-white border border-rattan text-ink rounded-full font-sans text-sm font-medium hover:bg-white/80 transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 bg-rattan/10 text-ink rounded-xl font-sans text-sm font-medium hover:bg-rattan/20 transition-colors disabled:opacity-50"
           >
             Validate
           </button>
           <button
             onClick={handleImport}
             disabled={!jsonInput.trim() || importing}
-            className="px-5 py-2.5 bg-hibiscus text-parchment rounded-full font-sans text-sm font-medium hover:bg-hibiscus/90 transition-colors disabled:opacity-50"
+            className="px-5 py-2.5 bg-hibiscus text-parchment rounded-xl font-sans text-sm font-medium hover:bg-hibiscus/90 transition-colors disabled:opacity-50 shadow-sm"
           >
             {importing ? "Importing..." : "Import"}
           </button>
         </div>
       </div>
 
-      <div className="glass-card bg-white/50 backdrop-blur-xl rounded-2xl p-6 mb-6">
-        <h2 className="font-sans text-sm font-medium text-ink mb-3">
+      <div className="bg-white border border-rattan/20 rounded-2xl p-6 mb-5 shadow-sm">
+        <h2 className="font-sans text-xs font-semibold text-soft uppercase tracking-[0.1em] mb-3">
           Example format
         </h2>
-        <pre className="bg-balete/5 border border-rattan/30 rounded-xl p-4 text-xs text-ink/80 font-mono overflow-x-auto whitespace-pre">
+        <pre className="bg-rattan/5 border border-rattan/20 rounded-xl p-4 text-xs text-ink/70 font-mono overflow-x-auto whitespace-pre">
           {EXAMPLE_JSON}
         </pre>
       </div>
 
       {results && (
-        <div className="glass-card bg-white/50 backdrop-blur-xl rounded-2xl p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <h2 className="font-sans text-sm font-medium text-ink">
-              Import results
-            </h2>
-            <span className="text-xs font-sans text-soft">
-              {successCount} succeeded, {failCount} failed
-            </span>
+        <div className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm">
+          <div className="px-6 py-4 border-b border-rattan/20 flex items-center justify-between">
+            <h2 className="font-sans text-xs font-semibold text-soft uppercase tracking-[0.1em]">Import results</h2>
+            <div className="flex gap-2">
+              <span className="px-2 py-0.5 bg-balete/10 text-balete rounded-md text-xs font-sans font-medium">{successCount} added</span>
+              {failCount > 0 && (
+                <span className="px-2 py-0.5 bg-hibiscus/10 text-hibiscus rounded-md text-xs font-sans font-medium">{failCount} failed</span>
+              )}
+            </div>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-rattan/30">
-                  <th className="px-3 py-2 font-sans text-xs text-soft font-medium uppercase tracking-wide">
-                    Name
-                  </th>
-                  <th className="px-3 py-2 font-sans text-xs text-soft font-medium uppercase tracking-wide">
-                    Status
-                  </th>
-                  <th className="px-3 py-2 font-sans text-xs text-soft font-medium uppercase tracking-wide">
-                    ID
-                  </th>
+                <tr className="border-b border-rattan/20 bg-rattan/5">
+                  <th className="px-5 py-2.5 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em]">Name</th>
+                  <th className="px-5 py-2.5 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em]">Status</th>
+                  <th className="px-5 py-2.5 font-sans text-[10px] font-semibold text-soft uppercase tracking-[0.1em]">ID</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((r, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-rattan/20 hover:bg-white/30 transition-colors"
-                  >
-                    <td className="px-3 py-2 font-sans text-sm text-ink">
-                      {r.name}
-                    </td>
-                    <td className="px-3 py-2">
+                  <tr key={i} className="border-b border-rattan/10 last:border-0 hover:bg-rattan/5 transition-colors">
+                    <td className="px-5 py-3 font-sans text-sm text-ink">{r.name}</td>
+                    <td className="px-5 py-3">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-sans font-medium ${
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-sans font-medium ${
                           r.error
                             ? "bg-hibiscus/10 text-hibiscus"
                             : "bg-balete/10 text-balete"
                         }`}
                       >
+                        <span className={`w-1.5 h-1.5 rounded-full ${r.error ? "bg-hibiscus" : "bg-balete"}`} />
                         {r.error ? "Failed" : "Added"}
                       </span>
                     </td>
-                    <td className="px-3 py-2 font-mono text-xs text-soft">
-                      {r.id ?? "—"}
-                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-soft">{r.id ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
