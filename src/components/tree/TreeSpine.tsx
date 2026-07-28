@@ -28,12 +28,9 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
   const [isMobile, setIsMobile] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const panStart = useRef({ x: 0, y: 0 });
-  const panOffset = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -78,6 +75,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
         onHover={onHover}
         loaded={loaded}
         svgRef={svgRef}
+        containerRef={containerRef}
         positions={positions}
         connectors={connectors}
         bounds={bounds}
@@ -85,14 +83,8 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
         setHoveredId={setHoveredId}
         zoom={zoom}
         setZoom={setZoom}
-        pan={pan}
-        setPan={setPan}
-        isPanning={isPanning}
-        setIsPanning={setIsPanning}
-        panStart={panStart}
-        panOffset={panOffset}
         getBranchColor={getBranchColor}
-allBranchesList={allBranchesList}
+        allBranchesList={allBranchesList}
       />
     );
   }
@@ -117,6 +109,7 @@ function DesktopTree({
   onHover,
   loaded,
   svgRef,
+  containerRef,
   positions,
   connectors,
   bounds,
@@ -124,12 +117,6 @@ function DesktopTree({
   setHoveredId,
   zoom,
   setZoom,
-  pan,
-  setPan,
-  isPanning,
-  setIsPanning,
-  panStart,
-  panOffset,
   getBranchColor,
 }: {
   members: FamilyMember[];
@@ -140,6 +127,7 @@ function DesktopTree({
   onHover: ((m: FamilyMember | null) => void) | undefined;
   loaded: boolean;
   svgRef: React.RefObject<SVGSVGElement | null>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
   positions: Map<string, { x: number; y: number }>;
   connectors: Array<{
     type: "parent-child" | "spouse";
@@ -154,51 +142,37 @@ function DesktopTree({
   setHoveredId: (id: string | null) => void;
   zoom: number;
   setZoom: (z: number | ((prev: number) => number)) => void;
-  pan: { x: number; y: number };
-  setPan: (p: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })) => void;
-  isPanning: boolean;
-  setIsPanning: (b: boolean) => void;
-  panStart: React.RefObject<{ x: number; y: number }>;
-  panOffset: React.RefObject<{ x: number; y: number }>;
   getBranchColor: (branch: string, branches: string[]) => string;
 }) {
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    setZoom(z => Math.min(Math.max(z + delta, 0.3), 2.5));
-  }, []);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target === svgRef.current || (e.target as Element).tagName === 'rect') {
-      setIsPanning(true);
-      panStart.current = { x: e.clientX, y: e.clientY };
-      panOffset.current = { ...pan };
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setZoom(z => Math.min(Math.max(z + delta, 0.3), 2.5));
     }
-  }, [pan, svgRef]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isPanning) return;
-    const dx = e.clientX - panStart.current.x;
-    const dy = e.clientY - panStart.current.y;
-    setPan({ x: panOffset.current.x + dx, y: panOffset.current.y + dy });
-  }, [isPanning]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
   }, []);
 
-  const resetView = useCallback(() => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
-  }, []);
+  const fitToScreen = useCallback(() => {
+    if (!containerRef.current) return;
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
+    const scaleX = containerWidth / bounds.width;
+    const scaleY = containerHeight / bounds.height;
+    const fitZoom = Math.min(scaleX, scaleY, 1.5);
+    setZoom(fitZoom);
+
+    setTimeout(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollLeft = 0;
+        containerRef.current.scrollTop = 0;
+      }
+    }, 50);
+  }, [bounds.width, bounds.height]);
 
   const uniqueBranches = useMemo(() => {
     const set = new Set(connectors.map(c => c.branch));
     return Array.from(set);
   }, [connectors]);
-
-  const viewportWidth = bounds.width;
-  const viewportHeight = bounds.height;
 
   return (
     <div className="relative">
@@ -218,9 +192,9 @@ function DesktopTree({
           −
         </button>
         <button
-          onClick={resetView}
+          onClick={fitToScreen}
           className="w-8 h-8 glass-card rounded-lg flex items-center justify-center text-ink hover:bg-white/70 transition-all duration-200"
-          aria-label="Reset view"
+          aria-label="Fit to screen"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
@@ -233,24 +207,20 @@ function DesktopTree({
       </div>
 
       <div
-        className="overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10"
-        style={{ cursor: isPanning ? "grabbing" : "grab" }}
+        ref={containerRef}
+        className="overflow-auto rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10"
+        style={{ maxHeight: "70vh" }}
       >
         <svg
           ref={svgRef}
           viewBox={`0 0 ${bounds.width} ${bounds.height}`}
-          className="w-full min-w-[600px]"
+          className="block"
           style={{
-            maxHeight: "65vh",
-            transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-            transformOrigin: "center center",
-            transition: isPanning ? "none" : "transform 0.2s ease-out",
+            width: bounds.width * zoom,
+            height: bounds.height * zoom,
+            transition: "width 0.2s ease-out, height 0.2s ease-out",
           }}
           onWheel={handleWheel}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
         >
           <defs>
             {uniqueBranches.map((branch) => {
@@ -290,7 +260,7 @@ function DesktopTree({
 
           <rect width="100%" height="100%" fill="url(#dots)" />
 
-<TreeConnectors
+          <TreeConnectors
             connectors={connectors}
             bounds={bounds}
             activeBranch={activeBranch}
@@ -305,10 +275,9 @@ function DesktopTree({
 
             const color = getBranchColor(member.branch, allBranchesList);
             const isDimmed = activeBranch && member.branch !== activeBranch;
-            const isHovered = hoveredId === id;
             const spouseId = member.spouseId;
 
-return (
+            return (
               <TreeNodeCard
                 key={id}
                 node={{
