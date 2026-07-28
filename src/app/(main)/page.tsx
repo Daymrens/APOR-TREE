@@ -104,6 +104,7 @@ export default function HomePage() {
     { href: "/gallery", title: "Photo gallery", desc: "Browse and upload reunion photos.", icon: "📷", delay: 0.6 },
     { href: "/games", title: "Games & activities", desc: "Trivia, bingo, and icebreakers for all ages.", icon: "🎮", delay: 0.7 },
     { href: "/tree", title: "Family tree", desc: "Explore generations of APOR family connections.", icon: "🌳", delay: 0.8 },
+    { href: "/contribute", title: "Leave a contribution", desc: "Suggest corrections or additions to reunion details.", icon: "✏️", delay: 0.9 },
   ];
 
   return (

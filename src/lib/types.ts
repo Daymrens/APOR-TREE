@@ -87,3 +87,15 @@ export interface ChatMessage {
   content: string;
   createdAt: Timestamp;
 }
+
+export interface Contribution {
+  id: string;
+  authorName: string;
+  authorBranch: string | null;
+  type: "correction" | "suggestion" | "addition";
+  category: "schedule" | "venue" | "food" | "activities" | "general";
+  title: string;
+  description: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: Timestamp;
+}
