@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
-import { getConfig } from "@/lib/firestore/config";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    const config = await getConfig();
+    const db = getAdminDb();
+    const snap = await db.collection("reunion_config").doc("main").get();
+    const config = snap.exists ? snap.data() : null;
     return NextResponse.json({ config });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

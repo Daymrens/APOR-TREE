@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
-import { updateConfig } from "@/lib/firestore/config";
-import { Timestamp } from "firebase/firestore";
+import { getAdminDb } from "@/lib/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const db = getAdminDb();
     const data: Record<string, unknown> = {};
 
     if (body.eventDateStart !== undefined) {
       data.eventDates = data.eventDates ?? {};
-      (data.eventDates as Record<string, Timestamp>).start = Timestamp.fromDate(new Date(body.eventDateStart));
+      (data.eventDates as Record<string, Date>).start = new Date(body.eventDateStart);
     }
     if (body.eventDateEnd !== undefined) {
       data.eventDates = data.eventDates ?? {};
-      (data.eventDates as Record<string, Timestamp>).end = Timestamp.fromDate(new Date(body.eventDateEnd));
+      (data.eventDates as Record<string, Date>).end = new Date(body.eventDateEnd);
     }
     if (body.venueName !== undefined) data.venueName = body.venueName;
     if (body.venueAddress !== undefined) data.venueAddress = body.venueAddress;
@@ -27,7 +28,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
 
-    await updateConfig(data);
+    data.updatedAt = FieldValue.serverTimestamp();
+
+    await db.collection("reunion_config").doc("main").set(data, { merge: true });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

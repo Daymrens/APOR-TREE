@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addMember } from "@/lib/firestore/members";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -8,10 +8,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Members array required" }, { status: 400 });
     }
 
+    const db = getAdminDb();
     const results: { id?: string; name: string; error?: string }[] = [];
+
     for (const member of members) {
       try {
-        const id = await addMember({
+        const docRef = await db.collection("family_members").add({
           fullName: member.fullName || "",
           nickname: member.nickname || "",
           generation: member.generation || 0,
@@ -23,7 +25,7 @@ export async function POST(request: Request) {
           livingStatus: member.livingStatus || "living",
           notes: member.notes || "",
         });
-        results.push({ id, name: member.fullName });
+        results.push({ id: docRef.id, name: member.fullName });
       } catch {
         results.push({ name: member.fullName, error: "Failed" });
       }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deletePhoto } from "@/lib/firestore/gallery";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +7,8 @@ export async function POST(request: Request) {
     if (!id) {
       return NextResponse.json({ error: "Photo ID required" }, { status: 400 });
     }
-    await deletePhoto(id);
+    const db = getAdminDb();
+    await db.collection("gallery_photos").doc(id).delete();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

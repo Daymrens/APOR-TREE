@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { storage } from "@/lib/firebase";
+import { getAdminStorage } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -20,10 +19,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Max file size is 5MB" }, { status: 400 });
     }
 
+    const storage = getAdminStorage();
+    const bucket = storage.bucket();
+    const filePath = `members/${memberId}/${file.name}`;
+    const fileRef = bucket.file(filePath);
+
     const bytes = await file.arrayBuffer();
-    const storageRef = ref(storage, `members/${memberId}/${file.name}`);
-    const snapshot = await uploadBytes(storageRef, bytes);
-    const url = await getDownloadURL(snapshot.ref);
+    const buffer = Buffer.from(bytes);
+
+    await fileRef.save(buffer, {
+      contentType: file.type,
+      metadata: {
+        firebaseStorageDownloadTokens: crypto.randomUUID(),
+      },
+    });
+
+    // Make the file publicly accessible
+    await fileRef.makePublic();
+
+    const url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 
     return NextResponse.json({ url });
   } catch {

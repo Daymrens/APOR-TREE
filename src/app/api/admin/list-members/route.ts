@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
-import { getMembers } from "@/lib/firestore/members";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function GET() {
   try {
-    const members = await getMembers();
+    const db = getAdminDb();
+    const snapshot = await db.collection("family_members").get();
+    const members = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
     return NextResponse.json({ members });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

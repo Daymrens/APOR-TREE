@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addMember } from "@/lib/firestore/members";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -7,8 +7,9 @@ export async function POST(request: Request) {
     if (!data.fullName) {
       return NextResponse.json({ error: "Full name required" }, { status: 400 });
     }
-    const id = await addMember(data);
-    return NextResponse.json({ ok: true, id });
+    const db = getAdminDb();
+    const docRef = await db.collection("family_members").add(data);
+    return NextResponse.json({ ok: true, id: docRef.id });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

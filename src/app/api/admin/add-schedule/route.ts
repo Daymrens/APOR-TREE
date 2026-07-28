@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addScheduleItem } from "@/lib/firestore/schedule";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -7,8 +7,9 @@ export async function POST(request: Request) {
     if (!data.title) {
       return NextResponse.json({ error: "Title required" }, { status: 400 });
     }
-    const id = await addScheduleItem(data);
-    return NextResponse.json({ ok: true, id });
+    const db = getAdminDb();
+    const docRef = await db.collection("schedule_items").add(data);
+    return NextResponse.json({ ok: true, id: docRef.id });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

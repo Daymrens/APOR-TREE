@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteScheduleItem } from "@/lib/firestore/schedule";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -7,7 +7,8 @@ export async function POST(request: Request) {
     if (!id) {
       return NextResponse.json({ error: "Item ID required" }, { status: 400 });
     }
-    await deleteScheduleItem(id);
+    const db = getAdminDb();
+    await db.collection("schedule_items").doc(id).delete();
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
