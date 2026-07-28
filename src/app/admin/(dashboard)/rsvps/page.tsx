@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { subscribeToRsvps } from "@/lib/firestore/rsvps";
 import type { Rsvp } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 
@@ -11,11 +10,16 @@ export default function AdminRsvpsPage() {
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    const unsub = subscribeToRsvps((data) => {
-      setRsvps(data);
-      setLoading(false);
-    });
-    return () => unsub();
+    fetch("/api/admin/list-rsvps")
+      .then((res) => res.json())
+      .then((data) => {
+        setRsvps(data.rsvps ?? []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setRsvps([]);
+        setLoading(false);
+      });
   }, []);
 
   const branches = Array.from(new Set(rsvps.map((r) => r.familyBranch))).sort();
@@ -31,7 +35,7 @@ export default function AdminRsvpsPage() {
       r.guestNames.join("; "),
       r.dietaryNotes,
       r.contactNumber,
-      r.submittedAt?.toDate().toLocaleDateString(),
+      r.submittedAt?.toDate?.().toLocaleDateString() ?? (r.submittedAt as { seconds: number })?.seconds ? new Date((r.submittedAt as { seconds: number }).seconds * 1000).toLocaleDateString() : "",
     ]);
     const csv = [headers, ...rows].map((row) => row.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { subscribeToRsvps } from "@/lib/firestore/rsvps";
 import type { Rsvp } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 
@@ -35,11 +34,16 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = subscribeToRsvps((data) => {
-      setRsvps(data);
-      setLoading(false);
-    });
-    return () => unsub();
+    fetch("/api/admin/list-rsvps")
+      .then((res) => res.json())
+      .then((data) => {
+        setRsvps(data.rsvps ?? []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setRsvps([]);
+        setLoading(false);
+      });
   }, []);
 
   const total = rsvps.length;
