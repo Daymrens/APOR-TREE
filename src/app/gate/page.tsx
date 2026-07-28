@@ -386,9 +386,7 @@ export default function GatePage() {
 
       <div className="relative w-full max-w-sm mx-4 animate-fade-in">
         <div className="text-center mb-8 animate-slide-up">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-mango/20 to-mango/5 border border-mango/30 mb-5 animate-float">
-            <span className="font-heading text-3xl text-parchment font-bold">A</span>
-          </div>
+          <div className="mb-5" />
           <h1 className="font-heading text-5xl text-parchment mb-2 tracking-wide">
             APOR
           </h1>
