@@ -191,10 +191,11 @@ function DesktopTree({
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current) return;
     if (e.button !== 0) return;
     const target = e.target as Element;
     if (target.closest("button")) return;
+    if (!containerRef.current) return;
+    e.preventDefault();
     setIsDragging(true);
     dragStart.current = {
       x: e.clientX,
@@ -204,17 +205,28 @@ function DesktopTree({
     };
   }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
-    containerRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
-    containerRef.current.scrollTop = dragStart.current.scrollTop - dy;
-  }, [isDragging]);
+  useEffect(() => {
+    if (!isDragging) return;
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const dx = e.clientX - dragStart.current.x;
+      const dy = e.clientY - dragStart.current.y;
+      containerRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
+      containerRef.current.scrollTop = dragStart.current.scrollTop - dy;
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging]);
 
   return (
     <div className="relative">
@@ -253,9 +265,6 @@ function DesktopTree({
         className="overflow-auto rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10 select-none"
         style={{ maxHeight: "70vh", cursor: isDragging ? "grabbing" : "grab" }}
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
         <svg
           ref={svgRef}
