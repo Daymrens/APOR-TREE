@@ -85,7 +85,14 @@ export default function AdminRsvpsPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-soft font-sans text-sm">No RSVPs yet.</p>
+            <div className="w-12 h-12 rounded-full bg-rattan/10 flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-soft/30" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+              </svg>
+            </div>
+            <p className="text-soft font-sans text-sm">
+              {filter === "all" ? "No RSVPs yet." : `No RSVPs from ${filter}.`}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
