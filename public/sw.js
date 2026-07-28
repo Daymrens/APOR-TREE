@@ -1,4 +1,4 @@
-const CACHE_NAME = "apor-reunion-v2";
+const CACHE_NAME = "apor-reunion-v3";
 const PRECACHE_URLS = [
   "/",
   "/gate",
@@ -37,6 +37,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   if (event.request.url.includes("/api/")) return;
   if (event.request.url.includes("/admin")) return;
+  if (event.request.url.includes("manifest.json")) return;
+  if (event.request.url.includes("sw.js")) return;
 
   event.respondWith(
     fetch(event.request)
