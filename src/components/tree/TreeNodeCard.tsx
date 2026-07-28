@@ -68,8 +68,10 @@ export default function TreeNodeCard({
       onMouseLeave={handleMouseLeave}
       className="cursor-pointer"
       style={{
-        opacity: isDimmed ? 0.2 : 1,
-        transition: "opacity 0.3s ease",
+        opacity: isDimmed ? 0.3 : 1,
+        transition: "opacity 0.3s ease, transform 0.3s ease",
+        transform: isDimmed ? "scale(0.92)" : "scale(1)",
+        transformOrigin: `${node.x}px ${node.y}px`,
       }}
     >
       <defs>
@@ -103,13 +105,28 @@ export default function TreeNodeCard({
         fill="none"
         stroke={ringColor}
         strokeWidth={isHovered ? 3.5 : 2.5}
-        strokeOpacity={isHovered ? 1 : isDeceased ? 0.5 : 0.7}
+        strokeOpacity={isHovered ? 1 : isDeceased ? 0.7 : 0.7}
         style={{
           transition: "stroke-width 0.3s ease, stroke-opacity 0.3s ease",
           transform: isHovered ? "scale(1.08)" : "scale(1)",
           transformOrigin: `${node.x}px ${node.y}px`,
         }}
       />
+
+      {/* Deceased dashed outer ring */}
+      {isDeceased && (
+        <circle
+          cx={node.x}
+          cy={node.y}
+          r={r + 8}
+          fill="none"
+          stroke={RATTAN}
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          strokeOpacity={0.6}
+          style={{ pointerEvents: "none" }}
+        />
+      )}
 
       {/* Background circle */}
       <circle
@@ -216,25 +233,44 @@ export default function TreeNodeCard({
         {member.branch} · Gen {member.generation}
       </text>
 
+      {/* In memoriam label */}
+      {isDeceased && (
+        <text
+          x={node.x}
+          y={node.y + r + 18 + Math.max(10, r * 0.32) + 4 + Math.max(8, r * 0.24) + 3}
+          textAnchor="middle"
+          fill="#8B5E3C"
+          style={{
+            fontSize: Math.max(7, r * 0.2),
+            fontFamily: "Inter, sans-serif",
+            fontStyle: "italic",
+            opacity: loaded ? 0.8 : 0,
+            transition: `opacity 0.5s ease ${index * 0.06}s`,
+          }}
+        >
+          In memoriam
+        </text>
+      )}
+
       {/* Deceased cross overlay */}
       {isDeceased && (
-        <g style={{ pointerEvents: "none" }} opacity={0.45}>
+        <g style={{ pointerEvents: "none" }} opacity={0.55}>
           <line
-            x1={node.x - r * 0.3}
-            y1={node.y - r * 0.3}
-            x2={node.x + r * 0.3}
-            y2={node.y + r * 0.3}
-            stroke={color}
-            strokeWidth={2}
+            x1={node.x - r * 0.25}
+            y1={node.y - r * 0.25}
+            x2={node.x + r * 0.25}
+            y2={node.y + r * 0.25}
+            stroke="#8B5E3C"
+            strokeWidth={2.5}
             strokeLinecap="round"
           />
           <line
-            x1={node.x + r * 0.3}
-            y1={node.y - r * 0.3}
-            x2={node.x - r * 0.3}
-            y2={node.y + r * 0.3}
-            stroke={color}
-            strokeWidth={2}
+            x1={node.x + r * 0.25}
+            y1={node.y - r * 0.25}
+            x2={node.x - r * 0.25}
+            y2={node.y + r * 0.25}
+            stroke="#8B5E3C"
+            strokeWidth={2.5}
             strokeLinecap="round"
           />
         </g>
