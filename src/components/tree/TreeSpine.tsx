@@ -179,12 +179,41 @@ function DesktopTree({
   getBranchColor: (branch: string, branches: string[]) => string;
   fitToScreen: () => void;
 }) {
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       const delta = e.deltaY > 0 ? -0.1 : 0.1;
       setZoom(z => Math.min(Math.max(z + delta, 0.3), 2.5));
     }
+  }, []);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    if (e.button !== 0) return;
+    const target = e.target as Element;
+    if (target.closest("button")) return;
+    setIsDragging(true);
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      scrollLeft: containerRef.current.scrollLeft,
+      scrollTop: containerRef.current.scrollTop,
+    };
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+    const dx = e.clientX - dragStart.current.x;
+    const dy = e.clientY - dragStart.current.y;
+    containerRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
+    containerRef.current.scrollTop = dragStart.current.scrollTop - dy;
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
   }, []);
 
   return (
@@ -221,8 +250,12 @@ function DesktopTree({
 
       <div
         ref={containerRef}
-        className="overflow-auto rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10"
-        style={{ maxHeight: "70vh" }}
+        className="overflow-auto rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10 select-none"
+        style={{ maxHeight: "70vh", cursor: isDragging ? "grabbing" : "grab" }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
         <svg
           ref={svgRef}
