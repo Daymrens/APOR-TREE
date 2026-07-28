@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminStorage } from "@/lib/firebase-admin";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   try {
@@ -19,26 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Max file size is 5MB" }, { status: 400 });
     }
 
-    const storage = getAdminStorage();
-    const bucket = storage.bucket();
-    const filePath = `members/${memberId}/${file.name}`;
-    const fileRef = bucket.file(filePath);
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    await fileRef.save(buffer, {
-      contentType: file.type,
-      metadata: {
-        firebaseStorageDownloadTokens: crypto.randomUUID(),
-      },
-    });
-
-    // Make the file publicly accessible
-    await fileRef.makePublic();
-
-    const url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
-
+    const { url } = await uploadToCloudinary(file, `members/${memberId}`);
     return NextResponse.json({ url });
   } catch {
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

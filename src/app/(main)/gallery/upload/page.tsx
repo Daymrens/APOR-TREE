@@ -2,10 +2,10 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import BackButton from "@/components/ui/BackButton";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const FULL_MAX_DIM = 1200;
@@ -59,6 +59,10 @@ function validateFile(file: File): string | null {
     return `"${file.name}" is ${sizeMB}MB — max is 10MB.`;
   }
   return null;
+}
+
+function blobToFile(blob: Blob, name: string): File {
+  return new File([blob], name, { type: "image/jpeg" });
 }
 
 export default function UploadPage() {
@@ -126,22 +130,19 @@ export default function UploadPage() {
 
         const timestamp = Date.now();
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const fullPath = `gallery/full/${timestamp}-${safeName}`;
-        const thumbPath = `gallery/thumbs/${timestamp}-${safeName}`;
+        const baseName = `${timestamp}-${safeName}`;
 
-        const [fullRef, thumbRef] = await Promise.all([
-          uploadBytes(ref(storage, fullPath), fullBlob),
-          uploadBytes(ref(storage, thumbPath), thumbBlob),
-        ]);
+        const fullFile = blobToFile(fullBlob, baseName);
+        const thumbFile = blobToFile(thumbBlob, baseName);
 
-        const [fullUrl, thumbUrl] = await Promise.all([
-          getDownloadURL(fullRef.ref),
-          getDownloadURL(thumbRef.ref),
+        const [fullResult, thumbResult] = await Promise.all([
+          uploadToCloudinary(fullFile, "gallery/full"),
+          uploadToCloudinary(thumbFile, "gallery/thumbs"),
         ]);
 
         await addDoc(collection(db, "gallery_photos"), {
-          storageUrl: fullUrl,
-          thumbnailUrl: thumbUrl,
+          storageUrl: fullResult.url,
+          thumbnailUrl: thumbResult.url,
           uploaderName: name.trim(),
           caption: caption.trim(),
           uploadedAt: Timestamp.now(),

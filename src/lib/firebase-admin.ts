@@ -1,10 +1,8 @@
 import { initializeApp, cert, getApps, App } from "firebase-admin/app";
 import { getFirestore, Firestore } from "firebase-admin/firestore";
-import { getStorage, Storage } from "firebase-admin/storage";
 
 let app: App;
 let adminDb: Firestore;
-let adminStorage: Storage;
 
 function getAdminApp(): App {
   if (getApps().length > 0) {
@@ -21,13 +19,10 @@ function getAdminApp(): App {
   if (projectId && clientEmail && privateKey) {
     app = initializeApp({
       credential: cert({ projectId, clientEmail, privateKey }),
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
   } else {
-    // Fallback: initialize without credentials (will fail on writes)
     app = initializeApp({
       projectId: projectId || "apor-tree",
-      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
   }
 
@@ -39,11 +34,4 @@ export function getAdminDb(): Firestore {
     adminDb = getFirestore(getAdminApp());
   }
   return adminDb;
-}
-
-export function getAdminStorage(): Storage {
-  if (!adminStorage) {
-    adminStorage = getStorage(getAdminApp());
-  }
-  return adminStorage;
 }
