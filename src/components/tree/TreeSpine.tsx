@@ -2,21 +2,18 @@
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import type { FamilyMember } from "@/lib/types";
+import { computeTreePositions, getBranchColor as layoutGetBranchColor } from "@/lib/tree/layout";
+import TreeNode from "@/components/tree/TreeNode";
+import TreeConnectors from "@/components/tree/TreeConnectors";
 
-const BRANCH_COLORS = [
-  "#C23B6E", // hibiscus
-  "#E8A63D", // mango
-  "#1E3B2C", // balete
-  "#C9A876", // rattan
-  "#5C5445", // soft
-  "#8B5E3C", // brown
-  "#2E6B62", // teal
-  "#7C3AED", // purple
-];
+const NODE_RADIUS = 30;
+const NODE_SPACING_X = 160;
+const NODE_SPACING_Y = 150;
+const SPOUSE_GAP = 60;
+const PADDING = 80;
 
-function getBranchColor(branch: string, allBranches: string[]): string {
-  const index = allBranches.indexOf(branch);
-  return BRANCH_COLORS[index % BRANCH_COLORS.length];
+function getBranchColor(branch: string, allBranchesList: string[]): string {
+  return layoutGetBranchColor(branch, allBranchesList);
 }
 
 interface TreeSpineProps {
@@ -30,6 +27,12 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
   const [isMobile, setIsMobile] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panStart = useRef({ x: 0, y: 0 });
+  const panOffset = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -43,20 +46,9 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
     return () => clearTimeout(timer);
   }, []);
 
-  const allBranches = useMemo(() => {
+  const allBranchesList = useMemo(() => {
     const set = new Set(members.map((m) => m.branch));
     return Array.from(set).sort();
-  }, [members]);
-
-  const generations = useMemo(() => {
-    const map = new Map<number, FamilyMember[]>();
-    members.forEach((m) => {
-      const gen = m.generation;
-      if (!map.has(gen)) map.set(gen, []);
-      map.get(gen)!.push(m);
-    });
-    map.forEach((arr) => arr.sort((a, b) => a.birthOrder - b.birthOrder));
-    return Array.from(map.entries()).sort(([a], [b]) => a - b);
   }, [members]);
 
   const memberMap = useMemo(() => {
@@ -65,128 +57,109 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
     return map;
   }, [members]);
 
+  const { positions, connectors, bounds } = useMemo(() => {
+    return computeTreePositions(members, {
+      nodeWidth: NODE_RADIUS * 2,
+      nodeSpacingX: NODE_SPACING_X,
+      spouseGap: SPOUSE_GAP,
+      generationGapY: NODE_SPACING_Y,
+    });
+  }, [members]);
+
   if (!isMobile) {
     return (
       <DesktopTree
         members={members}
-        generations={generations}
         memberMap={memberMap}
-        allBranches={allBranches}
         activeBranch={activeBranch}
         onSelect={onSelect}
         onHover={onHover}
         loaded={loaded}
         svgRef={svgRef}
+        positions={positions}
+        connectors={connectors}
+        bounds={bounds}
+        hoveredId={hoveredId}
+        setHoveredId={setHoveredId}
+        zoom={zoom}
+        setZoom={setZoom}
+        pan={pan}
+        setPan={setPan}
+        isPanning={isPanning}
+        setIsPanning={setIsPanning}
+        panStart={panStart}
+        panOffset={panOffset}
+        getBranchColor={getBranchColor}
+allBranchesList={allBranchesList}
       />
     );
   }
 
   return (
     <MobileTree
-      generations={generations}
-      allBranches={allBranches}
+      members={members}
+allBranchesList={allBranchesList}
       activeBranch={activeBranch}
       onSelect={onSelect}
+      getBranchColor={getBranchColor}
     />
   );
 }
 
-// ─── Desktop Tree ────────────────────────────────────────────
-
 function DesktopTree({
   members,
-  generations,
   memberMap,
-  allBranches,
+  allBranchesList,
   activeBranch,
   onSelect,
   onHover,
   loaded,
   svgRef,
+  positions,
+  connectors,
+  bounds,
+  hoveredId,
+  setHoveredId,
+  zoom,
+  setZoom,
+  pan,
+  setPan,
+  isPanning,
+  setIsPanning,
+  panStart,
+  panOffset,
+  getBranchColor,
 }: {
   members: FamilyMember[];
-  generations: [number, FamilyMember[]][];
   memberMap: Map<string, FamilyMember>;
-  allBranches: string[];
+  allBranchesList: string[];
   activeBranch: string | null;
   onSelect: (m: FamilyMember) => void;
   onHover: ((m: FamilyMember | null) => void) | undefined;
   loaded: boolean;
   svgRef: React.RefObject<SVGSVGElement | null>;
+  positions: Map<string, { x: number; y: number }>;
+  connectors: Array<{
+    type: "parent-child" | "spouse";
+    from: string;
+    to: string;
+    fromPos: { x: number; y: number };
+    toPos: { x: number; y: number };
+    branch: string;
+  }>;
+  bounds: { width: number; height: number; minX: number; maxX: number; maxY: number };
+  hoveredId: string | null;
+  setHoveredId: (id: string | null) => void;
+  zoom: number;
+  setZoom: (z: number | ((prev: number) => number)) => void;
+  pan: { x: number; y: number };
+  setPan: (p: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })) => void;
+  isPanning: boolean;
+  setIsPanning: (b: boolean) => void;
+  panStart: React.RefObject<{ x: number; y: number }>;
+  panOffset: React.RefObject<{ x: number; y: number }>;
+  getBranchColor: (branch: string, branches: string[]) => string;
 }) {
-  const NODE_RADIUS = 30;
-  const NODE_SPACING_X = 150;
-  const NODE_SPACING_Y = 140;
-  const PADDING = 80;
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isPanning, setIsPanning] = useState(false);
-  const panStart = useRef({ x: 0, y: 0 });
-  const panOffset = useRef({ x: 0, y: 0 });
-
-  const positions = useMemo(() => {
-    const map = new Map<string, { x: number; y: number }>();
-    let genIndex = 0;
-
-    for (const [, genMembers] of generations) {
-      const totalWidth = (genMembers.length - 1) * NODE_SPACING_X;
-      const startX = -totalWidth / 2;
-
-      genMembers.forEach((member, i) => {
-        map.set(member.id, {
-          x: startX + i * NODE_SPACING_X,
-          y: genIndex * NODE_SPACING_Y,
-        });
-      });
-      genIndex++;
-    }
-    return map;
-  }, [generations]);
-
-  const bounds = useMemo(() => {
-    let minX = Infinity, maxX = -Infinity, maxY = 0;
-    positions.forEach(({ x, y }) => {
-      minX = Math.min(minX, x);
-      maxX = Math.max(maxX, x);
-      maxY = Math.max(maxY, y);
-    });
-    return {
-      width: maxX - minX + PADDING * 2 + NODE_RADIUS * 2,
-      height: maxY + PADDING * 2 + NODE_RADIUS * 2,
-      offsetX: -minX + PADDING + NODE_RADIUS,
-      offsetY: PADDING + NODE_RADIUS,
-    };
-  }, [positions]);
-
-  const connectors = useMemo(() => {
-    const lines: { from: string; to: string; fromPos: { x: number; y: number }; toPos: { x: number; y: number }; branch: string }[] = [];
-
-    members.forEach((child) => {
-      child.parentIds.forEach((parentId) => {
-        const parentPos = positions.get(parentId);
-        const childPos = positions.get(child.id);
-        if (parentPos && childPos) {
-          lines.push({
-            from: parentId,
-            to: child.id,
-            fromPos: parentPos,
-            toPos: childPos,
-            branch: child.branch,
-          });
-        }
-      });
-    });
-
-    return lines;
-  }, [members, positions]);
-
-  const uniqueBranches = useMemo(() => {
-    const set = new Set(connectors.map(c => c.branch));
-    return Array.from(set);
-  }, [connectors]);
-
-  // Zoom/pan handlers
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -217,9 +190,16 @@ function DesktopTree({
     setPan({ x: 0, y: 0 });
   }, []);
 
+  const uniqueBranches = useMemo(() => {
+    const set = new Set(connectors.map(c => c.branch));
+    return Array.from(set);
+  }, [connectors]);
+
+  const viewportWidth = bounds.width;
+  const viewportHeight = bounds.height;
+
   return (
     <div className="relative">
-      {/* Zoom controls */}
       <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
         <button
           onClick={() => setZoom(z => Math.min(z + 0.2, 2.5))}
@@ -246,7 +226,6 @@ function DesktopTree({
         </button>
       </div>
 
-      {/* Zoom level indicator */}
       <div className="absolute top-2 left-2 z-20 glass-card rounded-lg px-2 py-1 text-xs font-mono text-soft">
         {Math.round(zoom * 100)}%
       </div>
@@ -272,9 +251,8 @@ function DesktopTree({
           onMouseLeave={handleMouseUp}
         >
           <defs>
-            {/* Branch gradients */}
             {uniqueBranches.map((branch) => {
-              const color = getBranchColor(branch, allBranches);
+              const color = getBranchColor(branch, allBranchesList);
               return (
                 <linearGradient key={branch} id={`grad-${branch}`} x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor={color} stopOpacity={0.8} />
@@ -282,7 +260,7 @@ function DesktopTree({
                 </linearGradient>
               );
             })}
-            {/* Node glow filter */}
+
             <filter id="node-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="4" result="blur" />
               <feFlood floodColor="#C23B6E" floodOpacity="0.3" result="color" />
@@ -292,7 +270,7 @@ function DesktopTree({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            {/* Hover glow filter */}
+
             <filter id="hover-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="6" result="blur" />
               <feFlood floodColor="#E8A63D" floodOpacity="0.4" result="color" />
@@ -302,292 +280,53 @@ function DesktopTree({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            {/* Subtle background pattern */}
+
             <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.5" fill="rgba(201, 168, 118, 0.15)" />
             </pattern>
           </defs>
 
-          {/* Background */}
           <rect width="100%" height="100%" fill="url(#dots)" />
 
-          {/* Generation bands */}
-          {generations.map(([gen], i) => {
-            const y = i * NODE_SPACING_Y + bounds.offsetY - NODE_SPACING_Y * 0.4;
-            const height = NODE_SPACING_Y * 0.8;
-            return (
-              <rect
-                key={`band-${gen}`}
-                x={0}
-                y={y}
-                width={bounds.width}
-                height={height}
-                fill={i % 2 === 0 ? "rgba(255,255,255,0.03)" : "rgba(201,168,118,0.03)"}
-                rx={8}
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transition: `opacity 0.6s ease ${i * 0.1}s`,
-                }}
-              />
-            );
-          })}
+<TreeConnectors
+            connectors={connectors}
+            bounds={bounds}
+            activeBranch={activeBranch}
+            hoveredId={hoveredId}
+            loaded={loaded}
+            allBranches={allBranchesList}
+          />
 
-          {/* Generation labels */}
-          {generations.map(([gen], i) => {
-            const y = i * NODE_SPACING_Y + bounds.offsetY;
-            return (
-              <g
-                key={`label-${gen}`}
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transition: `opacity 0.5s ease ${i * 0.1}s`,
-                }}
-              >
-                <rect
-                  x={8}
-                  y={y - 10}
-                  width={52}
-                  height={20}
-                  rx={10}
-                  fill="rgba(30, 59, 44, 0.08)"
-                />
-                <text
-                  x={34}
-                  y={y + 4}
-                  textAnchor="middle"
-                  className="text-[10px] font-mono fill-soft/60"
-                  fontWeight="500"
-                >
-                  Gen {gen}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Connectors */}
-          {connectors.map((conn) => {
-            const fromX = conn.fromPos.x + bounds.offsetX;
-            const fromY = conn.fromPos.y + bounds.offsetY + NODE_RADIUS;
-            const toX = conn.toPos.x + bounds.offsetX;
-            const toY = conn.toPos.y + bounds.offsetY - NODE_RADIUS;
-
-            const midY = (fromY + toY) / 2;
-            const path = `M ${fromX} ${fromY} C ${fromX} ${midY}, ${toX} ${midY}, ${toX} ${toY}`;
-
-            const isDimmed = activeBranch && conn.branch !== activeBranch;
-            const isHighlighted = hoveredId && (conn.from === hoveredId || conn.to === hoveredId);
-
-            return (
-              <path
-                key={`${conn.from}-${conn.to}`}
-                d={path}
-                fill="none"
-                stroke={`url(#grad-${conn.branch})`}
-                strokeWidth={isHighlighted ? 3.5 : 2.5}
-                strokeLinecap="round"
-                style={{
-                  opacity: isDimmed ? 0.08 : isHighlighted ? 1 : 0.6,
-                  transition: "opacity 0.3s ease, stroke-width 0.3s ease",
-                  strokeDasharray: loaded ? "none" : "800",
-                  strokeDashoffset: loaded ? "0" : "800",
-                  transitionProperty: "opacity, stroke-width, stroke-dashoffset",
-                  transitionDuration: "0.3s, 0.3s, 1.5s",
-                  transitionTimingFunction: "ease, ease, ease-out",
-                }}
-              />
-            );
-          })}
-
-          {/* Nodes */}
           {Array.from(positions.entries()).map(([id, pos], i) => {
             const member = memberMap.get(id);
             if (!member) return null;
 
-            const x = pos.x + bounds.offsetX;
-            const y = pos.y + bounds.offsetY;
-            const color = getBranchColor(member.branch, allBranches);
+            const color = getBranchColor(member.branch, allBranchesList);
             const isDimmed = activeBranch && member.branch !== activeBranch;
             const isHovered = hoveredId === id;
+            const spouseId = member.spouseId;
 
             return (
-              <g
+              <TreeNode
                 key={id}
-                onClick={() => onSelect(member)}
-                onMouseEnter={() => {
-                  setHoveredId(id);
-                  onHover?.(member);
+                node={{
+                  id,
+                  x: pos.x,
+                  y: pos.y,
+                  member,
+                  spouseId,
+isSpouse: false,
                 }}
-                onMouseLeave={() => {
-                  setHoveredId(null);
-                  onHover?.(null);
-                }}
-                className="cursor-pointer"
-                style={{
-                  opacity: isDimmed ? 0.2 : 1,
-                  transition: "opacity 0.3s ease",
-                }}
-              >
-                {/* Outer ring — animated entrance */}
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={NODE_RADIUS + 5}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth={isHovered ? 3 : 2}
-                  strokeOpacity={isHovered ? 0.9 : 0.4}
-                  style={{
-                    opacity: loaded ? 1 : 0,
-                    transform: loaded ? "scale(1)" : "scale(0.2)",
-                    transformOrigin: `${x}px ${y}px`,
-                    transition: `opacity 0.5s ease ${i * 0.06}s, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.06}s, stroke-opacity 0.3s ease, stroke-width 0.3s ease`,
-                  }}
-                />
-
-                {/* Glow ring on hover */}
-                {isHovered && (
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={NODE_RADIUS + 8}
-                    fill="none"
-                    stroke={color}
-                    strokeWidth={1.5}
-                    strokeOpacity={0.3}
-                    className="animate-glow-pulse"
-                  />
-                )}
-
-                {/* Inner glass circle */}
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={NODE_RADIUS}
-                  fill="rgba(241, 232, 214, 0.9)"
-                  stroke="rgba(255, 255, 255, 0.5)"
-                  strokeWidth={1.5}
-                  style={{
-                    filter: isHovered
-                      ? "drop-shadow(0 4px 12px rgba(194, 59, 110, 0.25))"
-                      : "drop-shadow(0 2px 6px rgba(0,0,0,0.1))",
-                    transition: "filter 0.3s ease",
-                    transform: isHovered ? "scale(1.08)" : "scale(1)",
-                    transformOrigin: `${x}px ${y}px`,
-                  }}
-                />
-
-                {/* Photo or initial */}
-                {member.photoUrl ? (
-                  <>
-                    <clipPath id={`clip-${id}`}>
-                      <circle cx={x} cy={y} r={NODE_RADIUS - 1} />
-                    </clipPath>
-                    <image
-                      href={member.photoUrl}
-                      x={x - NODE_RADIUS + 1}
-                      y={y - NODE_RADIUS + 1}
-                      width={(NODE_RADIUS - 1) * 2}
-                      height={(NODE_RADIUS - 1) * 2}
-                      clipPath={`url(#clip-${id})`}
-                      preserveAspectRatio="xMidYMid slice"
-                      style={{
-                        opacity: loaded ? 1 : 0,
-                        transition: `opacity 0.5s ease ${i * 0.06}s`,
-                      }}
-                    />
-                  </>
-                ) : (
-                  <text
-                    x={x}
-                    y={y + 6}
-                    textAnchor="middle"
-                    className="text-base font-heading fill-balete"
-                    fontWeight="bold"
-                    style={{
-                      opacity: loaded ? 1 : 0,
-                      transition: `opacity 0.5s ease ${i * 0.06}s`,
-                    }}
-                  >
-                    {member.fullName.charAt(0)}
-                  </text>
-                )}
-
-                {/* Deceased indicator — subtle diagonal line */}
-                {member.livingStatus === "deceased" && (
-                  <>
-                    <line
-                      x1={x - NODE_RADIUS * 0.45}
-                      y1={y - NODE_RADIUS * 0.45}
-                      x2={x + NODE_RADIUS * 0.45}
-                      y2={y + NODE_RADIUS * 0.45}
-                      stroke={color}
-                      strokeWidth={2}
-                      strokeOpacity={0.4}
-                      strokeLinecap="round"
-                    />
-                    <line
-                      x1={x + NODE_RADIUS * 0.45}
-                      y1={y - NODE_RADIUS * 0.45}
-                      x2={x - NODE_RADIUS * 0.45}
-                      y2={y + NODE_RADIUS * 0.45}
-                      stroke={color}
-                      strokeWidth={2}
-                      strokeOpacity={0.4}
-                      strokeLinecap="round"
-                    />
-                  </>
-                )}
-
-                {/* Name label */}
-                <text
-                  x={x}
-                  y={y + NODE_RADIUS + 18}
-                  textAnchor="middle"
-                  className="text-xs font-sans fill-ink"
-                  fontWeight={isHovered ? "600" : "500"}
-                  style={{
-                    opacity: loaded ? 1 : 0,
-                    transition: `opacity 0.5s ease ${i * 0.06}s`,
-                  }}
-                >
-                  {member.nickname || member.fullName.split(" ")[0]}
-                </text>
-
-                {/* Branch tag below name */}
-                {isHovered && (
-                  <g style={{ opacity: 0, animation: "fade-in 0.2s ease forwards" }}>
-                    <rect
-                      x={x - 20}
-                      y={y + NODE_RADIUS + 22}
-                      width={40}
-                      height={16}
-                      rx={8}
-                      fill={color}
-                      fillOpacity={0.15}
-                    />
-                    <text
-                      x={x}
-                      y={y + NODE_RADIUS + 33}
-                      textAnchor="middle"
-                      className="text-[9px] font-sans"
-                      fill={color}
-                      fontWeight="500"
-                    >
-                      {member.branch}
-                    </text>
-                  </g>
-                )}
-
-                {/* Branch indicator dot */}
-                <circle
-                  cx={x}
-                  cy={y - NODE_RADIUS - 10}
-                  r={isHovered ? 4 : 3}
-                  fill={color}
-                  opacity={isHovered ? 1 : 0.7}
-                  style={{ transition: "r 0.2s ease, opacity 0.2s ease" }}
-                />
-              </g>
+                allBranches={allBranchesList}
+                onSelect={onSelect}
+onHover={onHover ?? (() => {})}
+                activeBranch={activeBranch}
+                hoveredId={hoveredId}
+                setHoveredId={setHoveredId}
+                loaded={loaded}
+                index={i}
+                bounds={{ offsetX: 0, offsetY: 0 }}
+              />
             );
           })}
         </svg>
@@ -596,24 +335,34 @@ function DesktopTree({
   );
 }
 
-// ─── Mobile Tree ─────────────────────────────────────────────
-
 function MobileTree({
-  generations,
-  allBranches,
+  members,
+  allBranchesList,
   activeBranch,
   onSelect,
+  getBranchColor,
 }: {
-  generations: [number, FamilyMember[]][];
-  allBranches: string[];
+  members: FamilyMember[];
+  allBranchesList: string[];
   activeBranch: string | null;
   onSelect: (m: FamilyMember) => void;
+  getBranchColor: (branch: string, branches: string[]) => string;
 }) {
   const [expandedGen, setExpandedGen] = useState<number | null>(0);
 
+  const generations = useMemo(() => {
+    const map = new Map<number, FamilyMember[]>();
+    members.forEach((m) => {
+      const gen = m.generation;
+      if (!map.has(gen)) map.set(gen, []);
+      map.get(gen)!.push(m);
+    });
+    map.forEach((arr) => arr.sort((a, b) => a.birthOrder - b.birthOrder));
+    return Array.from(map.entries()).sort(([a], [b]) => a - b);
+  }, [members]);
+
   return (
     <div className="relative">
-      {/* Vertical spine line */}
       <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-rattan/40 via-rattan/20 to-transparent" />
 
       <div className="space-y-1">
@@ -625,12 +374,10 @@ function MobileTree({
 
           return (
             <div key={gen}>
-              {/* Generation header */}
               <button
                 onClick={() => setExpandedGen(isExpanded ? null : gen)}
                 className="relative flex items-center gap-3 w-full py-3 pl-2 text-left group"
               >
-                {/* Node on spine */}
                 <div
                   className="w-9 h-9 rounded-full bg-gradient-to-br from-mango to-[#d4922e] flex items-center justify-center z-10 flex-shrink-0 shadow-lg shadow-mango/25"
                   style={{
@@ -651,14 +398,13 @@ function MobileTree({
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* Branch color dots */}
                     {!activeBranch && (
                       <div className="flex -space-x-1">
                         {Array.from(new Set(visibleMembers.map(m => m.branch))).slice(0, 4).map((branch) => (
                           <div
                             key={branch}
                             className="w-2.5 h-2.5 rounded-full border border-white"
-                            style={{ backgroundColor: getBranchColor(branch, allBranches) }}
+                            style={{ backgroundColor: getBranchColor(branch, allBranchesList) }}
                           />
                         ))}
                       </div>
@@ -676,7 +422,6 @@ function MobileTree({
                 </div>
               </button>
 
-              {/* Members list with animated height */}
               <div
                 className="overflow-hidden transition-all duration-300 ease-out"
                 style={{
@@ -686,7 +431,7 @@ function MobileTree({
               >
                 <div className="pl-12 pr-2 pb-3 space-y-2">
                   {visibleMembers.map((member, i) => {
-                    const color = getBranchColor(member.branch, allBranches);
+                    const color = getBranchColor(member.branch, allBranchesList);
                     const isDimmed = activeBranch && member.branch !== activeBranch;
 
                     return (
@@ -701,7 +446,6 @@ function MobileTree({
                         }}
                       >
                         <div className="relative w-11 h-11 rounded-full flex-shrink-0">
-                          {/* Branch color ring */}
                           <div
                             className="absolute inset-0 rounded-full"
                             style={{
@@ -723,7 +467,6 @@ function MobileTree({
                               )}
                             </div>
                           </div>
-                          {/* Deceased cross */}
                           {member.livingStatus === "deceased" && (
                             <div className="absolute inset-0 rounded-full flex items-center justify-center">
                               <svg className="w-6 h-6 text-soft/30" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" fill="none">
