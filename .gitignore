@@ -25,6 +25,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# firebase service account
+apor-tree-firebase-adminsdk-*.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
