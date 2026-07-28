@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com",
               "font-src 'self' data:",
               "connect-src 'self' https://firestore.googleapis.com https://*.firebaseio.com https://*.googleapis.com https://api.cloudinary.com https://api.emailjs.com",
-              "frame-src 'self' https://www.google.com",
+               "frame-src 'self' https://www.google.com https://maps.app.goo.gl",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
