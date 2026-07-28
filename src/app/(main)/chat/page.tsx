@@ -17,8 +17,14 @@ const BRANCH_COLORS: Record<string, string> = {
 };
 
 function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
+  const cookies = document.cookie.split(";");
+  for (const c of cookies) {
+    const [key, ...rest] = c.trim().split("=");
+    if (key === name) {
+      return decodeURIComponent(rest.join("="));
+    }
+  }
+  return null;
 }
 
 function relativeTime(timestamp: { seconds: number; nanoseconds: number }): string {
