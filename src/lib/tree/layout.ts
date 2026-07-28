@@ -67,8 +67,11 @@ function buildNodeTree(
     });
 
     if (member.spouseId && allMembersSet.has(member.spouseId)) {
-      const spouse = nodeMap.get(member.spouseId)!;
-      node.spouse = spouse;
+      // Only link spouse in one direction to avoid cycles
+      if (member.id < member.spouseId) {
+        const spouse = nodeMap.get(member.spouseId)!;
+        node.spouse = spouse;
+      }
     }
   });
 
@@ -185,10 +188,15 @@ function shiftSubtree(node: TreeNode, shift: number): void {
   }
 }
 
-function collectAllNodes(node: TreeNode, collected: TreeNode[]): void {
+function collectAllNodes(node: TreeNode, collected: TreeNode[], visited = new Set<string>()): void {
+  if (visited.has(node.id)) return;
+  visited.add(node.id);
   collected.push(node);
-  if (node.spouse) collected.push(node.spouse);
-  node.children.forEach((child) => collectAllNodes(child, collected));
+  if (node.spouse && !visited.has(node.spouse.id)) {
+    collected.push(node.spouse);
+    visited.add(node.spouse.id);
+  }
+  node.children.forEach((child) => collectAllNodes(child, collected, visited));
 }
 
 export interface TreeLayoutResult {
