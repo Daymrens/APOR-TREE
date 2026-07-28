@@ -91,7 +91,7 @@ export default function ChatPage() {
       });
       setInputValue("");
     } catch (err) {
-      console.error("Failed to send message:", err);
+      if (process.env.NODE_ENV === "development") console.error("Failed to send message:", err);
     } finally {
       setSending(false);
     }
@@ -109,7 +109,7 @@ export default function ChatPage() {
 
   if (showNamePrompt) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <h1 className="font-heading text-3xl text-balete mb-2 animate-fade-in">
           Family Chat
@@ -143,7 +143,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-8rem)]">
+    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col min-h-[calc(100vh-8rem)]">
       <BackButton />
       <div className="mb-6">
         <h1 className="font-heading text-3xl text-balete mb-1 animate-fade-in">Chat</h1>

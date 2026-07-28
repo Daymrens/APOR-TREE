@@ -282,7 +282,7 @@ export default function AdminTriviaPage() {
                   value={form.question}
                   onChange={(e) => handleChange("question", e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40 resize-none"
+                  className="w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40 resize-none"
                   placeholder="e.g., What year was the first Apor reunion?"
                 />
               </div>
@@ -300,7 +300,7 @@ export default function AdminTriviaPage() {
                         type="text"
                         value={choice}
                         onChange={(e) => handleChange("choices", e.target.value, index)}
-                        className="flex-1 px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40"
+                        className="flex-1 px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40"
                         placeholder={`Choice ${String.fromCharCode(65 + index)}`}
                       />
                       {form.choices.length > 2 && (
@@ -335,7 +335,7 @@ export default function AdminTriviaPage() {
                   <select
                     value={form.correctIndex}
                     onChange={(e) => handleChange("correctIndex", Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors"
+                    className="w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors"
                   >
                     {form.choices.map((_, i) => (
                       <option key={i} value={i}>
@@ -352,7 +352,7 @@ export default function AdminTriviaPage() {
                     max={100}
                     value={form.points}
                     onChange={(e) => handleChange("points", Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors"
+                    className="w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors"
                   />
                 </div>
               </div>
@@ -363,7 +363,7 @@ export default function AdminTriviaPage() {
                   value={form.explanation}
                   onChange={(e) => handleChange("explanation", e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40 resize-none"
+                  className="w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40 resize-none"
                   placeholder="Why is this the correct answer? (shown after answering)"
                 />
               </div>

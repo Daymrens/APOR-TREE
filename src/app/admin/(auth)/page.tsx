@@ -36,6 +36,11 @@ function AdminForm() {
     }
   }
 
+  function handleSignOut() {
+    document.cookie = "admin-session=; max-age=0; path=/";
+    router.push("/admin");
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -60,6 +65,14 @@ function AdminForm() {
         className="w-full py-3.5 bg-mango/90 hover:bg-mango text-balete rounded-[14px] font-sans font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {loading ? "Checking..." : "Enter"}
+      </button>
+
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="w-full py-2 text-soft/60 text-xs font-sans hover:text-soft transition-colors"
+      >
+        Sign out
       </button>
     </form>
   );

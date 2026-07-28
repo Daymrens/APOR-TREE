@@ -4,8 +4,8 @@ import { useState } from "react";
 import type { FamilyMember } from "@/lib/types";
 import { getBranchColor } from "@/lib/tree/layout";
 
-const MANGO = "#E8A63D";
-const RATTAN = "#C9A876";
+const MANGO = "var(--color-mango)";
+const RATTAN = "var(--color-rattan)";
 
 interface TreeNodeCardProps {
   node: {
@@ -158,6 +158,7 @@ export default function TreeNodeCard({
       {member.photoUrl ? (
         <image
           href={member.photoUrl}
+          xlinkHref={member.photoUrl}
           x={node.x - (r - 4)}
           y={node.y - (r - 4)}
           width={(r - 4) * 2}
@@ -280,9 +281,9 @@ export default function TreeNodeCard({
       <circle
         cx={node.x + r * 0.65}
         cy={node.y + r * 0.65}
-        r={4}
+        r={Math.min(4, r * 0.15)}
         fill={color}
-        stroke="rgba(241, 232, 214, 0.95)"
+        stroke="var(--color-parchment)"
         strokeWidth={2}
         style={{
           opacity: loaded ? 0.8 : 0,

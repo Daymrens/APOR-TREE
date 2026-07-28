@@ -12,7 +12,7 @@ export default function PWAProvider() {
             console.log("SW registered:", reg.scope);
           })
           .catch((err) => {
-            console.warn("SW registration failed:", err);
+            if (process.env.NODE_ENV === "development") console.warn("SW registration failed:", err);
           });
       });
     }

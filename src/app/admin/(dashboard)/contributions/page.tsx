@@ -37,7 +37,7 @@ export default function AdminContributionsPage() {
       const data = await res.json();
       setContributions(data);
     } catch {
-      console.warn("Failed to fetch contributions");
+      if (process.env.NODE_ENV === "development") console.warn("Failed to fetch contributions");
     } finally {
       setLoading(false);
     }
@@ -61,7 +61,7 @@ export default function AdminContributionsPage() {
         prev.map((c) => (c.id === id ? { ...c, status: "approved" as const } : c))
       );
     } catch {
-      console.warn("Failed to approve contribution");
+      if (process.env.NODE_ENV === "development") console.warn("Failed to approve contribution");
     } finally {
       setActioning(null);
     }
@@ -77,7 +77,7 @@ export default function AdminContributionsPage() {
       });
       setContributions((prev) => prev.filter((c) => c.id !== id));
     } catch {
-      console.warn("Failed to delete contribution");
+      if (process.env.NODE_ENV === "development") console.warn("Failed to delete contribution");
     } finally {
       setActioning(null);
     }

@@ -2,8 +2,8 @@
 
 import { Connector, getBranchColor } from "@/lib/tree/layout";
 
-const BALETE = "#1E3B2C";
-const RATTAN = "#C9A876";
+const BALETE = "var(--color-balete)";
+const RATTAN = "var(--color-rattan)";
 
 interface TreeConnectorsProps {
   connectors: Connector[];

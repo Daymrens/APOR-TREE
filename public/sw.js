@@ -9,6 +9,8 @@ const PRECACHE_URLS = [
   "/tree",
   "/games",
   "/games/trivia",
+  "/bingo",
+  "/contribute",
   "/chat",
   "/settings",
 ];

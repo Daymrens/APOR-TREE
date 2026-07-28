@@ -92,7 +92,7 @@ export default function TriviaPage() {
       setPlayerName("");
       loadLeaderboard();
     } catch (err) {
-      console.error("Failed to submit score:", err);
+      if (process.env.NODE_ENV === "development") console.error("Failed to submit score:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +104,7 @@ export default function TriviaPage() {
 
   if (phase === "loading") {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <div className="text-center py-16 animate-fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mango/15 mb-4">
@@ -120,7 +120,7 @@ export default function TriviaPage() {
 
   if (phase === "results") {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <div className="text-center animate-fade-in">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-hibiscus/20 to-hibiscus/5 p-[3px] mb-6 animate-scale-in">
@@ -220,7 +220,7 @@ export default function TriviaPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
       <div className="mb-6 animate-fade-in">
         <div className="flex items-center justify-between mb-2">

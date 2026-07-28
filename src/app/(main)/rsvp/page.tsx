@@ -27,20 +27,24 @@ export default function RsvpPage() {
   });
 
   useEffect(() => {
-    const memberName = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("family-member-name="))
-      ?.split("=")[1];
-    const memberBranch = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("family-member-branch="))
-      ?.split("=")[1];
+    function getCookie(name: string): string | null {
+      const cookies = document.cookie.split(";");
+      for (const c of cookies) {
+        const [key, ...rest] = c.trim().split("=");
+        if (key === name) {
+          return decodeURIComponent(rest.join("="));
+        }
+      }
+      return null;
+    }
+    const memberName = getCookie("family-member-name");
+    const memberBranch = getCookie("family-member-branch");
 
     if (memberName || memberBranch) {
       setForm((prev) => ({
         ...prev,
-        respondentName: memberName ? decodeURIComponent(memberName) : prev.respondentName,
-        familyBranch: memberBranch ? decodeURIComponent(memberBranch) : prev.familyBranch,
+        respondentName: memberName ? memberName : prev.respondentName,
+        familyBranch: memberBranch ? memberBranch : prev.familyBranch,
       }));
     }
 
@@ -51,7 +55,7 @@ export default function RsvpPage() {
         setLoadingBranches(false);
       })
       .catch((err) => {
-        console.warn("Firestore not available:", err.message);
+        if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", err.message);
         setLoadingBranches(false);
       });
 
@@ -119,7 +123,7 @@ export default function RsvpPage() {
 
   if (submitted) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-16 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <BackButton />
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-hibiscus/20 to-hibiscus/5 p-[3px] mb-6 animate-scale-in">
           <div className="w-full h-full rounded-full bg-parchment flex items-center justify-center">
@@ -155,7 +159,7 @@ export default function RsvpPage() {
 
   if (loadingBranches) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <div className="space-y-5 mt-8">
           <div className="glass-card rounded-2xl p-4">
@@ -188,7 +192,7 @@ export default function RsvpPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
       <h1 className="font-heading text-3xl text-balete mb-2 animate-fade-in">RSVP</h1>
       <p className="text-soft font-sans mb-8 animate-fade-in" style={{ animationDelay: "0.05s" }}>

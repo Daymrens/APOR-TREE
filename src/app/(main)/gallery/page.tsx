@@ -33,7 +33,7 @@ export default function GalleryPage() {
         setLoading(false);
       },
       (error) => {
-        console.warn("Firestore not available:", error.message);
+        if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error.message);
         setLoading(false);
       }
     );
@@ -92,7 +92,7 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -101,15 +101,15 @@ export default function GalleryPage() {
             {loading
               ? "Loading..."
               : photos.length === 0
-              ? "No photos yet."
-              : `${photos.length} photo${photos.length === 1 ? "" : "s"}`}
+              ? "No photos or videos yet."
+              : `${photos.length} item${photos.length === 1 ? "" : "s"}`}
           </p>
         </div>
         <a
           href="/gallery/upload"
           className="px-4 py-2 bg-gradient-to-r from-hibiscus to-[#a82f5a] text-parchment rounded-xl font-sans text-sm transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/25 hover:scale-[1.02] active:scale-[0.98]"
         >
-          Add photos
+          Add photos & videos
         </a>
       </div>
 
@@ -127,7 +127,7 @@ export default function GalleryPage() {
             </svg>
           </div>
           <p className="text-soft font-sans">
-            No photos yet — be the first to add one from the reunion.
+            No photos or videos yet — be the first to add one from the reunion.
           </p>
         </div>
       ) : (
@@ -136,15 +136,33 @@ export default function GalleryPage() {
             <button
               key={photo.id}
               onClick={() => setSelectedIndex(index)}
-              className="aspect-square rounded-2xl overflow-hidden bg-rattan/10 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all duration-200 hover:scale-[1.03] hover:shadow-lg animate-fade-in"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-rattan/10 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all duration-200 hover:scale-[1.03] hover:shadow-lg animate-fade-in"
               style={{ animationDelay: `${Math.min(index * 0.05, 0.3)}s` }}
             >
-              <img
-                src={photo.thumbnailUrl || photo.storageUrl}
-                alt={photo.caption || "Reunion photo"}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              {photo.mediaType === "video" ? (
+                <>
+                  <video
+                    src={photo.thumbnailUrl || photo.storageUrl}
+                    className="w-full h-full object-cover"
+                    muted
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={photo.thumbnailUrl || photo.storageUrl}
+                  alt={photo.caption || "Reunion photo"}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              )}
             </button>
           ))}
         </div>
@@ -200,12 +218,22 @@ export default function GalleryPage() {
             className="max-w-3xl w-full mx-4 sm:mx-12 animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={selectedPhoto.storageUrl}
-              alt={selectedPhoto.caption || "Reunion photo"}
-              className="w-full max-h-[80vh] object-contain rounded-2xl"
-              key={selectedPhoto.id}
-            />
+            {selectedPhoto.mediaType === "video" ? (
+              <video
+                src={selectedPhoto.storageUrl}
+                className="w-full max-h-[80vh] object-contain rounded-2xl"
+                key={selectedPhoto.id}
+                controls
+                autoPlay
+              />
+            ) : (
+              <img
+                src={selectedPhoto.storageUrl}
+                alt={selectedPhoto.caption || "Reunion photo"}
+                className="w-full max-h-[80vh] object-contain rounded-2xl"
+                key={selectedPhoto.id}
+              />
+            )}
             {(selectedPhoto.caption || selectedPhoto.uploaderName) && (
               <div className="mt-3 glass rounded-xl px-4 py-3 text-parchment text-sm font-sans">
                 {selectedPhoto.caption && <p>{selectedPhoto.caption}</p>}

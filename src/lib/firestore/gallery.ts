@@ -9,7 +9,7 @@ export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
     const snapshot = await getDocs(collection(db, COLLECTION));
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as GalleryPhoto[];
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return [];
   }
 }

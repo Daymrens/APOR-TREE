@@ -50,5 +50,12 @@ service cloud.firestore {
       allow create: if true;
       allow update, delete: if false;
     }
+
+    // Contributions: public read (for display on homepage), admin-only write/update/delete
+    match /contributions/{doc} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
   }
 }

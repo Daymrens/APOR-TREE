@@ -21,7 +21,7 @@ export async function getMembers(): Promise<FamilyMember[]> {
       ...doc.data(),
     })) as FamilyMember[];
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return [];
   }
 }

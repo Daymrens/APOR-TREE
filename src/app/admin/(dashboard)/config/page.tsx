@@ -116,7 +116,7 @@ export default function AdminConfigPage() {
   }
 
   const inputClass =
-    "w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40";
+    "w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40";
 
   if (loading) {
     return (
@@ -195,6 +195,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, venueName: e.target.value })}
               className={inputClass}
               placeholder="Venue name"
+              aria-label="Venue name"
             />
             <input
               type="text"
@@ -202,6 +203,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, venueAddress: e.target.value })}
               className={inputClass}
               placeholder="Venue address"
+              aria-label="Venue address"
             />
             <input
               type="url"
@@ -209,6 +211,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, mapEmbedUrl: e.target.value })}
               className={inputClass}
               placeholder="Map embed URL"
+              aria-label="Map embed URL"
             />
           </div>
         </div>
@@ -230,6 +233,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, contactPerson: e.target.value })}
               className={inputClass}
               placeholder="Contact person"
+              aria-label="Contact person"
             />
             <input
               type="tel"
@@ -237,6 +241,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
               className={inputClass}
               placeholder="Contact number"
+              aria-label="Contact number"
             />
           </div>
         </div>
@@ -258,6 +263,7 @@ export default function AdminConfigPage() {
               rows={3}
               className={`${inputClass} resize-none`}
               placeholder="Parking notes"
+              aria-label="Parking notes"
             />
             <input
               type="url"
@@ -265,6 +271,7 @@ export default function AdminConfigPage() {
               onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
               className={inputClass}
               placeholder="Cover image URL"
+              aria-label="Cover image URL"
             />
           </div>
         </div>

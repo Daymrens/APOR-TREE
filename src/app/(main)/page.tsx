@@ -55,10 +55,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const memberName = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("family-member-name="))
-      ?.split("=")[1];
+    function getCookie(name: string): string | null {
+      const cookies = document.cookie.split(";");
+      for (const c of cookies) {
+        const [key, ...rest] = c.trim().split("=");
+        if (key === name) {
+          return decodeURIComponent(rest.join("="));
+        }
+      }
+      return null;
+    }
+    const memberName = getCookie("family-member-name");
     if (memberName) {
       setGreeting(decodeURIComponent(memberName));
     }
@@ -87,13 +94,13 @@ export default function HomePage() {
           setCounts({ confirmed, maybe, headcount });
         },
         (error) => {
-          console.warn("Firestore not available:", error.message);
+          if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error.message);
         }
       );
 
       return () => unsub();
     } catch (error) {
-      console.warn("Firestore not available:", error);
+      if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     }
   }, []);
 

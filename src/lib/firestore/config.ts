@@ -10,7 +10,7 @@ export async function getConfig(): Promise<ReunionConfig | null> {
     if (!snap.exists()) return null;
     return snap.data() as ReunionConfig;
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return null;
   }
 }

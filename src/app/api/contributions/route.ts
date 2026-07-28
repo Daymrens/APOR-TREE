@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { rateLimit } from "@/lib/rate-limit";
 
 const COLLECTION = "contributions";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const db = getAdminDb();
     const snapshot = await db.collection(COLLECTION)
-      .where("status", "==", "approved")
       .orderBy("createdAt", "desc")
       .get();
 
@@ -23,8 +23,13 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "anonymous";
+    if (!rateLimit(`contribute:${ip}`, 5, 60000)) {
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+    }
+
     const body = await request.json();
     const db = getAdminDb();
 

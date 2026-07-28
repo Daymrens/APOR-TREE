@@ -1,11 +1,10 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // Member photos - public read, write via admin SDK only
+    // Member photos - public read, write via admin SDK only (no client writes)
     match /members/{allPaths} {
       allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
-                    && request.resource.contentType.matches('image/.*');
+      allow write: if false;
     }
 
     // Gallery photos - public read, write via client SDK

@@ -22,7 +22,7 @@ export async function getSchedule(): Promise<ScheduleItem[]> {
       ...doc.data(),
     })) as ScheduleItem[];
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return [];
   }
 }

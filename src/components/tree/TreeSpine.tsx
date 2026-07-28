@@ -179,14 +179,14 @@ function DesktopTree({
   getBranchColor: (branch: string, branches: string[]) => string;
   fitToScreen: () => void;
 }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 });
+const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      setZoom(z => Math.min(Math.max(z + delta, 0.3), 2.5));
+      setZoom((z) => Math.min(Math.max(z + delta, 0.3), 2.5));
     }
   }, []);
 
@@ -200,8 +200,6 @@ function DesktopTree({
     dragStart.current = {
       x: e.clientX,
       y: e.clientY,
-      scrollLeft: containerRef.current.scrollLeft,
-      scrollTop: containerRef.current.scrollTop,
     };
   }, []);
 
@@ -212,8 +210,10 @@ function DesktopTree({
       if (!containerRef.current) return;
       const dx = e.clientX - dragStart.current.x;
       const dy = e.clientY - dragStart.current.y;
-      containerRef.current.scrollLeft = dragStart.current.scrollLeft - dx;
-      containerRef.current.scrollTop = dragStart.current.scrollTop - dy;
+      containerRef.current.scrollLeft -= dx;
+      containerRef.current.scrollTop -= dy;
+      dragStart.current.x = e.clientX;
+      dragStart.current.y = e.clientY;
     };
 
     const handleMouseUp = () => {

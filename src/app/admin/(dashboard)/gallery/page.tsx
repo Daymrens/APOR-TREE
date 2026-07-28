@@ -23,7 +23,7 @@ export default function AdminGalleryPage() {
       const data = await res.json();
       setPhotos(data.photos || []);
     } catch {
-      console.error("Failed to load photos");
+      if (process.env.NODE_ENV === "development") console.error("Failed to load photos");
     }
     setLoading(false);
   }
@@ -37,7 +37,7 @@ export default function AdminGalleryPage() {
       });
       setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, approved: true } : p)));
     } catch {
-      console.error("Failed to approve photo");
+      if (process.env.NODE_ENV === "development") console.error("Failed to approve photo");
     }
   }
 
@@ -51,7 +51,7 @@ export default function AdminGalleryPage() {
       setPhotos((prev) => prev.filter((p) => p.id !== id));
       setConfirmDelete(null);
     } catch {
-      console.error("Failed to delete photo");
+      if (process.env.NODE_ENV === "development") console.error("Failed to delete photo");
     }
   }
 

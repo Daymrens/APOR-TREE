@@ -39,7 +39,7 @@ export default function TreePage() {
         setLoading(false);
       },
       (error) => {
-        console.warn("Firestore not available:", error.message);
+        if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error.message);
         setLoading(false);
       }
     );

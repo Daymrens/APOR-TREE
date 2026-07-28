@@ -21,7 +21,7 @@ export async function getTriviaQuestions(): Promise<TriviaQuestion[]> {
       ...doc.data(),
     })) as TriviaQuestion[];
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return [];
   }
 }
@@ -49,7 +49,7 @@ export async function getTopScores(count: number = 10): Promise<TriviaScore[]> {
       ...doc.data(),
     })) as TriviaScore[];
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return [];
   }
 }

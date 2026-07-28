@@ -39,7 +39,7 @@ export default function MemberProfilePage() {
         setLoading(false);
       },
       (error) => {
-        console.warn("Firestore not available:", error.message);
+        if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error.message);
         setLoading(false);
       }
     );
@@ -53,7 +53,7 @@ export default function MemberProfilePage() {
 
   if (loading) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <div className="text-center py-16 animate-fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mango/15 mb-4">
@@ -69,7 +69,7 @@ export default function MemberProfilePage() {
 
   if (!member) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-8 text-center">
         <BackButton />
         <div className="animate-fade-in mt-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rattan/10 mb-4">
@@ -117,7 +117,7 @@ export default function MemberProfilePage() {
   const color = getBranchColor(member.branch, allBranches);
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
       <div className="text-center mb-8 animate-fade-in">
         <div

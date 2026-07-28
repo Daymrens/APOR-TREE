@@ -124,7 +124,7 @@ function MemberForm({
   }
 
   const inputClass =
-    "w-full px-4 py-3 bg-white border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40";
+    "w-full px-4 py-3 bg-parchment border border-rattan/60 rounded-xl font-sans text-sm text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-hibiscus/60 transition-colors placeholder:text-soft/40";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
@@ -184,6 +184,7 @@ function MemberForm({
                 onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                 className={inputClass}
                 placeholder="Full name"
+                aria-label="Full name"
               />
               <input
                 type="text"
@@ -191,6 +192,7 @@ function MemberForm({
                 onChange={(e) => setForm({ ...form, nickname: e.target.value })}
                 className={inputClass}
                 placeholder="Nickname (optional)"
+                aria-label="Nickname"
               />
             </div>
           </div>
@@ -207,6 +209,7 @@ function MemberForm({
                   onChange={(e) => setForm({ ...form, generation: Number(e.target.value) })}
                   className={inputClass}
                   placeholder="Generation"
+                  aria-label="Generation"
                 />
               </div>
               <div>
@@ -217,6 +220,7 @@ function MemberForm({
                   onChange={(e) => setForm({ ...form, birthOrder: Number(e.target.value) })}
                   className={inputClass}
                   placeholder="Birth order"
+                  aria-label="Birth order"
                 />
               </div>
             </div>
@@ -229,6 +233,7 @@ function MemberForm({
                 list="branch-suggestions"
                 className={inputClass}
                 placeholder="Branch (e.g. Lolo Pedro's line)"
+                aria-label="Branch"
               />
               <datalist id="branch-suggestions">
                 {branches.map((b) => (
@@ -243,6 +248,7 @@ function MemberForm({
                 onChange={(e) => setForm({ ...form, parentIds: e.target.value })}
                 className={inputClass}
                 placeholder="Parent IDs"
+                aria-label="Parent IDs"
               />
               <input
                 type="text"
@@ -250,6 +256,7 @@ function MemberForm({
                 onChange={(e) => setForm({ ...form, spouseId: e.target.value })}
                 className={inputClass}
                 placeholder="Spouse ID"
+                aria-label="Spouse ID"
               />
             </div>
           </div>
@@ -263,6 +270,7 @@ function MemberForm({
                 setForm({ ...form, livingStatus: e.target.value as "living" | "deceased" })
               }
               className={inputClass}
+              aria-label="Living status"
             >
               <option value="living">Living</option>
               <option value="deceased">Deceased</option>
@@ -273,6 +281,7 @@ function MemberForm({
               rows={3}
               className={`${inputClass} mt-3 resize-none`}
               placeholder="Notes (optional)"
+              aria-label="Notes"
             />
           </div>
 
@@ -548,6 +557,7 @@ export default function AdminMembersPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, nickname, or branch..."
+            aria-label="Search members"
             className="w-full pl-10 pr-10 py-2.5 bg-white border border-rattan/40 rounded-xl font-sans text-sm focus:outline-none focus:ring-2 focus:ring-hibiscus/30 focus:border-hibiscus/50 transition-colors placeholder:text-soft/40"
           />
           {searchQuery && (

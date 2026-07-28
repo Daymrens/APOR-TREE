@@ -60,6 +60,7 @@ export interface GalleryPhoto {
   caption: string;
   uploadedAt: Timestamp;
   approved: boolean;
+  mediaType?: "image" | "video";
 }
 
 export interface TriviaQuestion {

@@ -119,7 +119,7 @@ export default function SchedulePage() {
   const nextItem = getNextItem();
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
       <h1 className="font-heading text-3xl text-balete mb-2 animate-fade-in">Schedule</h1>
       <p className="text-soft font-sans mb-8 animate-fade-in" style={{ animationDelay: "0.05s" }}>

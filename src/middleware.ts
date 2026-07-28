@@ -12,8 +12,11 @@ export function middleware(request: NextRequest) {
   const familySession = request.cookies.get("family-session")?.value;
   const adminSession = request.cookies.get("admin-session")?.value;
 
-  if (pathname.startsWith("/admin")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     if (!adminSession) {
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
       const adminUrl = new URL("/admin", request.url);
       adminUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(adminUrl);

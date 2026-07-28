@@ -35,7 +35,7 @@ export default function ContributePage() {
       document.cookie.split("; ").find((c) => c.startsWith("family-member-name="))?.split("=")[1] || null
     );
     setMemberBranch(
-      document.cookie.split("; ").find((c) => c.startsWith("family-branch="))?.split("=")[1] || null
+      document.cookie.split("; ").find((c) => c.startsWith("family-member-branch="))?.split("=")[1] || null
     );
   }, []);
 

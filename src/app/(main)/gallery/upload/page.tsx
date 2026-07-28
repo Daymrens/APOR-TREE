@@ -51,8 +51,8 @@ function resizeImage(file: File, maxDim: number, quality = 0.85): Promise<Blob> 
 }
 
 function validateFile(file: File): string | null {
-  if (!file.type.startsWith("image/")) {
-    return `"${file.name}" is not an image file.`;
+  if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+    return `"${file.name}" is not an image or video file.`;
   }
   if (file.size > MAX_FILE_SIZE) {
     const sizeMB = Math.round(file.size / (1024 * 1024));
@@ -61,8 +61,8 @@ function validateFile(file: File): string | null {
   return null;
 }
 
-function blobToFile(blob: Blob, name: string): File {
-  return new File([blob], name, { type: "image/jpeg" });
+function blobToFile(blob: Blob, name: string, type = "image/jpeg"): File {
+  return new File([blob], name, { type });
 }
 
 export default function UploadPage() {
@@ -123,31 +123,47 @@ export default function UploadPage() {
     for (let i = 0; i < total; i++) {
       const file = files[i];
       try {
-        const [fullBlob, thumbBlob] = await Promise.all([
-          resizeImage(file, FULL_MAX_DIM),
-          resizeImage(file, THUMB_MAX_DIM, 0.8),
-        ]);
-
         const timestamp = Date.now();
         const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
         const baseName = `${timestamp}-${safeName}`;
+        const isVideo = file.type.startsWith("video/");
 
-        const fullFile = blobToFile(fullBlob, baseName);
-        const thumbFile = blobToFile(thumbBlob, baseName);
+        if (isVideo) {
+          const result = await uploadToCloudinary(file, "gallery/full");
 
-        const [fullResult, thumbResult] = await Promise.all([
-          uploadToCloudinary(fullFile, "gallery/full"),
-          uploadToCloudinary(thumbFile, "gallery/thumbs"),
-        ]);
+          await addDoc(collection(db, "gallery_photos"), {
+            storageUrl: result.url,
+            thumbnailUrl: result.url,
+            mediaType: "video",
+            uploaderName: name.trim(),
+            caption: caption.trim(),
+            uploadedAt: Timestamp.now(),
+            approved: true,
+          });
+        } else {
+          const [fullBlob, thumbBlob] = await Promise.all([
+            resizeImage(file, FULL_MAX_DIM),
+            resizeImage(file, THUMB_MAX_DIM, 0.8),
+          ]);
 
-        await addDoc(collection(db, "gallery_photos"), {
-          storageUrl: fullResult.url,
-          thumbnailUrl: thumbResult.url,
-          uploaderName: name.trim(),
-          caption: caption.trim(),
-          uploadedAt: Timestamp.now(),
-          approved: true,
-        });
+          const fullFile = blobToFile(fullBlob, baseName);
+          const thumbFile = blobToFile(thumbBlob, baseName);
+
+          const [fullResult, thumbResult] = await Promise.all([
+            uploadToCloudinary(fullFile, "gallery/full"),
+            uploadToCloudinary(thumbFile, "gallery/thumbs"),
+          ]);
+
+          await addDoc(collection(db, "gallery_photos"), {
+            storageUrl: fullResult.url,
+            thumbnailUrl: thumbResult.url,
+            mediaType: "image",
+            uploaderName: name.trim(),
+            caption: caption.trim(),
+            uploadedAt: Timestamp.now(),
+            approved: true,
+          });
+        }
 
         uploadResults.push({ name: file.name, success: true });
       } catch (err) {
@@ -180,9 +196,9 @@ export default function UploadPage() {
   const successCount = results.filter((r) => r.success).length;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <BackButton />
-      <h1 className="font-heading text-3xl text-balete mb-2 animate-fade-in">Add photos</h1>
+      <h1 className="font-heading text-3xl text-balete mb-2 animate-fade-in">Add media</h1>
       <p className="text-soft font-sans mb-8 animate-fade-in" style={{ animationDelay: "0.05s" }}>
         Share your moments from the reunion.
       </p>
@@ -211,17 +227,17 @@ export default function UploadPage() {
             type="text"
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="What's happening in this photo?"
+            placeholder="What's happening here?"
             className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           />
         </div>
 
         <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          <label className="block text-sm font-sans text-ink mb-1">Photos</label>
+          <label className="block text-sm font-sans text-ink mb-1">Photos &amp; videos</label>
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             onChange={handleFileChange}
             className="hidden"
@@ -320,7 +336,7 @@ export default function UploadPage() {
               Uploading...
             </span>
           ) : (
-            "Upload photos"
+            "Upload"
           )}
         </button>
       </form>

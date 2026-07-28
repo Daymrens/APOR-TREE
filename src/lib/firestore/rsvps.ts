@@ -27,12 +27,12 @@ export function subscribeToRsvps(
         callback(rsvps);
       },
       (error) => {
-        console.warn("Firestore rsvps subscription error:", error.message);
+        if (process.env.NODE_ENV === "development") console.warn("Firestore rsvps subscription error:", error.message);
         onError?.(error);
       }
     );
   } catch (error) {
-    console.warn("Firestore not available:", error);
+    if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return () => {};
   }
 }

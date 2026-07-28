@@ -6,7 +6,7 @@ import ShareButton from "@/components/ShareButton";
 
 export default function GamesPage() {
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="fixed top-4 right-4 z-50">
         <ShareButton />
       </div>
@@ -23,9 +23,52 @@ export default function GamesPage() {
 
       <div className="space-y-4">
         <Link
-          href="/games/trivia"
+          href="/bingo"
           className="glass-card rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
           style={{ animationDelay: "0.1s" }}
+        >
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-hibiscus to-[#a82f5a] flex items-center justify-center shrink-0">
+            <svg
+              className="w-7 h-7 text-parchment"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6.75m-3-6h6m-6 6h6"
+              />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h2 className="font-heading text-lg text-balete group-hover:text-hibiscus transition-colors">
+              Icebreaker Bingo
+            </h2>
+            <p className="text-soft text-sm font-sans">
+              Find family matches with fun prompts
+            </p>
+          </div>
+          <svg
+            className="w-5 h-5 text-soft/40 group-hover:text-hibiscus group-hover:translate-x-1 transition-all"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </Link>
+
+        <Link
+          href="/games/trivia"
+          className="glass-card rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
+          style={{ animationDelay: "0.15s" }}
         >
           <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-hibiscus to-[#a82f5a] flex items-center justify-center shrink-0">
             <svg

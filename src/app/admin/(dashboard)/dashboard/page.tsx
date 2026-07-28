@@ -46,13 +46,15 @@ export default function AdminDashboardPage() {
       });
   }, []);
 
-  const total = rsvps.length;
+  const total = rsvps.filter((r) => r.attending === "yes" || r.attending === "maybe").length;
   const counts: Record<string, number> = {
     yes: rsvps.filter((r) => r.attending === "yes").length,
     maybe: rsvps.filter((r) => r.attending === "maybe").length,
     no: rsvps.filter((r) => r.attending === "no").length,
   };
-  const totalGuests = rsvps.reduce((sum, r) => sum + r.guestCount, 0);
+  const totalGuests = rsvps
+    .filter((r) => r.attending !== "no")
+    .reduce((sum, r) => sum + (r.guestCount || 0), 0);
   const headcount = total + totalGuests;
   const recent = rsvps.slice(0, 5);
 
