@@ -1,4 +1,4 @@
-const CACHE_NAME = "apor-reunion-v1";
+const CACHE_NAME = "apor-reunion-v2";
 const PRECACHE_URLS = [
   "/",
   "/gate",
@@ -10,9 +10,7 @@ const PRECACHE_URLS = [
   "/games",
   "/games/trivia",
   "/chat",
-  "/admin",
-  "/admin/rsvps",
-  "/admin/members",
+  "/settings",
 ];
 
 self.addEventListener("install", (event) => {
@@ -37,22 +35,20 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  if (event.request.url.includes("/api/")) return;
+  if (event.request.url.includes("/admin")) return;
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetched = fetch(event.request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, clone);
-            });
-          }
-          return response;
-        })
-        .catch(() => cached);
-
-      return cached || fetched;
-    })
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === "basic") {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
