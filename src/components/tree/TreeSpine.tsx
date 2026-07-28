@@ -3,14 +3,15 @@
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import type { FamilyMember } from "@/lib/types";
 import { computeTreePositions, getBranchColor as layoutGetBranchColor } from "@/lib/tree/layout";
-import TreeNode from "@/components/tree/TreeNode";
+import TreeNodeCard from "@/components/tree/TreeNodeCard";
 import TreeConnectors from "@/components/tree/TreeConnectors";
 
-const NODE_RADIUS = 30;
-const NODE_SPACING_X = 160;
-const NODE_SPACING_Y = 150;
-const SPOUSE_GAP = 60;
-const PADDING = 80;
+const CARD_WIDTH = 160;
+const CARD_HEIGHT = 100;
+const NODE_SPACING_X = CARD_WIDTH + 50;  // 210px between cards horizontally
+const NODE_SPACING_Y = CARD_HEIGHT + 60; // 160px between generations vertically
+const SPOUSE_GAP = 40;  // smaller gap for spouse cards
+const PADDING = 100;
 
 function getBranchColor(branch: string, allBranchesList: string[]): string {
   return layoutGetBranchColor(branch, allBranchesList);
@@ -59,7 +60,7 @@ export default function TreeSpine({ members, activeBranch, onSelect, onHover }: 
 
   const { positions, connectors, bounds } = useMemo(() => {
     return computeTreePositions(members, {
-      nodeWidth: NODE_RADIUS * 2,
+      nodeWidth: CARD_WIDTH,
       nodeSpacingX: NODE_SPACING_X,
       spouseGap: SPOUSE_GAP,
       generationGapY: NODE_SPACING_Y,
@@ -306,8 +307,8 @@ function DesktopTree({
             const isHovered = hoveredId === id;
             const spouseId = member.spouseId;
 
-            return (
-              <TreeNode
+return (
+              <TreeNodeCard
                 key={id}
                 node={{
                   id,
@@ -315,7 +316,7 @@ function DesktopTree({
                   y: pos.y,
                   member,
                   spouseId,
-isSpouse: false,
+                  isSpouse: false,
                 }}
                 allBranches={allBranchesList}
                 onSelect={onSelect}
