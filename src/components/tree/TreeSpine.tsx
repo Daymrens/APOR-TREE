@@ -233,21 +233,21 @@ const [isDragging, setIsDragging] = useState(false);
       <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
         <button
           onClick={() => setZoom(z => Math.min(z + 0.2, 2.5))}
-          className="w-8 h-8 glass-card rounded-lg flex items-center justify-center text-ink hover:bg-white/70 transition-all duration-200 text-sm font-mono"
+          className="w-8 h-8 clay rounded-lg flex items-center justify-center text-ink hover:shadow-lg transition-all duration-200 text-sm font-mono"
           aria-label="Zoom in"
         >
           +
         </button>
         <button
           onClick={() => setZoom(z => Math.max(z - 0.2, 0.3))}
-          className="w-8 h-8 glass-card rounded-lg flex items-center justify-center text-ink hover:bg-white/70 transition-all duration-200 text-sm font-mono"
+          className="w-8 h-8 clay rounded-lg flex items-center justify-center text-ink hover:shadow-lg transition-all duration-200 text-sm font-mono"
           aria-label="Zoom out"
         >
           −
         </button>
         <button
           onClick={fitToScreen}
-          className="w-8 h-8 glass-card rounded-lg flex items-center justify-center text-ink hover:bg-white/70 transition-all duration-200"
+          className="w-8 h-8 clay rounded-lg flex items-center justify-center text-ink hover:shadow-lg transition-all duration-200"
           aria-label="Fit to screen"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -256,7 +256,7 @@ const [isDragging, setIsDragging] = useState(false);
         </button>
       </div>
 
-      <div className="absolute top-2 left-2 z-20 glass-card rounded-lg px-2 py-1 text-xs font-mono text-soft">
+      <div className="absolute top-2 left-2 z-20 clay rounded-lg px-2 py-1 text-xs font-mono text-soft">
         {Math.round(zoom * 100)}%
       </div>
 
@@ -432,7 +432,7 @@ function MobileTree({
                       <button
                         key={member.id}
                         onClick={() => onSelect(member)}
-                        className="w-full text-left glass-card rounded-2xl p-3 flex items-center gap-3 hover:shadow-md transition-all duration-200"
+                        className="w-full text-left clay rounded-2xl p-3 flex items-center gap-3 hover:shadow-lg transition-all duration-200"
                         style={{
                           opacity: isDimmed ? 0.2 : 1,
                           borderLeft: `3px solid ${color}`,

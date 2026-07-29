@@ -133,12 +133,12 @@ export default function BingoPage() {
       </div>
 
       {name && (
-        <div className="mb-4 p-3 glass-card rounded-xl text-center animate-fade-in">
+        <div className="mb-4 p-3 clay rounded-xl text-center animate-fade-in">
           <p className="text-soft text-sm font-sans">Playing as <span className="font-medium text-ink">{name}</span></p>
         </div>
       )}
 
-      <div className="glass-card rounded-2xl p-4 mb-6 animate-fade-in">
+      <div className="clay rounded-2xl p-4 mb-6 animate-fade-in">
         <input
           type="text"
           value={name}
@@ -165,7 +165,7 @@ export default function BingoPage() {
                 className={`aspect-square rounded-xl font-sans text-xs leading-tight transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-hibiscus/50 ${
                   isMarked
                     ? "bg-gradient-to-br from-hibiscus to-[#a82f5a] text-parchment shadow-md shadow-hibiscus/25"
-                    : "bg-white/50 border border-rattan/30 text-ink hover:bg-white/70 hover:border-hibiscus/30"
+                    : "clay text-ink"
                 } ${won ? "opacity-75 cursor-not-allowed" : ""}`}
                 style={{ fontSize: "0.7rem" }}
               >
@@ -184,7 +184,7 @@ export default function BingoPage() {
       </div>
 
       {won && (
-        <div className="glass-card rounded-2xl p-6 text-center animate-fade-in animate-bounce">
+        <div className="clay rounded-2xl p-6 text-center animate-fade-in animate-bounce">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 mb-4 animate-pulse">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -228,3 +228,4 @@ export default function BingoPage() {
     </div>
   );
 }
+

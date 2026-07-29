@@ -164,7 +164,7 @@ export default function AdminImportPage() {
       </div>
 
       {results && (
-        <div className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm">
+        <div className="clay overflow-hidden">
           <div className="px-6 py-4 border-b border-rattan/20 flex items-center justify-between">
             <h2 className="font-sans text-xs font-semibold text-soft uppercase tracking-[0.1em]">Import results</h2>
             <div className="flex gap-2">
@@ -210,3 +210,4 @@ export default function AdminImportPage() {
     </div>
   );
 }
+

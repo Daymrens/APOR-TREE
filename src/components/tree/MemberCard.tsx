@@ -74,7 +74,7 @@ export default function MemberCard({ member, allMembers, onClose, onSelect }: Me
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 glass rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-200 z-10"
+          className="absolute top-4 right-4 w-8 h-8 clay-dark rounded-full flex items-center justify-center transition-all duration-200 z-10"
         >
           <svg className="w-4 h-4 text-ink" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -125,7 +125,7 @@ export default function MemberCard({ member, allMembers, onClose, onSelect }: Me
               Gen {member.generation}
             </span>
             <span
-              className="px-2.5 py-1 rounded-xl text-xs font-sans font-medium glass-card text-ink flex items-center gap-1"
+              className="px-2.5 py-1 rounded-xl text-xs font-sans font-medium clay text-ink flex items-center gap-1"
             >
               <span
                 className="w-2 h-2 rounded-full"

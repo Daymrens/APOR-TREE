@@ -162,7 +162,7 @@ export default function RsvpPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <BackButton />
         <div className="space-y-5 mt-8">
-          <div className="glass-card rounded-2xl p-4">
+          <div className="clay rounded-2xl p-4">
             <div className="flex justify-around text-center">
               <div className="space-y-2">
                 <Skeleton className="h-6 w-12 mx-auto" />
@@ -200,7 +200,7 @@ export default function RsvpPage() {
       </p>
 
       {/* Live counter */}
-      <div className="glass-card rounded-2xl p-4 mb-8 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+      <div className="clay rounded-2xl p-4 mb-8 animate-slide-up" style={{ animationDelay: "0.1s" }}>
         <div className="flex justify-around text-center">
           <div>
             <p className="font-mono text-xl text-hibiscus tabular-nums">{counts.confirmed}</p>
@@ -226,7 +226,7 @@ export default function RsvpPage() {
             required
             value={form.respondentName}
             onChange={(e) => setForm({ ...form, respondentName: e.target.value })}
-            className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           />
         </div>
 
@@ -237,7 +237,7 @@ export default function RsvpPage() {
             required
             value={form.familyBranch}
             onChange={(e) => setForm({ ...form, familyBranch: e.target.value })}
-            className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           >
             <option value="">Select a branch</option>
             {branches.map((b) => (
@@ -264,7 +264,7 @@ export default function RsvpPage() {
                       : option === "maybe"
                       ? "bg-gradient-to-r from-mango to-[#d4922e] text-parchment border-transparent shadow-md shadow-mango/20"
                       : "bg-gradient-to-r from-soft to-[#4a4538] text-parchment border-transparent shadow-md shadow-soft/20"
-                    : "bg-white/50 border-white/30 text-ink hover:bg-white/70 hover:border-white/40"
+                    : "clay text-ink"
                 }`}
               >
                 {option === "yes" ? "Yes!" : option === "maybe" ? "Maybe" : "Can't make it"}
@@ -285,7 +285,7 @@ export default function RsvpPage() {
                 min={0}
                 value={form.guestCount}
                 onChange={(e) => setForm({ ...form, guestCount: Number(e.target.value) })}
-                className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -299,7 +299,7 @@ export default function RsvpPage() {
                 value={form.guestNames}
                 onChange={(e) => setForm({ ...form, guestNames: e.target.value })}
                 placeholder="e.g. Juan, Maria"
-                className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
               />
             </div>
 
@@ -313,7 +313,7 @@ export default function RsvpPage() {
                 value={form.dietaryNotes}
                 onChange={(e) => setForm({ ...form, dietaryNotes: e.target.value })}
                 placeholder="Allergies, preferences, etc."
-                className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
               />
             </div>
           </>
@@ -327,7 +327,7 @@ export default function RsvpPage() {
             required
             value={form.contactNumber}
             onChange={(e) => setForm({ ...form, contactNumber: e.target.value })}
-            className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           />
         </div>
 
@@ -355,3 +355,5 @@ export default function RsvpPage() {
     </div>
   );
 }
+
+

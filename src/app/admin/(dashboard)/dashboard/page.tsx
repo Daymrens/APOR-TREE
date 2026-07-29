@@ -194,19 +194,19 @@ export default function AdminDashboardPage() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+        <div className="clay p-5">
           <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Total RSVPs</p>
           <p className="font-heading text-3xl text-balete tabular-nums">{total}</p>
         </div>
-        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+        <div className="clay p-5">
           <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Confirmed</p>
           <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.yes }}>{counts.yes}</p>
         </div>
-        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+        <div className="clay p-5">
           <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Maybe</p>
           <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.maybe }}>{counts.maybe}</p>
         </div>
-        <div className="bg-white border border-rattan/20 rounded-2xl p-5 shadow-sm">
+        <div className="clay p-5">
           <p className="text-soft font-sans text-[10px] font-semibold uppercase tracking-[0.1em] mb-2">Declined</p>
           <p className="font-heading text-3xl tabular-nums" style={{ color: ATTENDING_COLORS.no }}>{counts.no}</p>
         </div>
@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm flex flex-col items-center">
+        <div className="clay p-6 flex flex-col items-center">
           <h2 className="font-heading text-lg text-balete mb-4 self-start">Attendance</h2>
           {total === 0 ? (
             <p className="text-soft font-sans text-sm py-8">No RSVPs yet.</p>
@@ -234,7 +234,7 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
+        <div className="clay p-6">
           <h2 className="font-heading text-lg text-balete mb-4">Branch Breakdown</h2>
           {branches.length === 0 ? (
             <p className="text-soft font-sans text-sm py-8">No RSVPs yet.</p>
@@ -267,7 +267,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Headcount */}
-      <div className="bg-white border border-rattan/20 rounded-2xl p-6 mb-6 shadow-sm">
+      <div className="clay p-6 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 className="font-heading text-lg text-balete mb-1">Headcount Summary</h2>
@@ -288,7 +288,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Recent RSVPs */}
-      <div className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm">
+      <div className="clay overflow-hidden">
         <div className="px-6 py-4 border-b border-rattan/20">
           <h2 className="font-heading text-lg text-balete">Recent RSVPs</h2>
         </div>
@@ -335,3 +335,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

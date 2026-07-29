@@ -19,9 +19,9 @@ export default function LocationPage() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-3">
-          <div className="glass-card rounded-2xl h-48 animate-pulse" />
-          <div className="glass-card rounded-2xl h-24 animate-pulse" />
-          <div className="glass-card rounded-2xl h-24 animate-pulse" />
+          <div className="clay rounded-2xl h-48 animate-pulse" />
+          <div className="clay rounded-2xl h-24 animate-pulse" />
+          <div className="clay rounded-2xl h-24 animate-pulse" />
         </div>
       </div>
     );
@@ -51,7 +51,7 @@ export default function LocationPage() {
       )}
 
       <div className="space-y-4">
-        <div className="glass-card rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+        <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-mango/15 to-mango/5 flex items-center justify-center text-mango">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -70,7 +70,7 @@ export default function LocationPage() {
         </div>
 
         {config?.parkingNotes && (
-          <div className="glass-card rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.15s" }}>
+          <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.15s" }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-balete/15 to-balete/5 flex items-center justify-center text-balete">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -85,7 +85,7 @@ export default function LocationPage() {
           </div>
         )}
 
-        <div className="glass-card rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+        <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.2s" }}>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-hibiscus/15 to-hibiscus/5 flex items-center justify-center text-hibiscus">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -104,7 +104,7 @@ export default function LocationPage() {
         </div>
 
         {config?.contactPerson && (
-          <div className="glass-card rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.25s" }}>
+          <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.25s" }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rattan/15 to-rattan/5 flex items-center justify-center text-rattan">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">

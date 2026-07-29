@@ -146,7 +146,7 @@ export default function AdminConfigPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Event Dates */}
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
+        <div className="clay p-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-mango/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -178,7 +178,7 @@ export default function AdminConfigPage() {
         </div>
 
         {/* Venue */}
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
+        <div className="clay p-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-balete/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-balete" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -217,7 +217,7 @@ export default function AdminConfigPage() {
         </div>
 
         {/* Contact */}
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
+        <div className="clay p-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-hibiscus/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-hibiscus" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -247,7 +247,7 @@ export default function AdminConfigPage() {
         </div>
 
         {/* Additional */}
-        <div className="bg-white border border-rattan/20 rounded-2xl p-6 shadow-sm">
+        <div className="clay p-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-lg bg-rattan/10 flex items-center justify-center">
               <svg className="w-4 h-4 text-rattan" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -287,3 +287,4 @@ export default function AdminConfigPage() {
     </div>
   );
 }
+

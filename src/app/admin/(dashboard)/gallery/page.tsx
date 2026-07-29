@@ -113,7 +113,7 @@ export default function AdminGalleryPage() {
           {filtered.map((photo) => (
             <div
               key={photo.id}
-              className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm group"
+              className="clay overflow-hidden group"
             >
               <div className="aspect-square overflow-hidden bg-rattan/5 relative">
                 <img
@@ -185,3 +185,4 @@ export default function AdminGalleryPage() {
     </div>
   );
 }
+

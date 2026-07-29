@@ -127,7 +127,7 @@ export default function SchedulePage() {
       </p>
 
       {config && (config.venueName || config.venueAddress || config.contactPerson) && (
-        <div className="glass-card rounded-2xl p-5 mb-8 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+        <div className="clay rounded-2xl p-5 mb-8 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           {config.venueName && (
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-mango/15 to-mango/5 flex items-center justify-center text-mango flex-shrink-0">
@@ -177,7 +177,7 @@ export default function SchedulePage() {
       {!loading && days.length > 0 && (nextItem || items.some(i => getItemStatus(i) === "happening")) && (
         <div className="mb-8 space-y-3 animate-fade-in" style={{ animationDelay: "0.15s" }}>
           {items.filter(i => getItemStatus(i) === "happening").map(item => (
-            <div key={`live-${item.id}`} className="glass-card rounded-2xl p-4 border-l-4 border-hibiscus animate-glow-pulse">
+            <div key={`live-${item.id}`} className="clay rounded-2xl p-4 border-l-4 border-hibiscus animate-glow-pulse">
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-hibiscus uppercase tracking-wider">
                   <span className="w-2 h-2 rounded-full bg-hibiscus animate-pulse" />
@@ -192,7 +192,7 @@ export default function SchedulePage() {
             </div>
           ))}
           {nextItem && getItemStatus(nextItem) === "future" && (
-            <div className="glass-card rounded-2xl p-4 border-l-4 border-mango">
+            <div className="clay rounded-2xl p-4 border-l-4 border-mango">
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-mango uppercase tracking-wider">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -251,7 +251,7 @@ export default function SchedulePage() {
                       return (
                       <div
                         key={item.id}
-                        className={`glass-card rounded-2xl p-4 flex gap-4 relative animate-fade-in ${
+                        className={`clay rounded-2xl p-4 flex gap-4 relative animate-fade-in ${
                           status === "happening" ? "ring-2 ring-hibiscus/40 bg-hibiscus/5" : ""
                         }`}
                         style={{ animationDelay: `${i * 0.08}s` }}

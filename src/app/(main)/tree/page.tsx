@@ -81,7 +81,7 @@ export default function TreePage() {
           </div>
           {/* Hovered member tooltip (desktop) */}
           {hoveredMember && !loading && (
-            <div className="hidden sm:block glass-card rounded-xl px-3 py-2 text-xs font-sans animate-fade-in max-w-[200px]">
+            <div className="hidden sm:block clay rounded-xl px-3 py-2 text-xs font-sans animate-fade-in max-w-[200px]">
               <p className="font-medium text-ink truncate">{hoveredMember.fullName}</p>
               <p className="text-soft/60 truncate">{hoveredMember.branch} · Gen {hoveredMember.generation}</p>
             </div>
@@ -114,7 +114,7 @@ export default function TreePage() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                   activeBranch === null
                     ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
-                    : "glass-card hover:bg-white/70 text-ink"
+                    : "clay text-ink"
                 }`}
               >
                 All
@@ -129,7 +129,7 @@ export default function TreePage() {
                     className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 flex items-center gap-1.5 ${
                       isActive
                         ? "text-parchment shadow-md"
-                        : "glass-card hover:bg-white/70 text-ink"
+                        : "clay text-ink"
                     }`}
                     style={isActive ? { background: `linear-gradient(135deg, ${color}, ${color}cc)` } : {}}
                   >

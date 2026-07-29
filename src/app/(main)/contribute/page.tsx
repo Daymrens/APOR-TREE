@@ -30,7 +30,7 @@ function MemberDataForm({
   errors: Record<string, string>;
 }) {
   const inputClass =
-    "w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 [&>option]:bg-parchment";
+    "w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 [&>option]:bg-parchment";
   const labelClass = "block text-sm font-sans font-medium text-balete mb-1.5";
 
   return (
@@ -220,7 +220,7 @@ export default function ContributePage() {
     return (
       <div className="max-w-[1100px] mx-auto px-4 py-8">
         <BackButton />
-        <section className="text-center py-16 glass-card rounded-2xl p-8">
+        <section className="text-center py-16 clay rounded-2xl p-8">
           <div className="w-16 h-16 rounded-full bg-mango/15 flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -248,7 +248,7 @@ export default function ContributePage() {
         </p>
       </section>
 
-      <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
+      <form onSubmit={handleSubmit} className="clay rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.1s" }}>
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-hibiscus/10 text-hibiscus text-sm font-sans">
             {error}
@@ -272,7 +272,7 @@ export default function ContributePage() {
                   className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                     type === t.value
                       ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
-                      : "glass-card hover:bg-white/70 text-ink"
+                      : "clay hover:bg-white/70 text-ink"
                   }`}
                 >
                   {t.label}
@@ -293,7 +293,7 @@ export default function ContributePage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as Contribution["category"])}
-                    className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                    className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>{c.label}</option>
@@ -309,7 +309,7 @@ export default function ContributePage() {
                     type="text"
                     value={memberName || ""}
                     readOnly
-                    className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
+                    className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
                   />
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function ContributePage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Date change for Saturday dinner"
-                  className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                  className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
                   maxLength={120}
                 />
                 {errors.title && (
@@ -340,7 +340,7 @@ export default function ContributePage() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe what needs to change or what you&apos;d like to add..."
                   rows={5}
-                  className="w-full glass-card rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 resize-y"
+                  className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 resize-y"
                   maxLength={500}
                 />
                 <p className="text-soft/50 text-[10px] font-sans mt-1">

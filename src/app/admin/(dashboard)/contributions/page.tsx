@@ -113,7 +113,7 @@ export default function AdminContributionsPage() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                   filter === f
                     ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
-                    : "glass-card hover:bg-white/70 text-ink"
+                    : "clay hover:bg-white/70 text-ink"
                 }`}
               >
                 {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -125,14 +125,14 @@ export default function AdminContributionsPage() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="glass-card rounded-2xl p-4">
+                <div key={i} className="clay rounded-2xl p-4">
                   <Skeleton className="h-4 w-3/4 mb-2" />
                   <Skeleton className="h-3 w-1/2" />
                 </div>
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-12 glass-card rounded-2xl p-8">
+            <div className="text-center py-12 clay rounded-2xl p-8">
               <p className="text-soft font-sans">No contributions found.</p>
             </div>
           ) : (
@@ -144,7 +144,7 @@ export default function AdminContributionsPage() {
                 return (
                   <div
                     key={c.id}
-                    className="glass-card rounded-2xl p-5 hover:shadow-md transition-all duration-200"
+                    className="clay rounded-2xl p-5 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">

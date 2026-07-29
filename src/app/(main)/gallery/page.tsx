@@ -178,7 +178,7 @@ export default function GalleryPage() {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 w-10 h-10 glass rounded-full flex items-center justify-center text-parchment hover:bg-white/25 transition-all duration-200 z-10"
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center text-parchment transition-all duration-200 z-10 clay-dark hover:bg-white/[0.12]"
             aria-label="Close"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -186,14 +186,14 @@ export default function GalleryPage() {
             </svg>
           </button>
 
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-parchment/70 text-sm font-mono tabular-nums z-10 glass px-3 py-1 rounded-full">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 text-parchment/70 text-sm font-mono tabular-nums z-10 clay-dark px-3 py-1 rounded-full">
             {selectedIndex! + 1} / {photos.length}
           </div>
 
           {photos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center text-parchment hover:bg-white/25 transition-all duration-200 z-10"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 clay-dark rounded-full flex items-center justify-center text-parchment transition-all duration-200 z-10"
               aria-label="Previous photo"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -205,7 +205,7 @@ export default function GalleryPage() {
           {photos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); goNext(); }}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center text-parchment hover:bg-white/25 transition-all duration-200 z-10"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 clay-dark rounded-full flex items-center justify-center text-parchment transition-all duration-200 z-10"
               aria-label="Next photo"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -235,7 +235,7 @@ export default function GalleryPage() {
               />
             )}
             {(selectedPhoto.caption || selectedPhoto.uploaderName) && (
-              <div className="mt-3 glass rounded-xl px-4 py-3 text-parchment text-sm font-sans">
+              <div className="mt-3 clay-dark rounded-xl px-4 py-3 text-parchment text-sm font-sans">
                 {selectedPhoto.caption && <p>{selectedPhoto.caption}</p>}
                 {selectedPhoto.uploaderName && (
                   <p className="text-parchment/50 text-xs mt-1">by {selectedPhoto.uploaderName}</p>

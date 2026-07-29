@@ -33,7 +33,7 @@ export default function ShareButton() {
   return (
     <button
       onClick={handleShare}
-      className="inline-flex items-center gap-2 px-4 py-2 glass-card rounded-xl text-sm font-sans text-ink hover:bg-white/60 transition-all duration-200"
+      className="inline-flex items-center gap-2 px-4 py-2 clay rounded-xl text-sm font-sans text-ink hover:shadow-lg transition-all duration-200"
     >
       {shared ? (
         <>

@@ -82,7 +82,7 @@ export default function AdminRsvpsPage() {
         </select>
       </div>
 
-      <div className="bg-white border border-rattan/20 rounded-2xl overflow-hidden shadow-sm">
+      <div className="clay overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
             <div className="h-4 w-32 bg-rattan/10 rounded-lg animate-pulse mx-auto" />
@@ -147,3 +147,4 @@ export default function AdminRsvpsPage() {
     </div>
   );
 }
+

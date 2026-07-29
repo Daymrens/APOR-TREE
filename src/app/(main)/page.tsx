@@ -178,7 +178,7 @@ export default function HomePage() {
         ) : (
           <div className="flex items-start gap-4">
             <div className="w-3 h-3 rounded-full bg-hibiscus mt-2 flex-shrink-0 shadow-lg shadow-hibiscus/40" />
-            <div className="flex-1 glass-card rounded-2xl p-6">
+            <div className="flex-1 clay p-6">
               <p className="font-heading text-2xl text-hibiscus mb-1">Event date TBA</p>
               <p className="text-soft text-sm font-sans">Stay tuned for announcements.</p>
             </div>
@@ -187,7 +187,7 @@ export default function HomePage() {
       </section>
 
       {/* RSVP Counter node */}
-      <section className="glass-card rounded-2xl p-6 mb-8 relative animate-slide-up" style={{ animationDelay: "0.2s", zIndex: 1 }}>
+      <section className="clay p-6 mb-8 relative animate-slide-up" style={{ animationDelay: "0.2s", zIndex: 1 }}>
         <div className="flex items-start gap-4">
           <div className="w-3 h-3 rounded-full bg-mango mt-2 flex-shrink-0 shadow-lg shadow-mango/40" />
           <div className="flex-1">
@@ -227,7 +227,7 @@ export default function HomePage() {
           <Link
             key={section.href}
             href={section.href}
-            className="glass-card rounded-2xl p-5 flex items-start gap-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:border-hibiscus/40 group relative pl-8"
+            className="clay p-5 flex items-start gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group relative pl-8"
             style={{ animationDelay: `${section.delay}s` }}
           >
             {/* Branch dot on spine */}

@@ -214,7 +214,7 @@ export default function UploadPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           />
         </div>
 
@@ -228,7 +228,7 @@ export default function UploadPage() {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="What's happening here?"
-            className="w-full px-4 py-3 bg-white/70 backdrop-blur-sm border border-white/30 rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input rounded-xl font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all duration-200"
           />
         </div>
 
@@ -299,7 +299,7 @@ export default function UploadPage() {
         )}
 
         {uploading && (
-          <div className="glass-card rounded-2xl p-4 animate-fade-in">
+          <div className="clay rounded-2xl p-4 animate-fade-in">
             <div className="flex justify-between text-sm font-sans text-ink mb-2">
               <span>Uploading {successCount + failedCount} of {files?.length}...</span>
               <span className="font-mono tabular-nums">{progress}%</span>
@@ -314,7 +314,7 @@ export default function UploadPage() {
         )}
 
         {!uploading && failedCount > 0 && successCount > 0 && (
-          <div className="glass-card rounded-2xl p-4 font-sans text-sm text-mango animate-fade-in">
+          <div className="clay rounded-2xl p-4 font-sans text-sm text-mango animate-fade-in">
             {successCount} uploaded, {failedCount} failed.
           </div>
         )}
@@ -343,3 +343,5 @@ export default function UploadPage() {
     </div>
   );
 }
+
+

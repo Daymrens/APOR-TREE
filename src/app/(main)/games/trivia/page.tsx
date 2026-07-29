@@ -133,7 +133,7 @@ export default function TriviaPage() {
           <h1 className="font-heading text-3xl text-balete mb-2">Quiz Complete!</h1>
           <p className="text-soft font-sans mb-8">You got <span className="font-mono text-hibiscus font-bold text-xl">{correctCount}</span> out of <span className="font-mono text-balete font-bold text-xl">{questions.length}</span> correct.</p>
 
-          <div className="glass-card rounded-2xl p-6 mb-6 animate-slide-up">
+          <div className="clay rounded-2xl p-6 mb-6 animate-slide-up">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="font-mono text-3xl text-hibiscus tabular-nums">{score}</p>
@@ -180,7 +180,7 @@ export default function TriviaPage() {
             Play Again
           </button>
 
-          <div className="glass-card rounded-xl p-4 animate-fade-in">
+          <div className="clay rounded-xl p-4 animate-fade-in">
             <h3 className="font-heading text-lg text-balete mb-3 flex items-center gap-2">
               <svg className="w-5 h-5 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
@@ -236,7 +236,7 @@ export default function TriviaPage() {
         </div>
       </div>
 
-      <div className="glass-card rounded-2xl p-6 animate-slide-up">
+      <div className="clay rounded-2xl p-6 animate-slide-up">
         <h2 className="font-heading text-xl text-balete mb-6 text-center">{currentQuestion.question}</h2>
         <div className="space-y-3">
           {currentQuestion.choices.map((choice, index) => (

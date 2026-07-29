@@ -181,7 +181,7 @@ function GateForm() {
             type="password"
             value={passcode}
             onChange={(e) => setPasscode(e.target.value)}
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none focus:ring-2 focus:ring-hibiscus/50 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input-dark rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none transition-all duration-200"
             placeholder={placeholder}
             required
             autoFocus
@@ -226,7 +226,7 @@ function GateForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none focus:ring-2 focus:ring-hibiscus/50 focus:border-transparent transition-all duration-200"
+            className="w-full px-4 py-3 clay-input-dark rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none transition-all duration-200"
             placeholder="Type your name..."
             autoFocus
             autoComplete="off"
@@ -259,7 +259,7 @@ function GateForm() {
                   setSelectedMember(member);
                   setName(member.fullName);
                 }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200 text-left group"
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl clay-dark hover:bg-white/[0.1] transition-all duration-200 text-left group"
               >
                 <div
                   className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
@@ -300,7 +300,7 @@ function GateForm() {
 
       {/* Selected member badge */}
       {selectedMember && (
-        <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/10 border border-hibiscus/30 animate-fade-in">
+        <div className="flex items-center gap-2 p-2.5 rounded-xl clay-dark animate-fade-in">
           <div
             className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
             style={{
@@ -398,7 +398,7 @@ export default function GatePage() {
           </p>
         </div>
 
-        <div className="glass rounded-2xl p-6 shadow-2xl animate-slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="clay-dark rounded-2xl p-6 animate-slide-up" style={{ animationDelay: "0.15s" }}>
           <Suspense fallback={
             <div className="flex items-center justify-center py-8 text-parchment/50 text-sm font-sans">
               Loading...

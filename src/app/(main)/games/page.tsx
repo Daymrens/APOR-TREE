@@ -24,7 +24,7 @@ export default function GamesPage() {
       <div className="space-y-4">
         <Link
           href="/bingo"
-          className="glass-card rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
+          className="clay rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
           style={{ animationDelay: "0.1s" }}
         >
           <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-hibiscus to-[#a82f5a] flex items-center justify-center shrink-0">
@@ -67,7 +67,7 @@ export default function GamesPage() {
 
         <Link
           href="/games/trivia"
-          className="glass-card rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
+          className="clay rounded-2xl p-6 flex items-center gap-4 group transition-all duration-200 hover:shadow-lg hover:shadow-hibiscus/10 hover:scale-[1.01] active:scale-[0.99] animate-slide-up"
           style={{ animationDelay: "0.15s" }}
         >
           <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-hibiscus to-[#a82f5a] flex items-center justify-center shrink-0">

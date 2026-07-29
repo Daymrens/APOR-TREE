@@ -117,7 +117,7 @@ export default function ChatPage() {
         <p className="text-soft font-sans text-sm mb-6 animate-fade-in" style={{ animationDelay: "0.05s" }}>
           Enter your name to join the conversation.
         </p>
-        <div className="glass-card rounded-2xl p-6 animate-slide-up">
+        <div className="clay rounded-2xl p-6 animate-slide-up">
           <label className="block text-ink font-sans text-sm mb-2">Your name</label>
           <input
             type="text"
@@ -127,7 +127,7 @@ export default function ChatPage() {
               if (e.key === "Enter") handleSetName();
             }}
             placeholder="e.g. Maria Apor"
-            className="w-full px-4 py-3 rounded-xl bg-white/50 border border-white/30 font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all"
+            className="w-full px-4 py-3 rounded-xl clay-input font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all"
             autoFocus
           />
           <button
@@ -152,7 +152,7 @@ export default function ChatPage() {
         </p>
       </div>
 
-      <div className="flex-1 glass-card rounded-2xl p-4 mb-4 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] animate-fade-in">
+      <div className="flex-1 clay rounded-2xl p-4 mb-4 overflow-y-auto max-h-[50vh] sm:max-h-[60vh] animate-fade-in">
         {messages.length === 0 ? (
           <div className="text-center py-12">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-hibiscus/10 mb-4">
@@ -173,7 +173,7 @@ export default function ChatPage() {
               return (
                 <div
                   key={msg.id}
-                  className="bg-white/50 rounded-xl px-4 py-3 animate-slide-up"
+                  className="clay rounded-xl px-4 py-3 animate-slide-up"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     {branchColor && (
@@ -206,14 +206,14 @@ export default function ChatPage() {
       </div>
 
       <div className="sticky bottom-20 sm:bottom-0 z-10">
-        <div className="glass-card rounded-2xl p-3 flex items-center gap-2 animate-slide-up">
+        <div className="clay rounded-2xl p-3 flex items-center gap-2 animate-slide-up">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2.5 rounded-xl bg-white/50 border border-white/30 font-sans text-sm text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all"
+            className="flex-1 px-4 py-2.5 rounded-xl clay-input font-sans text-sm text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus transition-all"
           />
           <button
             onClick={handleSend}
@@ -230,3 +230,4 @@ export default function ChatPage() {
     </div>
   );
 }
+

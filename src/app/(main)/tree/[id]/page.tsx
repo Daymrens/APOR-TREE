@@ -152,7 +152,7 @@ export default function MemberProfilePage() {
             Gen {member.generation}
           </span>
           <span
-            className="px-2.5 py-1 rounded-xl text-xs font-sans font-medium glass-card text-ink flex items-center gap-1"
+            className="px-2.5 py-1 rounded-xl text-xs font-sans font-medium clay text-ink flex items-center gap-1"
           >
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
             {member.branch}
@@ -166,12 +166,12 @@ export default function MemberProfilePage() {
       </div>
 
       {member.notes && (
-        <div className="glass-card rounded-2xl p-5 mb-6 animate-slide-up">
+        <div className="clay p-5 mb-6 animate-slide-up">
           <p className="text-ink font-sans text-sm leading-relaxed">{member.notes}</p>
         </div>
       )}
 
-      <div className="glass-card rounded-2xl p-5 mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
+      <div className="clay p-5 mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
         <h3 className="font-heading text-lg text-balete mb-3 flex items-center gap-2">
           <svg className="w-5 h-5 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" />
@@ -202,7 +202,7 @@ export default function MemberProfilePage() {
       </div>
 
       {(parents.length > 0 || children.length > 0 || spouse || siblings.length > 0) && (
-        <div className="glass-card rounded-2xl p-5 animate-slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.15s" }}>
           <h3 className="font-heading text-lg text-balete mb-4">Family Connections</h3>
           <div className="space-y-4">
             {spouse && (
