@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/", label: "Home", icon: HomeIcon },
@@ -20,6 +21,14 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
     <div className="min-h-screen flex flex-col bg-parchment">
@@ -28,50 +37,89 @@ export default function MainLayout({
       </a>
       <header className="sticky top-0 z-50 bg-balete-deep text-parchment border-b border-parchment/10">
         <div className="max-w-[1100px] mx-auto px-4 py-3.5 flex items-center justify-between">
-          <Link href="/" className="font-heading text-xl font-semibold tracking-wide flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-mango" />
-            APOR
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setOpen(true)}
+              aria-label="Open menu"
+              aria-expanded={open}
+              className="w-10 h-10 rounded-xl border border-parchment/20 flex items-center justify-center hover:bg-parchment/10 hover:border-parchment/40 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <Link href="/" className="font-heading text-xl font-semibold tracking-wide flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-mango" />
+              APOR
+            </Link>
+          </div>
           <span className="text-parchment/50 text-xs font-mono uppercase tracking-wider hidden sm:block">
             Family Reunion
           </span>
         </div>
       </header>
 
-      <main id="main-content" className="flex-1 pb-28 sm:pb-12">{children}</main>
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm animate-fade-in"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-      <nav aria-label="Main navigation" className="fixed bottom-4 inset-x-0 z-50 sm:static sm:bottom-auto sm:inset-x-auto">
-        <div className="max-w-[1100px] mx-auto px-4 sm:px-0">
-          <div className="bg-surface border border-line rounded-2xl shadow-lg sm:shadow-none sm:border-0 sm:bg-transparent flex sm:justify-center sm:gap-1 px-2 py-1.5 sm:px-0 sm:py-0">
-            {navItems.map((item) => {
-              const isActive =
-                item.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={isActive ? "page" : undefined}
-                  className={`relative flex flex-col items-center flex-1 sm:flex-initial sm:flex-row sm:gap-2 sm:px-4 sm:py-2 sm:rounded-full transition-all duration-200 ${
-                    isActive
-                      ? "text-hibiscus sm:bg-hibiscus/10"
-                      : "text-soft hover:text-balete"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 sm:w-4 sm:h-4" />
-                  <span className="text-[10px] sm:text-sm mt-0.5 sm:mt-0 font-sans">
-                    {item.label}
-                  </span>
-                  {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-hibiscus sm:hidden animate-scale-in" />
-                  )}
-                </Link>
-              );
-            })}
+      {/* Side drawer — hamburger nav */}
+      <aside
+        className={`fixed left-0 top-0 h-full w-72 max-w-[85vw] z-50 bg-surface shadow-2xl border-r border-line transition-transform duration-300 ease-out ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+        aria-hidden={!open}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-mango" />
+            <span className="font-heading text-lg text-balete">APOR</span>
           </div>
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-soft hover:text-ink hover:bg-surface-2 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-      </nav>
+        <nav aria-label="Main navigation" className="p-3 space-y-1">
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-sans text-sm transition-all duration-200 ${
+                  isActive
+                    ? "bg-hibiscus/10 text-hibiscus font-medium"
+                    : "text-soft hover:text-balete hover:bg-surface-2"
+                }`}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <span>{item.label}</span>
+                {isActive && (
+                  <span className="ml-auto w-1 h-1 rounded-full bg-hibiscus animate-scale-in" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <main id="main-content" className="flex-1 pb-12">{children}</main>
     </div>
   );
 }

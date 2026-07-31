@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import type { FamilyMember } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 import ShareButton from "@/components/ShareButton";
 import Skeleton from "@/components/ui/Skeleton";
-import TreeSpine from "@/components/tree/TreeSpine";
+import FamilyCard from "@/components/tree/FamilyCard";
 import MemberCard from "@/components/tree/MemberCard";
+import TreeLines from "@/components/tree/TreeLines";
 
 const BRANCH_COLORS = [
   "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
@@ -25,7 +26,7 @@ export default function TreePage() {
   const [loading, setLoading] = useState(true);
   const [activeBranch, setActiveBranch] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<FamilyMember | null>(null);
-  const [hoveredMember, setHoveredMember] = useState<FamilyMember | null>(null);
+  const treeContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -59,6 +60,34 @@ export default function TreePage() {
   const livingCount = members.filter((m) => m.livingStatus === "living").length;
   const deceasedCount = members.filter((m) => m.livingStatus === "deceased").length;
 
+  const generationGroups = useMemo(() => {
+    const filtered = activeBranch
+      ? members.filter((m) => m.branch === activeBranch)
+      : members;
+    const groups = new Map<number, FamilyMember[]>();
+    filtered.forEach((m) => {
+      const list = groups.get(m.generation) ?? [];
+      list.push(m);
+      groups.set(m.generation, list);
+    });
+    return Array.from(groups.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([generation, list]) => ({
+        generation,
+        members: list.sort((a, b) => a.birthOrder - b.birthOrder),
+      }));
+  }, [members, activeBranch]);
+
+  const visibleMembers = useMemo(
+    () => generationGroups.flatMap((g) => g.members),
+    [generationGroups]
+  );
+
+  const membersMissingPhotos = useMemo(
+    () => members.filter((m) => !m.photoUrl).length,
+    [members]
+  );
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="fixed top-4 right-4 z-50">
@@ -79,13 +108,6 @@ export default function TreePage() {
                 : `${members.length} member${members.length === 1 ? "" : "s"} · ${branches.length} branch${branches.length === 1 ? "" : "es"} · ${generations.length} generation${generations.length === 1 ? "" : "s"}`}
             </p>
           </div>
-          {/* Hovered member tooltip (desktop) */}
-          {hoveredMember && !loading && (
-            <div className="hidden sm:block clay rounded-xl px-3 py-2 text-xs font-sans animate-fade-in max-w-[200px]">
-              <p className="font-medium text-ink truncate">{hoveredMember.fullName}</p>
-              <p className="text-soft/60 truncate">{hoveredMember.branch} · Gen {hoveredMember.generation}</p>
-            </div>
-          )}
         </div>
 
         {/* Stats row */}
@@ -175,13 +197,50 @@ export default function TreePage() {
             Ask your family organizer to add members in the admin panel.
           </p>
         </div>
+      ) : generationGroups.length === 0 ? (
+        <div className="text-center py-16 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-mango/15 mb-4">
+            <svg className="w-8 h-8 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+            </svg>
+          </div>
+          <p className="text-soft font-sans">No members in this branch yet.</p>
+        </div>
       ) : (
-        <TreeSpine
-          members={members}
-          activeBranch={activeBranch}
-          onSelect={setSelectedMember}
-          onHover={setHoveredMember}
-        />
+        <div ref={treeContainerRef} className="relative">
+          <TreeLines members={visibleMembers} containerRef={treeContainerRef} />
+          <div className="relative space-y-10">
+            {generationGroups.map(({ generation, members: groupMembers }) => (
+              <section key={generation} className="animate-slide-up" style={{ animationDelay: `${generation * 0.05}s` }}>
+                <div className="flex items-baseline gap-3 mb-4 relative z-10">
+                  <h2 className="font-heading text-xl text-balete">
+                    Generation {generation}
+                  </h2>
+                  <span className="text-soft/50 font-mono text-xs">
+                    {groupMembers.length} member{groupMembers.length === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {groupMembers.map((m) => (
+                    <FamilyCard
+                      key={m.id}
+                      member={m}
+                      color={getBranchColor(m.branch, branches)}
+                      onSelect={setSelectedMember}
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Photo hint */}
+      {!loading && membersMissingPhotos > 0 && (
+        <p className="mt-8 text-center text-xs font-sans text-soft/50">
+          {membersMissingPhotos} member{membersMissingPhotos === 1 ? "" : "s"} still need a photo — ask your family organizer to add one in the admin panel.
+        </p>
       )}
 
       {/* Member card modal */}
