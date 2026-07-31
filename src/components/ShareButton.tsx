@@ -5,7 +5,7 @@ import { useState } from "react";
 const SHARE_URL = "https://apor-tree.vercel.app";
 const SHARE_TEXT = "Join the APOR Family Reunion!";
 
-export default function ShareButton() {
+export default function ShareButton({ light = false }: { light?: boolean }) {
   const [shared, setShared] = useState(false);
 
   async function handleShare() {
@@ -33,7 +33,11 @@ export default function ShareButton() {
   return (
     <button
       onClick={handleShare}
-      className="inline-flex items-center gap-2 px-4 py-2 clay rounded-xl text-sm font-sans text-ink hover:shadow-lg transition-all duration-200"
+      className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-sans transition-all duration-200 ${
+        light
+          ? "border border-parchment/20 text-parchment/80 hover:border-mango-light hover:text-mango-light"
+          : "btn-ghost text-ink"
+      }`}
     >
       {shared ? (
         <>

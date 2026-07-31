@@ -262,7 +262,7 @@ const [isDragging, setIsDragging] = useState(false);
 
       <div
         ref={containerRef}
-        className="overflow-auto rounded-2xl border border-white/20 bg-gradient-to-br from-parchment via-parchment to-rattan/10 select-none"
+        className="overflow-auto rounded-2xl border border-line bg-balete-deep select-none"
         style={{ maxHeight: "70vh", cursor: isDragging ? "grabbing" : "grab" }}
         onMouseDown={handleMouseDown}
       >
@@ -279,7 +279,7 @@ const [isDragging, setIsDragging] = useState(false);
         >
           <defs>
             <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="0.5" fill="rgba(201, 168, 118, 0.15)" />
+              <circle cx="1" cy="1" r="0.5" fill="rgba(232, 166, 61, 0.12)" />
             </pattern>
           </defs>
 

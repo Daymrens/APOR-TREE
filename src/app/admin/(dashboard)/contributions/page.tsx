@@ -113,7 +113,7 @@ export default function AdminContributionsPage() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                   filter === f
                     ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
-                    : "clay hover:bg-white/70 text-ink"
+                    : "clay hover:bg-surface-2 text-ink"
                 }`}
               >
                 {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}

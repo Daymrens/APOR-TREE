@@ -138,7 +138,7 @@ export default function AdminDashboardPage() {
           y={cy - 8}
           textAnchor="middle"
           dominantBaseline="central"
-          fill="#2B2620"
+          fill="#171A17"
           fontSize="7"
           fontFamily="var(--font-sans)"
           fontWeight="bold"
@@ -161,7 +161,7 @@ export default function AdminDashboardPage() {
           y={cy + 10}
           textAnchor="middle"
           dominantBaseline="central"
-          fill="#5C5445"
+          fill="#5C6259"
           fontSize="5.5"
           fontFamily="var(--font-sans)"
         >

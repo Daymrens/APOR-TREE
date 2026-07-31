@@ -10,10 +10,10 @@ import {
 import type { ChatMessage } from "@/lib/types";
 
 const BRANCH_COLORS: Record<string, string> = {
-  Apor: "#1E3B2C",
-  Jose: "#C23B6E",
+  Apor: "#3E8E68",
+  Jose: "#E26A8C",
   Rosa: "#E8A63D",
-  Antonio: "#2E6B62",
+  Antonio: "#4A9C92",
 };
 
 function getCookie(name: string): string | null {

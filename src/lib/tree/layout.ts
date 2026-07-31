@@ -352,8 +352,8 @@ export function getSpousePairs(members: FamilyMember[]): Map<string, string> {
 }
 
 const BRANCH_COLORS = [
-  "#C23B6E", "#E8A63D", "#1E3B2C", "#C9A876",
-  "#5C5445", "#8B5E3C", "#2E6B62", "#7C3AED",
+  "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
+  "#8C9A8F", "#D29B4E", "#4A9C92", "#A78BFA",
 ];
 
 export function getBranchColor(branch: string, allBranches: string[]): string {

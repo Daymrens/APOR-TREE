@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
-import BackButton from "@/components/ui/BackButton";
+import FamilyWordmark from "@/components/FamilyWordmark";
 import Countdown from "@/components/ui/Countdown";
 import ShareButton from "@/components/ShareButton";
 import { getConfig } from "@/lib/firestore/config";
@@ -105,153 +105,163 @@ export default function HomePage() {
   }, []);
 
   const sections = [
-    { href: "/rsvp", title: "Confirm your RSVP", desc: "Let us know if you're coming, and who's joining you.", icon: "📋", delay: 0.3 },
-    { href: "/schedule", title: "View the schedule", desc: "See what's happening and when to be there.", icon: "📅", delay: 0.4 },
-    { href: "/location", title: "Location & logistics", desc: "Map, parking, and everything you need to get there.", icon: "📍", delay: 0.5 },
-    { href: "/gallery", title: "Photo gallery", desc: "Browse and upload reunion photos.", icon: "📷", delay: 0.6 },
-    { href: "/games", title: "Games & activities", desc: "Trivia, bingo, and icebreakers for all ages.", icon: "🎮", delay: 0.7 },
-    { href: "/tree", title: "Family tree", desc: "Explore generations of APOR family connections.", icon: "🌳", delay: 0.8 },
-    { href: "/contribute", title: "Leave a contribution", desc: "Suggest corrections or additions to reunion details.", icon: "✏️", delay: 0.9 },
+    { href: "/rsvp", title: "Confirm your RSVP", desc: "Let us know you're coming, and who's joining you.", icon: "📋", delay: 0.2, span: "bento--wide", dot: "bg-hibiscus" },
+    { href: "/schedule", title: "Schedule", desc: "What's happening and when.", icon: "📅", delay: 0.3, span: "", dot: "bg-mango" },
+    { href: "/location", title: "Location", desc: "Map, parking, getting there.", icon: "📍", delay: 0.4, span: "", dot: "bg-rattan" },
+    { href: "/gallery", title: "Photo gallery", desc: "Browse and upload reunion photos.", icon: "📷", delay: 0.5, span: "bento--wide", dot: "bg-mango" },
+    { href: "/games", title: "Games", desc: "Trivia, bingo, icebreakers.", icon: "🎮", delay: 0.6, span: "", dot: "bg-rattan" },
+    { href: "/tree", title: "Family tree", desc: "Explore generations of connections.", icon: "🌳", delay: 0.7, span: "", dot: "bg-hibiscus" },
+    { href: "/contribute", title: "Leave a contribution", desc: "Suggest corrections or additions to reunion details.", icon: "✏️", delay: 0.8, span: "bento--full", dot: "bg-mango" },
   ];
 
+  const years = config?.eventDates?.start
+    ? config.eventDates.start.toDate().getFullYear()
+    : new Date().getFullYear();
+
   return (
-    <div className="max-w-[1100px] mx-auto px-4 py-8 relative">
-      <BackButton />
-      <ShareButton />
-
-      {/* Branching spine SVG */}
-      <svg
-        ref={spineRef}
-        className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 pointer-events-none"
-        viewBox="0 0 2 1200"
-        fill="none"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        style={{ zIndex: 0 }}
-      >
-        <path
-          className="spine-trunk"
-          d="M 1 60 L 1 1140"
-          stroke="url(#spine-grad)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          style={{ transition: prefersReducedMotion.current ? "none" : "stroke-dashoffset 1s ease-out" }}
-        />
-        <defs>
-          <linearGradient id="spine-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#1E3B2C" stopOpacity="0.6" />
-            <stop offset="50%" stopColor="#C9A876" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#C9A876" stopOpacity="0.1" />
-          </linearGradient>
-        </defs>
-      </svg>
-
-      {/* Hero node */}
-      <section className="text-center py-12 sm:py-16 relative animate-fade-in" style={{ zIndex: 1 }}>
-        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-mango/25 to-mango/5 p-[3px] mb-6 animate-scale-in">
-          <div className="w-full h-full rounded-full bg-parchment flex items-center justify-center">
-            <span className="font-heading text-3xl text-balete font-bold">A</span>
+    <div className="min-h-screen">
+      {/* ── Dark editorial hero band ─────────────────────────────── */}
+      <section className="hero-band">
+        <div className="max-w-[1100px] mx-auto px-4 pt-16 pb-14 sm:pt-20 sm:pb-16">
+          <div className="flex justify-between items-start mb-10">
+            <p className="font-mono text-[11px] text-mango-light tracking-[0.35em] uppercase">
+              Family Reunion · {years}
+            </p>
+            <span className="hidden sm:flex">
+              <ShareButton light />
+            </span>
           </div>
-        </div>
-        <h1 className="font-heading text-5xl sm:text-6xl mb-3 gradient-text animate-slide-up">
-          APOR
-        </h1>
-        <p className="text-soft font-sans text-lg animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          Family Reunion
-        </p>
-        {greeting && (
-          <p className="text-hibiscus font-sans text-base mt-3 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Welcome back, <span className="font-medium">{greeting}</span>!
-          </p>
-        )}
-      </section>
 
-      {/* Countdown node */}
-      <section className="mb-8 relative animate-slide-up" style={{ animationDelay: "0.15s", zIndex: 1 }}>
-        {config?.eventDates?.start ? (
-          <div className="flex items-start gap-4">
-            <div className="w-3 h-3 rounded-full bg-hibiscus mt-2 flex-shrink-0 shadow-lg shadow-hibiscus/40" />
-            <div className="flex-1">
-              <Countdown targetDate={config.eventDates.start.toDate()} />
+          {greeting && (
+            <p className="text-parchment/70 font-sans text-sm mb-6 animate-fade-in">
+              Welcome back, <span className="text-mango-light font-medium">{greeting}</span>
+            </p>
+          )}
+
+          {/* Signature: kinetic wordmark, clipped to the viewport edge */}
+          <div className="mb-2 animate-fade-in">
+            <FamilyWordmark light className="kinetic-hero--clip text-[clamp(5.5rem,20vw,13rem)]" />
+          </div>
+          <div className="hero-rule w-full sm:w-2/3 mb-8" />
+
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-8">
+            <div className="max-w-md">
+              <p className="text-parchment/80 font-sans text-base sm:text-lg leading-relaxed mb-8">
+                One place for the whole family — the reunion, the tree, the memories,
+                and the games. Passcode, then gather.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/rsvp"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-mango text-balete-deep rounded-full font-sans font-semibold text-sm transition-all duration-200 hover:bg-mango-light hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Confirm your RSVP
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/tree"
+                  className="inline-flex items-center gap-2 px-6 py-3 border border-parchment/20 text-parchment rounded-full font-sans text-sm transition-all duration-200 hover:border-mango-light hover:text-mango-light"
+                >
+                  Explore the tree
+                </Link>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-start gap-4">
-            <div className="w-3 h-3 rounded-full bg-hibiscus mt-2 flex-shrink-0 shadow-lg shadow-hibiscus/40" />
-            <div className="flex-1 clay p-6">
-              <p className="font-heading text-2xl text-hibiscus mb-1">Event date TBA</p>
-              <p className="text-soft text-sm font-sans">Stay tuned for announcements.</p>
-            </div>
-          </div>
-        )}
-      </section>
 
-      {/* RSVP Counter node */}
-      <section className="clay p-6 mb-8 relative animate-slide-up" style={{ animationDelay: "0.2s", zIndex: 1 }}>
-        <div className="flex items-start gap-4">
-          <div className="w-3 h-3 rounded-full bg-mango mt-2 flex-shrink-0 shadow-lg shadow-mango/40" />
-          <div className="flex-1">
-            <p className="font-sans text-xs text-soft/50 uppercase tracking-wider mb-3">Who's coming</p>
-            <div className="grid grid-cols-3 gap-4 text-center">
+            {/* Stats strip — social proof via numbers */}
+            <div className="grid grid-cols-3 gap-8">
               <div>
-                <p className="font-mono text-3xl text-hibiscus font-medium tabular-nums">
-                  {counts.confirmed}
-                </p>
-                <p className="text-soft text-sm font-sans mt-1">Confirmed</p>
+                <p className="font-mono text-4xl sm:text-5xl text-mango-light font-medium tabular-nums">{counts.confirmed}</p>
+                <p className="text-parchment/50 text-xs font-sans mt-1">Confirmed</p>
               </div>
               <div>
-                <p className="font-mono text-3xl text-mango font-medium tabular-nums">
-                  {counts.maybe}
-                </p>
-                <p className="text-soft text-sm font-sans mt-1">Maybe</p>
+                <p className="font-mono text-4xl sm:text-5xl text-hibiscus-light font-medium tabular-nums">{counts.maybe}</p>
+                <p className="text-parchment/50 text-xs font-sans mt-1">Maybe</p>
               </div>
               <div>
-                <p className="font-mono text-3xl text-balete font-medium tabular-nums">
-                  {counts.headcount}
-                </p>
-                <p className="text-soft text-sm font-sans mt-1">Headcount</p>
+                <p className="font-mono text-4xl sm:text-5xl text-parchment font-medium tabular-nums">{counts.headcount}</p>
+                <p className="text-parchment/50 text-xs font-sans mt-1">Headcount</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Leaf cards */}
-      <section className="space-y-3 relative" style={{ zIndex: 1 }}>
-        {/* Branch connectors from spine to cards */}
-        <svg className="absolute left-1/2 top-0 bottom-0 w-px pointer-events-none" viewBox="0 0 2 1200" fill="none" preserveAspectRatio="none" aria-hidden="true" style={{ zIndex: 0 }}>
-          <line x1="1" y1="0" x2="1" y2="1200" stroke="#C9A876" strokeWidth="1" strokeOpacity="0.2" strokeDasharray="4 8" />
+      {/* ── Light content below ─────────────────────────────────── */}
+      <div className="max-w-[1100px] mx-auto px-4 py-10 sm:py-14 relative">
+        {/* Branching spine SVG */}
+        <svg
+          ref={spineRef}
+          className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 pointer-events-none"
+          viewBox="0 0 2 1200"
+          fill="none"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          style={{ zIndex: 0 }}
+        >
+          <path
+            className="spine-trunk"
+            d="M 1 60 L 1 1140"
+            stroke="url(#spine-grad)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            style={{ transition: prefersReducedMotion.current ? "none" : "stroke-dashoffset 1s ease-out" }}
+          />
+          <defs>
+            <linearGradient id="spine-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#E8A63D" stopOpacity="0.5" />
+              <stop offset="50%" stopColor="#BFA06A" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#BFA06A" stopOpacity="0.06" />
+            </linearGradient>
+          </defs>
         </svg>
 
-        {sections.map((section) => (
-          <Link
-            key={section.href}
-            href={section.href}
-            className="clay p-5 flex items-start gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 group relative pl-8"
-            style={{ animationDelay: `${section.delay}s` }}
-          >
-            {/* Branch dot on spine */}
-            <div className="absolute left-[calc(50%-6px)] top-5 w-3 h-3 rounded-full bg-parchment border-2 border-rattan/40 group-hover:border-hibiscus/60 transition-colors duration-300" />
-
-            {/* Branch line from spine to card */}
-            <div className="absolute left-[calc(50%+6px)] top-6 w-8 h-px bg-gradient-to-r from-rattan/30 to-transparent" />
-
-            <span className="text-xl mt-0.5">{section.icon}</span>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-heading text-lg text-balete mb-0.5 group-hover:text-hibiscus transition-colors duration-200">
-                {section.title}
-              </h2>
-              <p className="text-soft text-sm font-sans">{section.desc}</p>
+        {/* Countdown */}
+        <section className="mb-10 relative animate-fade-in" style={{ zIndex: 1 }}>
+          <div className="flex items-start gap-4">
+            <div className="w-3 h-3 rounded-full bg-hibiscus mt-3 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-sans text-xs text-soft/60 uppercase tracking-wider mb-3">Countdown</p>
+              {config?.eventDates?.start ? (
+                <Countdown targetDate={config.eventDates.start.toDate()} />
+              ) : (
+                <div className="card p-6">
+                  <p className="font-heading text-2xl text-ink mb-1">Event date TBA</p>
+                  <p className="text-soft text-sm font-sans">Stay tuned for announcements.</p>
+                </div>
+              )}
             </div>
-            <svg className="w-4 h-4 text-soft/30 group-hover:text-soft/60 transition-colors duration-200 flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </Link>
-        ))}
-      </section>
+          </div>
+        </section>
 
-      <div className="mt-10 flex justify-center">
-        <ShareButton />
+        {/* Leaf bento */}
+        <section className="bento grid-cols-2 sm:grid-cols-4 relative reveal" style={{ zIndex: 1 }}>
+          {sections.map((section) => (
+            <Link
+              key={section.href}
+              href={section.href}
+              className={`card card-hover relative p-5 flex flex-col items-start gap-3 group ${section.span} ${
+                section.span === "bento--full" ? "sm:flex-row sm:items-center" : ""
+              }`}
+              style={{ animationDelay: `${section.delay}s` }}
+            >
+              {/* Leaf node dot */}
+              <div className={`absolute -top-1 left-5 w-2 h-2 rounded-full border-2 border-surface ${section.dot}`} />
+
+              <span className="text-xl leading-none mt-0.5">{section.icon}</span>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-heading text-lg text-ink mb-0.5 group-hover:text-hibiscus transition-colors duration-200">
+                  {section.title}
+                </h2>
+                <p className="text-soft text-sm font-sans">{section.desc}</p>
+              </div>
+              <svg className="w-4 h-4 text-soft/30 group-hover:text-hibiscus transition-colors duration-200 flex-shrink-0 sm:ml-auto" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </Link>
+          ))}
+        </section>
       </div>
     </div>
   );

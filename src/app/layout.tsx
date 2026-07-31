@@ -33,13 +33,16 @@ export const metadata: Metadata = {
     { rel: "icon", type: "image/png", sizes: "192x192", url: "/icons/icon-192.png" },
     { rel: "icon", type: "image/png", sizes: "512x512", url: "/icons/icon-512.png" },
   ],
-  themeColor: "#1E3B2C",
+  themeColor: "#0A1410",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "APOR Reunion",
   },
   viewport: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover",
+  other: {
+    "view-transition": "same-origin",
+  },
 };
 
 export default function RootLayout({

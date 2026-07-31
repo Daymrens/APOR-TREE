@@ -1,16 +1,17 @@
 "use client";
 
-import { Suspense, useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import FamilyWordmark from "@/components/FamilyWordmark";
 import type { FamilyMember } from "@/lib/types";
 
 const BRANCH_COLORS: Record<string, string> = {
-  Apor: "#1E3B2C",
-  Jose: "#C23B6E",
+  Apor: "#3E8E68",
+  Jose: "#E26A8C",
   Rosa: "#E8A63D",
-  Antonio: "#2E6B62",
+  Antonio: "#4A9C92",
 };
 
 function getBranchColor(branch: string): string {
@@ -173,7 +174,7 @@ function GateForm() {
     return (
       <form onSubmit={handlePasscodeSubmit} className="flex flex-col gap-4">
         <div>
-          <label htmlFor="passcode" className="block text-parchment/70 text-sm font-sans mb-2">
+          <label htmlFor="passcode" className="block text-soft text-sm font-sans mb-2">
             {label}
           </label>
           <input
@@ -181,7 +182,7 @@ function GateForm() {
             type="password"
             value={passcode}
             onChange={(e) => setPasscode(e.target.value)}
-            className="w-full px-4 py-3 clay-input-dark rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none transition-all duration-200"
+            className="w-full px-4 py-3 input rounded-xl text-ink font-sans placeholder:text-soft/40 focus:outline-none transition-all duration-200"
             placeholder={placeholder}
             required
             autoFocus
@@ -217,7 +218,7 @@ function GateForm() {
   return (
     <form onSubmit={handleNameSubmit} className="flex flex-col gap-4">
       <div>
-        <label htmlFor="member-name" className="block text-parchment/70 text-sm font-sans mb-2">
+        <label htmlFor="member-name" className="block text-soft text-sm font-sans mb-2">
           Who are you? Find your name in the family tree
         </label>
         <div className="relative">
@@ -226,7 +227,7 @@ function GateForm() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-4 py-3 clay-input-dark rounded-xl text-parchment font-sans placeholder:text-parchment/30 focus:outline-none transition-all duration-200"
+            className="w-full px-4 py-3 input rounded-xl text-ink font-sans placeholder:text-soft/40 focus:outline-none transition-all duration-200"
             placeholder="Type your name..."
             autoFocus
             autoComplete="off"
@@ -235,7 +236,7 @@ function GateForm() {
             <button
               type="button"
               onClick={() => { setName(""); setSelectedMember(null); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment/40 hover:text-parchment/70 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-soft/40 hover:text-soft/70 transition-colors"
               aria-label="Clear name"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -259,7 +260,7 @@ function GateForm() {
                   setSelectedMember(member);
                   setName(member.fullName);
                 }}
-                className="w-full flex items-center gap-3 p-2.5 rounded-xl clay-dark hover:bg-white/[0.1] transition-all duration-200 text-left group"
+                className="w-full flex items-center gap-3 p-2.5 rounded-xl card-inset hover:bg-rattan/15 transition-all duration-200 text-left group"
               >
                 <div
                   className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
@@ -277,19 +278,19 @@ function GateForm() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-parchment text-sm font-sans font-medium truncate">
+                  <p className="text-ink text-sm font-sans font-medium truncate">
                     {member.nickname ? (
-                      <>{member.fullName} <span className="text-parchment/50">({member.nickname})</span></>
+                      <>{member.fullName} <span className="text-soft/60">({member.nickname})</span></>
                     ) : (
                       member.fullName
                     )}
                   </p>
-                  <p className="text-parchment/40 text-xs font-sans flex items-center gap-1">
+                  <p className="text-soft/60 text-xs font-sans flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                     {member.branch} · Gen {member.generation}
                   </p>
                 </div>
-                <svg className="w-4 h-4 text-parchment/20 group-hover:text-parchment/40 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <svg className="w-4 h-4 text-soft/30 group-hover:text-soft/60 transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                 </svg>
               </button>
@@ -300,7 +301,7 @@ function GateForm() {
 
       {/* Selected member badge */}
       {selectedMember && (
-        <div className="flex items-center gap-2 p-2.5 rounded-xl clay-dark animate-fade-in">
+        <div className="flex items-center gap-2 p-2.5 rounded-xl card-inset animate-fade-in">
           <div
             className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
             style={{
@@ -312,13 +313,13 @@ function GateForm() {
             </svg>
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-parchment text-sm font-sans font-medium truncate">{selectedMember.fullName}</p>
-            <p className="text-parchment/40 text-xs font-sans">{selectedMember.branch} branch</p>
+            <p className="text-ink text-sm font-sans font-medium truncate">{selectedMember.fullName}</p>
+            <p className="text-soft/60 text-xs font-sans">{selectedMember.branch} branch</p>
           </div>
           <button
             type="button"
             onClick={() => { setSelectedMember(null); setName(""); }}
-            className="text-parchment/30 hover:text-parchment/60 transition-colors"
+            className="text-soft/40 hover:text-soft/70 transition-colors"
             aria-label="Clear selection"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -330,7 +331,7 @@ function GateForm() {
 
       {/* Loading state */}
       {!membersLoaded && (
-        <div className="flex items-center gap-2 text-parchment/40 text-xs font-sans">
+        <div className="flex items-center gap-2 text-soft/50 text-xs font-sans">
           <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -369,7 +370,7 @@ function GateForm() {
       <button
         type="button"
         onClick={() => { setStep("passcode"); setError(""); }}
-        className="text-parchment/40 hover:text-parchment/70 text-xs font-sans transition-colors"
+        className="text-soft/50 hover:text-soft text-xs font-sans transition-colors"
       >
         ← Back to passcode
       </button>
@@ -379,28 +380,40 @@ function GateForm() {
 
 export default function GatePage() {
   return (
-    <div className="relative min-h-dvh flex items-center justify-center bg-gradient-to-br from-balete via-balete to-balete-deep overflow-hidden grain">
-      <div className="absolute top-20 left-10 w-32 h-32 rounded-full bg-hibiscus/10 blur-3xl animate-float" />
-      <div className="absolute bottom-32 right-8 w-40 h-40 rounded-full bg-mango/10 blur-3xl animate-float" style={{ animationDelay: "2s" }} />
-      <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-full bg-rattan/8 blur-2xl animate-float" style={{ animationDelay: "4s" }} />
+    <div className="relative min-h-dvh flex items-center justify-center bg-balete-deep overflow-hidden grain">
+      {/* Branch-line texture */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 400 700"
+        fill="none"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        <path d="M 200 0 V 220 C 200 260 160 280 140 320" stroke="rgba(232,166,61,0.18)" strokeWidth="1" />
+        <path d="M 200 0 V 260 C 200 300 240 320 260 360" stroke="rgba(194,64,95,0.16)" strokeWidth="1" />
+        <path d="M 200 0 V 300" stroke="rgba(191,160,106,0.2)" strokeWidth="1" />
+        <circle cx="200" cy="0" r="3" fill="rgba(232,166,61,0.45)" />
+        <circle cx="140" cy="320" r="2.5" fill="rgba(191,160,106,0.45)" />
+        <circle cx="260" cy="360" r="2.5" fill="rgba(194,64,95,0.4)" />
+      </svg>
 
       <div className="relative w-full max-w-sm mx-4 animate-fade-in">
         <div className="text-center mb-8 animate-slide-up">
-          <div className="mb-5" />
-          <h1 className="font-heading text-5xl text-parchment mb-2 tracking-wide">
-            APOR
-          </h1>
-          <p className="text-parchment/50 text-sm font-sans mb-3">Family Reunion</p>
-          <p className="text-parchment/40 text-xs font-sans leading-relaxed max-w-[260px] mx-auto">
-            <span className="text-mango/60">A</span>ng <span className="text-mango/60">P</span>anaghiusa · <span className="text-mango/60">O</span>ras · <span className="text-mango/60">R</span>elasyon
+          <p className="font-mono text-xs text-mango-light tracking-[0.35em] uppercase mb-4">
+            Family Reunion
+          </p>
+          <FamilyWordmark light className="kinetic-hero--clip text-[clamp(5.5rem,24vw,9rem)] mb-3" />
+          <p className="text-parchment/40 text-xs font-mono">— event date TBA —</p>
+          <p className="text-parchment/40 text-xs font-sans leading-relaxed max-w-[280px] mx-auto mt-6">
+            <span className="text-mango-light/70">A</span>ng <span className="text-mango-light/70">P</span>anaghiusa · <span className="text-mango-light/70">O</span>ras · <span className="text-mango-light/70">R</span>elasyon
             <br />
-            <span className="italic text-parchment/30">"Unity, Time, and Connection"</span>
+            <span className="italic text-parchment/30">&ldquo;Unity, Time, and Connection&rdquo;</span>
           </p>
         </div>
 
-        <div className="clay-dark rounded-2xl p-6 animate-slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="card rounded-2xl p-6 animate-slide-up" style={{ animationDelay: "0.15s" }}>
           <Suspense fallback={
-            <div className="flex items-center justify-center py-8 text-parchment/50 text-sm font-sans">
+            <div className="flex items-center justify-center py-8 text-soft/60 text-sm font-sans">
               Loading...
             </div>
           }>

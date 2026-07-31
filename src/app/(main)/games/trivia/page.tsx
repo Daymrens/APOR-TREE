@@ -160,7 +160,7 @@ export default function TriviaPage() {
                 onChange={(e) => setPlayerName(e.target.value)}
                 maxLength={30}
                 placeholder="Your name"
-                className="flex-1 px-4 py-3 bg-white/50 border border-rattan/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all"
+                className="flex-1 px-4 py-3 input rounded-xl font-sans text-ink focus:outline-none transition-all"
                 required
               />
               <button
@@ -198,7 +198,7 @@ export default function TriviaPage() {
             ) : (
               <ol className="space-y-2">
                 {topScores.map((entry, index) => (
-                  <li key={entry.id} className="flex items-center gap-3 p-2 rounded-lg bg-white/30 transition-colors hover:bg-white/50">
+                  <li key={entry.id} className="flex items-center gap-3 p-2 rounded-lg bg-rattan/10 transition-colors hover:bg-rattan/20">
                     <span className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold tabular-nums ${
                       index === 0 ? "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white" :
                       index === 1 ? "bg-gradient-to-br from-gray-400 to-gray-600 text-white" :
@@ -250,8 +250,8 @@ export default function TriviaPage() {
                     ? "bg-green-500/20 border-2 border-green-500 text-green-700"
                     : index === selectedAnswer
                     ? "bg-red-500/20 border-2 border-red-500 text-red-700"
-                    : "bg-white/30 text-soft/50"
-                  : "bg-white/50 border border-rattan/30 text-ink hover:bg-white/70 hover:border-hibiscus/30"
+                    : "bg-rattan/10 text-soft/50"
+                  : "card text-ink hover:border-hibiscus/40"
               }`}
             >
               <span className="flex items-center gap-3">

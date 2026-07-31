@@ -11,8 +11,8 @@ interface MemberCardProps {
 }
 
 const BRANCH_COLORS = [
-  "#C23B6E", "#E8A63D", "#1E3B2C", "#C9A876",
-  "#5C5445", "#8B5E3C", "#2E6B62", "#7C3AED",
+  "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
+  "#8C9A8F", "#D29B4E", "#4A9C92", "#A78BFA",
 ];
 
 function getBranchColor(branch: string, allBranches: string[]): string {
@@ -68,7 +68,7 @@ export default function MemberCard({ member, allMembers, onClose, onSelect }: Me
       onClick={onClose}
     >
       <div
-        className="relative bg-parchment/95 backdrop-blur-xl rounded-t-3xl sm:rounded-3xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl border border-white/20 animate-slide-up"
+        className="relative bg-surface/95 backdrop-blur-xl rounded-t-3xl sm:rounded-3xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl border border-line animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -222,7 +222,7 @@ export default function MemberCard({ member, allMembers, onClose, onSelect }: Me
 
         <a
           href={`/tree/${member.id}`}
-          className="block text-center text-hibiscus text-sm font-sans hover:underline mt-4 pt-3 border-t border-white/20"
+          className="block text-center text-hibiscus text-sm font-sans hover:underline mt-4 pt-3 border-t border-line"
         >
           View full profile →
         </a>
@@ -257,7 +257,7 @@ function ConnectionSection({
             <button
               key={m.id}
               onClick={() => onSelect(m)}
-              className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 text-left group"
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-2 transition-all duration-200 text-left group"
             >
               <div
                 className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"

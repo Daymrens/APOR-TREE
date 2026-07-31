@@ -44,7 +44,7 @@ export default function Countdown({ targetDate }: CountdownProps) {
   ];
 
   return (
-    <div className="clay p-5 animate-fade-in">
+    <div className="card p-5 animate-fade-in">
       {isPast ? (
         <div className="text-center py-4">
           <p className="font-heading text-2xl text-hibiscus mb-1">The reunion has started!</p>
@@ -53,9 +53,9 @@ export default function Countdown({ targetDate }: CountdownProps) {
       ) : (
         <>
           <p className="font-heading text-xl text-balete text-center mb-3">Countdown to Reunion</p>
-          <div className="flex justify-center gap-2 sm:gap-4">
+          <div className="flex justify-center gap-2 sm:gap-3">
             {blocks.map((block) => (
-              <div key={block.label} className="clay rounded-xl px-3 py-2 min-w-[60px] text-center">
+              <div key={block.label} className="card-inset rounded-xl px-3 py-2.5 min-w-[60px] text-center">
                 <p className="font-mono text-2xl text-hibiscus tabular-nums">
                   {String(block.value).padStart(2, "0")}
                 </p>

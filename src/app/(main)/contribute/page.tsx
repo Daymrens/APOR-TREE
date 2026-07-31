@@ -30,7 +30,7 @@ function MemberDataForm({
   errors: Record<string, string>;
 }) {
   const inputClass =
-    "w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 [&>option]:bg-parchment";
+    "w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none [&>option]:bg-parchment";
   const labelClass = "block text-sm font-sans font-medium text-balete mb-1.5";
 
   return (
@@ -272,7 +272,7 @@ export default function ContributePage() {
                   className={`px-3 py-1.5 rounded-xl text-xs font-sans font-medium transition-all duration-200 ${
                     type === t.value
                       ? "bg-gradient-to-r from-balete to-[#2E6B62] text-parchment shadow-md"
-                      : "clay hover:bg-white/70 text-ink"
+                      : "card text-ink"
                   }`}
                 >
                   {t.label}
@@ -293,7 +293,7 @@ export default function ContributePage() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as Contribution["category"])}
-                    className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                    className="w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink focus:outline-none"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>{c.label}</option>
@@ -309,7 +309,7 @@ export default function ContributePage() {
                     type="text"
                     value={memberName || ""}
                     readOnly
-                    className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
+                    className="w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink opacity-70"
                   />
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function ContributePage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Date change for Saturday dinner"
-                  className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40"
+                  className="w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none"
                   maxLength={120}
                 />
                 {errors.title && (
@@ -340,7 +340,7 @@ export default function ContributePage() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe what needs to change or what you&apos;d like to add..."
                   rows={5}
-                  className="w-full clay rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none focus:ring-2 focus:ring-hibiscus/40 resize-y"
+                  className="w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none resize-y"
                   maxLength={500}
                 />
                 <p className="text-soft/50 text-[10px] font-sans mt-1">

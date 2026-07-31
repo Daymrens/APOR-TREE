@@ -144,7 +144,7 @@ export default function BingoPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your name"
-          className="w-full px-4 py-3 bg-white/50 border border-rattan/30 rounded-xl font-sans text-ink focus:outline-none focus:ring-2 focus:ring-hibiscus/40 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 input rounded-xl font-sans text-ink focus:outline-none transition-all"
         />
       </div>
 

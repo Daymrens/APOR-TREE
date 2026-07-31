@@ -9,8 +9,8 @@ import BackButton from "@/components/ui/BackButton";
 import Skeleton from "@/components/ui/Skeleton";
 
 const BRANCH_COLORS = [
-  "#C23B6E", "#E8A63D", "#1E3B2C", "#C9A876",
-  "#5C5445", "#8B5E3C", "#2E6B62", "#7C3AED",
+  "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
+  "#8C9A8F", "#D29B4E", "#4A9C92", "#A78BFA",
 ];
 
 function getBranchColor(branch: string, allBranches: string[]): string {
@@ -121,7 +121,7 @@ export default function MemberProfilePage() {
       <BackButton />
       <div className="text-center mb-8 animate-fade-in">
         <div
-          className="inline-flex items-center justify-center w-24 h-24 rounded-full p-[3px] mb-4 animate-float"
+          className="inline-flex items-center justify-center w-24 h-24 rounded-full p-[3px] mb-4"
           style={{ background: `linear-gradient(135deg, ${color}, ${color}88)` }}
         >
           <div className="w-full h-full rounded-full bg-parchment flex items-center justify-center overflow-hidden">
@@ -281,7 +281,7 @@ function ConnectionSection({
             <button
               key={m.id}
               onClick={() => window.location.href = `/tree/${m.id}`}
-              className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 text-left"
+              className="w-full flex items-center gap-2.5 p-2 rounded-xl hover:bg-surface-2 transition-all duration-200 text-left"
             >
               <div
                 className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"

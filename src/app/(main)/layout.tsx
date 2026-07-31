@@ -26,47 +26,50 @@ export default function MainLayout({
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-hibiscus focus:text-parchment focus:px-4 focus:py-2 focus:rounded-xl focus:font-sans focus:text-sm focus:outline-none focus:ring-2 focus:ring-hibiscus focus:ring-offset-2">
         Skip to content
       </a>
-      <header className="clay-dark sticky top-0 z-50 px-4 py-3 shadow-lg">
-        <div className="max-w-[1100px] mx-auto flex items-center justify-between">
-          <Link href="/" className="font-heading text-xl font-semibold text-parchment tracking-wide">
+      <header className="sticky top-0 z-50 bg-balete-deep text-parchment border-b border-parchment/10">
+        <div className="max-w-[1100px] mx-auto px-4 py-3.5 flex items-center justify-between">
+          <Link href="/" className="font-heading text-xl font-semibold tracking-wide flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-mango" />
             APOR
           </Link>
-          <span className="text-parchment/50 text-xs font-mono hidden sm:block">
+          <span className="text-parchment/50 text-xs font-mono uppercase tracking-wider hidden sm:block">
             Family Reunion
           </span>
         </div>
       </header>
 
-      <main id="main-content" className="flex-1 pb-20 sm:pb-0">{children}</main>
+      <main id="main-content" className="flex-1 pb-28 sm:pb-12">{children}</main>
 
-      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 clay-dark border-t border-white/10 sm:border-0 sm:static sm:bg-transparent sm:backdrop-filter-none sm:pb-0 z-50">
-        <div className="max-w-[1100px] mx-auto flex sm:justify-center sm:gap-1">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={`relative flex flex-col items-center flex-1 sm:flex-initial sm:flex-row sm:gap-2 sm:px-4 sm:py-2 sm:rounded-full transition-all duration-200 ${
-                  isActive
-                    ? "text-hibiscus sm:bg-hibiscus/10"
-                    : "text-parchment/50 hover:text-parchment"
-                }`}
-              >
-                <item.icon className="w-5 h-5 sm:w-4 sm:h-4" />
-                <span className="text-[10px] sm:text-sm mt-0.5 sm:mt-0 font-sans">
-                  {item.label}
-                </span>
-                {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-hibiscus sm:hidden animate-scale-in" />
-                )}
-              </Link>
-            );
-          })}
+      <nav aria-label="Main navigation" className="fixed bottom-4 inset-x-0 z-50 sm:static sm:bottom-auto sm:inset-x-auto">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-0">
+          <div className="bg-surface border border-line rounded-2xl shadow-lg sm:shadow-none sm:border-0 sm:bg-transparent flex sm:justify-center sm:gap-1 px-2 py-1.5 sm:px-0 sm:py-0">
+            {navItems.map((item) => {
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative flex flex-col items-center flex-1 sm:flex-initial sm:flex-row sm:gap-2 sm:px-4 sm:py-2 sm:rounded-full transition-all duration-200 ${
+                    isActive
+                      ? "text-hibiscus sm:bg-hibiscus/10"
+                      : "text-soft hover:text-balete"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <span className="text-[10px] sm:text-sm mt-0.5 sm:mt-0 font-sans">
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-hibiscus sm:hidden animate-scale-in" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </div>

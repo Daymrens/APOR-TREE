@@ -8,7 +8,7 @@ export default function BackButton() {
   return (
     <button
       onClick={() => router.back()}
-      className="inline-flex items-center justify-center w-10 h-10 rounded-xl clay hover:shadow-lg hover:scale-110 active:scale-95 transition-all duration-200 mb-4"
+      className="inline-flex items-center justify-center w-10 h-10 rounded-xl card card-hover hover:scale-105 active:scale-95 transition-all duration-200 mb-4"
       aria-label="Go back"
     >
       <svg

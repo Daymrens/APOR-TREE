@@ -13,7 +13,7 @@ export default function Skeleton({
 }: SkeletonProps) {
   return (
     <div
-      className={`bg-white/10 animate-pulse rounded-lg ${className}`}
+      className={`bg-rattan/25 animate-pulse rounded-lg ${className}`}
       style={{
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,

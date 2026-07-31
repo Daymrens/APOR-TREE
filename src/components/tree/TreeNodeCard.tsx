@@ -133,11 +133,11 @@ export default function TreeNodeCard({
         cx={node.x}
         cy={node.y}
         r={r}
-        fill="rgba(241, 232, 214, 0.95)"
+        fill="rgba(245, 246, 243, 0.96)"
         style={{
           filter: isHovered
-            ? "drop-shadow(0 4px 12px rgba(194, 59, 110, 0.25))"
-            : "drop-shadow(0 2px 6px rgba(0,0,0,0.1))",
+            ? "drop-shadow(0 4px 12px rgba(232, 166, 61, 0.35))"
+            : "drop-shadow(0 2px 6px rgba(0,0,0,0.25))",
           transition: "filter 0.3s ease",
           opacity: loaded ? 1 : 0,
         }}
@@ -149,7 +149,7 @@ export default function TreeNodeCard({
           cx={node.x}
           cy={node.y}
           r={r}
-          fill="rgba(0,0,0,0.06)"
+          fill="rgba(23, 26, 23, 0.08)"
           style={{ pointerEvents: "none" }}
         />
       )}
@@ -206,7 +206,7 @@ export default function TreeNodeCard({
         x={node.x}
         y={node.y + r + 18}
         textAnchor="middle"
-        fill="#2B2620"
+        fill="#171A17"
         fontWeight="600"
         style={{
           fontSize: Math.max(10, r * 0.32),
@@ -223,11 +223,11 @@ export default function TreeNodeCard({
         x={node.x}
         y={node.y + r + 18 + Math.max(10, r * 0.32) + 4}
         textAnchor="middle"
-        fill="#5C5445"
+        fill="#F5F6F3"
         style={{
           fontSize: Math.max(8, r * 0.24),
           fontFamily: "Inter, sans-serif",
-          opacity: loaded ? 0.7 : 0,
+          opacity: loaded ? 0.6 : 0,
           transition: `opacity 0.5s ease ${index * 0.06}s`,
         }}
       >
@@ -240,7 +240,7 @@ export default function TreeNodeCard({
           x={node.x}
           y={node.y + r + 18 + Math.max(10, r * 0.32) + 4 + Math.max(8, r * 0.24) + 3}
           textAnchor="middle"
-          fill="#8B5E3C"
+          fill="#BFA06A"
           style={{
             fontSize: Math.max(7, r * 0.2),
             fontFamily: "Inter, sans-serif",
@@ -255,13 +255,13 @@ export default function TreeNodeCard({
 
       {/* Deceased cross overlay */}
       {isDeceased && (
-        <g style={{ pointerEvents: "none" }} opacity={0.55}>
+        <g style={{ pointerEvents: "none" }} opacity={0.6}>
           <line
             x1={node.x - r * 0.25}
             y1={node.y - r * 0.25}
             x2={node.x + r * 0.25}
             y2={node.y + r * 0.25}
-            stroke="#8B5E3C"
+            stroke="#BFA06A"
             strokeWidth={2.5}
             strokeLinecap="round"
           />
@@ -270,7 +270,7 @@ export default function TreeNodeCard({
             y1={node.y - r * 0.25}
             x2={node.x - r * 0.25}
             y2={node.y + r * 0.25}
-            stroke="#8B5E3C"
+            stroke="#BFA06A"
             strokeWidth={2.5}
             strokeLinecap="round"
           />
@@ -283,10 +283,10 @@ export default function TreeNodeCard({
         cy={node.y + r * 0.65}
         r={Math.min(4, r * 0.15)}
         fill={color}
-        stroke="var(--color-parchment)"
+        stroke="rgba(245, 246, 243, 0.9)"
         strokeWidth={2}
         style={{
-          opacity: loaded ? 0.8 : 0,
+          opacity: loaded ? 0.9 : 0,
           transition: `opacity 0.5s ease ${index * 0.06}s`,
         }}
       />
