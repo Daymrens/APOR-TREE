@@ -5,6 +5,21 @@ import { rateLimit } from "@/lib/rate-limit";
 
 const COLLECTION = "contributions";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const db = getAdminDb();
@@ -27,7 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "anonymous";
     if (!rateLimit(`contribute:${ip}`, 5, 60000)) {
-      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+      return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429, headers: corsHeaders });
     }
 
     const body = await request.json();
@@ -49,8 +64,8 @@ export async function POST(request: NextRequest) {
     }
 
     const docRef = await db.collection(COLLECTION).add(data);
-    return NextResponse.json({ id: docRef.id, ...data });
+    return NextResponse.json({ id: docRef.id, ...data }, { headers: corsHeaders });
   } catch {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
