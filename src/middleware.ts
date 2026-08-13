@@ -9,6 +9,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // The gate calls these before a session exists (open registration / passcode skipped):
+  // set-member establishes the family-session cookie, and contributions POST is a public,
+  // rate-limited moderation-queue submit. GET on contributions stays gated (it lists them).
+  if (
+    pathname === "/api/set-member" ||
+    (pathname === "/api/contributions" && request.method === "POST")
+  ) {
+    return NextResponse.next();
+  }
+
   const familySession = request.cookies.get("family-session")?.value;
   const adminSession = request.cookies.get("admin-session")?.value;
 
