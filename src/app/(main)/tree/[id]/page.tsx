@@ -24,8 +24,9 @@ export default function MemberProfilePage() {
           id: doc.id,
           ...doc.data(),
         })) as FamilyMember[];
-        setAllMembers(withDerivedBranches(data));
-        const found = data.find((m) => m.id === id);
+        const derivedFirst = withDerivedBranches(data);
+        setAllMembers(derivedFirst);
+        const found = derivedFirst.find((m) => m.id === id);
         setMember(found ?? null);
         setLoading(false);
       },
