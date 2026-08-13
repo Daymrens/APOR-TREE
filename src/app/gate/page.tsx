@@ -7,17 +7,7 @@ import { collection, getDocs } from "firebase/firestore";
 import FamilyWordmark from "@/components/FamilyWordmark";
 import MemberDataForm from "@/components/MemberDataForm";
 import type { FamilyMember, MemberContributionData } from "@/lib/types";
-
-const BRANCH_COLORS: Record<string, string> = {
-  Apor: "#3E8E68",
-  Jose: "#E26A8C",
-  Rosa: "#E8A63D",
-  Antonio: "#4A9C92",
-};
-
-function getBranchColor(branch: string): string {
-  return BRANCH_COLORS[branch] || "#C9A876";
-}
+import { withDerivedBranches, BRANCH_COLORS } from "@/lib/branches";
 
 type Step = "passcode" | "name";
 
@@ -65,7 +55,7 @@ function GateForm({
           id: doc.id,
           ...doc.data(),
         })) as FamilyMember[];
-        setMembers(data);
+        setMembers(withDerivedBranches(data));
         setMembersLoaded(true);
       } catch {
         setMembersLoaded(true);
@@ -336,7 +326,7 @@ function GateForm({
       {filtered.length > 0 && !selectedMember && (
         <div className="space-y-1.5 animate-fade-in">
           {filtered.map((member) => {
-            const color = getBranchColor(member.branch);
+            const color = BRANCH_COLORS[member.branch] ?? "#94a3b8";
             return (
               <button
                 key={member.id}
@@ -390,7 +380,7 @@ function GateForm({
           <div
             className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
             style={{
-              background: `linear-gradient(135deg, ${getBranchColor(selectedMember.branch)}40, ${getBranchColor(selectedMember.branch)}20)`,
+              background: `linear-gradient(135deg, ${BRANCH_COLORS[selectedMember.branch] ?? "#94a3b8"}40, ${BRANCH_COLORS[selectedMember.branch] ?? "#94a3b8"}20)`,
             }}
           >
             <svg className="w-4 h-4 text-hibiscus" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
