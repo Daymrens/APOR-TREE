@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyPasscode } from "@/lib/auth/passcode";
 
 const FALLBACK_FAMILY_HASH = "e794500dc1d7db699cf4804973ee7bb5366cb3012c5fa4022e01990e93af501e";
-const FALLBACK_ADMIN_HASH = "82b9a6b59a100d46eb32bf1dc5ab49fac363e686bac84e46aad502d0518335ae";
+const FALLBACK_ADMIN_HASH = "eac988a580051252ecb9453e7964cefefa27e92be323169005bff8f4c82cb3f9";
 
 export async function POST(request: NextRequest) {
   const { passcode, isAdmin } = await request.json();
