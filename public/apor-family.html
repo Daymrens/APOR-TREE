@@ -263,6 +263,7 @@
 <nav class="tabs">
   <button id="tab-form" class="active" onclick="showView('form')">✍️ <span data-i18n="tabForm">Member Form</span></button>
   <button id="tab-tree" onclick="showView('tree')">🌳 <span data-i18n="tabTree">Family Tree</span></button>
+  <button id="tab-dir" onclick="openDirectory()">📖 <span data-i18n="directory">Directory</span></button>
 </nav>
 
 <div class="wrap">
@@ -368,7 +369,6 @@
       <div class="tree-controls">
         <label class="filter-label" data-i18n="filterLabel">Branch:</label>
         <div class="filter-chips" id="filterChips"></div>
-        <button class="btn btn-ghost dir-btn" onclick="openDirectory()" data-i18n="directory">Directory</button>
         <div class="zoom-controls">
           <button class="btn btn-ghost zoom-btn" onclick="zoomTree(-0.1)" data-i18n="zoomOut" aria-label="Zoom out">−</button>
           <button class="btn btn-ghost zoom-btn" onclick="zoomTree(0)" data-i18n="zoomReset" aria-label="Reset zoom">100%</button>
