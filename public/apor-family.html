@@ -350,7 +350,7 @@
 
       <div id="form-banner"></div>
 
-      <form id="memberForm" onsubmit="return handleSubmit(event)">
+      <form id="memberForm" novalidate onsubmit="return handleSubmit(event)">
         <div class="grid2">
           <div class="field full">
             <label for="parentName" data-i18n="parentName">Parents / Root connection</label>
@@ -600,10 +600,11 @@
   }
 
   // ─── Form submit (Firestore via contributions API) ─────────────
-  // Posts an "add_member" contribution to the same-origin Next.js API. It
-  // lands in the `contributions` collection as status:"pending"; a family
-  // admin approves it, which creates the real family_members doc. Served
-  // from /public, so a relative fetch reaches the app's own API route.
+  // Posts an "add_member" contribution to the live Next.js API at
+  // https://apor-tree.vercel.app. It lands in the `contributions`
+  // collection as status:"pending"; a family admin approves it, which
+  // creates the real family_members doc. Served from Firebase Hosting,
+  // so we use the absolute API URL instead of a relative fetch.
   async function handleSubmit(e) {
     e.preventDefault();
     const f = e.target;
@@ -672,7 +673,7 @@
     if (submitBtn) submitBtn.disabled = true;
 
     try {
-      const res = await fetch('/api/contributions', {
+      const res = await fetch('https://apor-tree.vercel.app/api/contributions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
