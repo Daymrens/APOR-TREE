@@ -5,7 +5,7 @@ const publicPaths = ["/gate", "/api/verify-passcode"];
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (publicPaths.some((p) => pathname.startsWith(p))) {
+  if (pathname === "/admin" || publicPaths.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!familySession) {
+  if (!familySession && !adminSession) {
     const gateUrl = new URL("/gate", request.url);
     gateUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(gateUrl);

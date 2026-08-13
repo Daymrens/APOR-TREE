@@ -35,6 +35,7 @@ export default function AdminContributionsPage() {
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [actioning, setActioning] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
 
   const fetchContributions = useCallback(async () => {
@@ -57,17 +58,22 @@ export default function AdminContributionsPage() {
 
   async function handleApprove(id: string) {
     setActioning(id);
+    setActionError(null);
     try {
-      await fetch("/api/admin/approve-contribution", {
+      const res = await fetch("/api/admin/approve-contribution", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+      if (!res.ok) {
+        setActionError("Failed to approve contribution. Please try again.");
+        return;
+      }
       setContributions((prev) =>
         prev.map((c) => (c.id === id ? { ...c, status: "approved" as const } : c))
       );
     } catch {
-      if (process.env.NODE_ENV === "development") console.warn("Failed to approve contribution");
+      setActionError("Failed to approve contribution. Please try again.");
     } finally {
       setActioning(null);
     }
@@ -75,15 +81,20 @@ export default function AdminContributionsPage() {
 
   async function handleDelete(id: string) {
     setActioning(id);
+    setActionError(null);
     try {
-      await fetch("/api/admin/delete-contribution", {
+      const res = await fetch("/api/admin/delete-contribution", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
+      if (!res.ok) {
+        setActionError("Failed to delete contribution. Please try again.");
+        return;
+      }
       setContributions((prev) => prev.filter((c) => c.id !== id));
     } catch {
-      if (process.env.NODE_ENV === "development") console.warn("Failed to delete contribution");
+      setActionError("Failed to delete contribution. Please try again.");
     } finally {
       setActioning(null);
     }
@@ -120,6 +131,10 @@ export default function AdminContributionsPage() {
               </button>
             ))}
           </div>
+
+          {actionError && (
+            <p className="text-hibiscus text-sm font-sans mb-4">{actionError}</p>
+          )}
 
           {/* List */}
           {loading ? (
