@@ -7,16 +7,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import type { FamilyMember } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 import Skeleton from "@/components/ui/Skeleton";
-
-const BRANCH_COLORS = [
-  "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
-  "#8C9A8F", "#D29B4E", "#4A9C92", "#A78BFA",
-];
-
-function getBranchColor(branch: string, allBranches: string[]): string {
-  const index = allBranches.indexOf(branch);
-  return BRANCH_COLORS[index % BRANCH_COLORS.length];
-}
+import { withDerivedBranches, BRANCH_COLORS } from "@/lib/branches";
 
 export default function MemberProfilePage() {
   const params = useParams();
@@ -33,7 +24,7 @@ export default function MemberProfilePage() {
           id: doc.id,
           ...doc.data(),
         })) as FamilyMember[];
-        setAllMembers(data);
+        setAllMembers(withDerivedBranches(data));
         const found = data.find((m) => m.id === id);
         setMember(found ?? null);
         setLoading(false);
@@ -45,11 +36,6 @@ export default function MemberProfilePage() {
     );
     return () => unsub();
   }, [id]);
-
-  const allBranches = useMemo(() => {
-    const set = new Set(allMembers.map((m) => m.branch));
-    return Array.from(set).sort();
-  }, [allMembers]);
 
   if (loading) {
     return (
@@ -114,7 +100,7 @@ export default function MemberProfilePage() {
     );
   }, [member, allMembers, parents]);
 
-  const color = getBranchColor(member.branch, allBranches);
+  const color = BRANCH_COLORS[member.branch] ?? "#94a3b8";
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -276,7 +262,7 @@ function ConnectionSection({
       </div>
       <div className="space-y-1.5">
         {members.map((m) => {
-          const color = getBranchColor(m.branch, Array.from(new Set(members.map((x) => x.branch))));
+          const color = BRANCH_COLORS[m.branch] ?? "#94a3b8";
           return (
             <button
               key={m.id}

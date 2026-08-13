@@ -10,16 +10,7 @@ import Skeleton from "@/components/ui/Skeleton";
 import FamilyCard from "@/components/tree/FamilyCard";
 import MemberCard from "@/components/tree/MemberCard";
 import TreeLines from "@/components/tree/TreeLines";
-
-const BRANCH_COLORS = [
-  "#E26A8C", "#E8A63D", "#3E8E68", "#C9A876",
-  "#8C9A8F", "#D29B4E", "#4A9C92", "#A78BFA",
-];
-
-function getBranchColor(branch: string, allBranches: string[]): string {
-  const index = allBranches.indexOf(branch);
-  return BRANCH_COLORS[index % BRANCH_COLORS.length];
-}
+import { withDerivedBranches, BRANCH_ORDER, BRANCH_COLORS } from "@/lib/branches";
 
 export default function TreePage() {
   const [members, setMembers] = useState<FamilyMember[]>([]);
@@ -36,7 +27,7 @@ export default function TreePage() {
           id: doc.id,
           ...doc.data(),
         })) as FamilyMember[];
-        setMembers(data);
+        setMembers(withDerivedBranches(data));
         setLoading(false);
       },
       (error) => {
@@ -48,8 +39,7 @@ export default function TreePage() {
   }, []);
 
   const branches = useMemo(() => {
-    const set = new Set(members.map((m) => m.branch));
-    return Array.from(set).sort();
+    return BRANCH_ORDER.filter((b) => members.some((m) => m.branch === b));
   }, [members]);
 
   const generations = useMemo(() => {
@@ -142,7 +132,7 @@ export default function TreePage() {
                 All
               </button>
               {branches.map((branch) => {
-                const color = getBranchColor(branch, branches);
+                const color = BRANCH_COLORS[branch] ?? "#94a3b8";
                 const isActive = activeBranch === branch;
                 return (
                   <button
@@ -225,7 +215,7 @@ export default function TreePage() {
                     <FamilyCard
                       key={m.id}
                       member={m}
-                      color={getBranchColor(m.branch, branches)}
+                      color={BRANCH_COLORS[m.branch] ?? "#94a3b8"}
                       onSelect={setSelectedMember}
                     />
                   ))}
