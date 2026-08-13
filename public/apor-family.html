@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apor Family — Member Form & Tree</title>
+<style>
+  :root {
+    --surface: #ffffff;
+    --surface-2: #f6f8fb;
+    --surface-3: #eef2f7;
+    --ink: #1a2233;
+    --ink-2: #51607a;
+    --ink-3: #8b97ad;
+    --line: #e4e9f1;
+    --accent: #2f6df6;
+    --accent-soft: #e8f0ff;
+    --rose: #ef4565;
+    --rose-soft: #ffe9ef;
+    --emerald: #16b364;
+    --emerald-soft: #e3f8ee;
+    --amber: #f7b955;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(26,34,51,.04), 0 6px 20px rgba(26,34,51,.06);
+    --shadow-sm: 0 1px 2px rgba(26,34,51,.05);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface-2);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+  /* ─── Language selector (entry) ───────────────────────────────── */
+  .lang-bar {
+    display: flex; align-items: center; justify-content: flex-end; gap: .4rem;
+    padding: .9rem 1.25rem; max-width: 940px; margin: 0 auto;
+  }
+  .lang-bar .lbl { font-size: .8rem; color: var(--ink-3); margin-right: .2rem; }
+  .lang-btn {
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+    font: inherit; font-size: .8rem; font-weight: 600; padding: .35rem .7rem;
+    border-radius: 999px; cursor: pointer; transition: all .15s ease;
+  }
+  .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ─── Header ──────────────────────────────────────────────────── */
+  header.brand {
+    text-align: center; padding: 2.6rem 1rem 2rem;
+  }
+  header.brand .crest {
+    width: 56px; height: 56px; margin: 0 auto .9rem; border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #6f9bff);
+    display: grid; place-items: center; color: #fff; font-size: 1.5rem; box-shadow: var(--shadow);
+  }
+  header.brand h1 { margin: 0; font-size: 1.85rem; letter-spacing: -.02em; font-weight: 800; }
+  header.brand .tag { margin: .4rem 0 0; color: var(--ink-2); font-size: .95rem; }
+  header.brand .motto {
+    margin: 1rem auto 0; max-width: 420px; font-style: italic;
+    color: var(--rose); font-weight: 600; font-size: .95rem;
+  }
+
+  /* ─── Tabs ────────────────────────────────────────────────────── */
+  nav.tabs {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; gap: .35rem; justify-content: center;
+    background: rgba(246,248,251,.85); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line); padding: .55rem; margin-bottom: 1.5rem;
+  }
+  nav.tabs button {
+    border: none; background: transparent; color: var(--ink-2);
+    font: inherit; font-weight: 600; font-size: .9rem; padding: .55rem 1.2rem;
+    border-radius: 10px; cursor: pointer; transition: all .15s ease;
+  }
+  nav.tabs button:hover { background: var(--surface-3); color: var(--ink); }
+  nav.tabs button.active { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+
+  .view { display: none; }
+  .view.active { display: block; animation: fade .28s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ─── Card ────────────────────────────────────────────────────── */
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.75rem; box-shadow: var(--shadow);
+  }
+  .card-head { margin-bottom: 1.4rem; }
+  .card-head h2 { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
+  .card-head p { margin: .35rem 0 0; color: var(--ink-2); font-size: .9rem; }
+
+  /* ─── Form ────────────────────────────────────────────────────── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.2rem; }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: .35rem; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: .8rem; font-weight: 600; color: var(--ink-2); }
+  .req { color: var(--rose); }
+  input, select, textarea {
+    font: inherit; color: var(--ink); background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 10px; padding: .6rem .75rem; width: 100%;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  input:hover, select:hover, textarea:hover { border-color: var(--line); background: var(--surface); }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface);
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  .check { flex-direction: row; align-items: center; gap: .55rem; }
+  .check input { width: auto; accent-color: var(--accent); }
+  .check label { font-weight: 500; color: var(--ink); }
+  .hint { font-size: .76rem; color: var(--ink-3); margin-top: .15rem; }
+
+  .row { display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; margin-top: 1.5rem; }
+  button.btn {
+    font: inherit; font-weight: 600; cursor: pointer; border-radius: 10px;
+    padding: .65rem 1.4rem; border: 1px solid transparent; transition: all .15s ease;
+  }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { background: #215fe0; }
+  .btn-secondary { background: var(--surface-2); color: var(--ink); border-color: var(--line); }
+  .btn-secondary:hover { background: var(--surface-3); }
+  .btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--ink-3); }
+
+  .banner {
+    border-radius: 10px; padding: .85rem 1rem; font-size: .88rem; margin-bottom: 1.2rem;
+    border: 1px solid; display: flex; gap: .5rem; align-items: flex-start; line-height: 1.4;
+  }
+  .banner-ok { background: var(--emerald-soft); border-color: #b8ecd3; color: #0d7a45; }
+  .banner-err { background: var(--rose-soft); border-color: #fbc6d4; color: #b51e44; }
+  .banner-info { background: var(--accent-soft); border-color: #cfe0ff; color: #1b47b8; }
+
+  /* ─── Tree ────────────────────────────────────────────────────── */
+  .tree-toolbar {
+    display: flex; flex-wrap: wrap; gap: .7rem; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .legend { display: flex; gap: .9rem; flex-wrap: wrap; font-size: .75rem; color: var(--ink-2); align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; }
+  .legend .sw { width: 1.2rem; height: 0; border-top: 2.5px solid; border-radius: 1px; }
+
+  .tree-controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .filter-label { font-size: .8rem; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+  .filter-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .filter-chip {
+    font-size: .72rem; font-weight: 600; padding: .25rem .6rem; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2);
+    cursor: pointer; transition: all .15s ease;
+  }
+  .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .zoom-controls { display: flex; gap: .25rem; align-items: center; }
+  .zoom-btn { min-width: 2.2rem; font-size: .8rem; padding: .3rem .5rem; }
+
+  .tree-scroll {
+    overflow: auto; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); padding: 1.75rem; min-height: 480px; box-shadow: var(--shadow);
+    touch-action: none; /* for drag-to-pan */
+  }
+  .tree-scroll:active { cursor: grabbing; }
+  .tree-scroll.panning { cursor: grabbing; }
+  svg.tree { display: block; transition: transform .05s linear; }
+
+  /* Node styling — branch-colored left border on the rect */
+  .node-box { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; transition: stroke .15s ease, filter .15s ease; }
+  .node-box.deceased { fill: var(--surface-3); opacity: .75; }
+  .node-box:hover { stroke: var(--accent); filter: drop-shadow(0 2px 6px rgba(0,0,0,.12)); cursor: pointer; }
+  .node-name { font-weight: 700; font-size: 13px; fill: var(--ink); }
+  .node-meta { font-size: 10px; fill: var(--ink-3); }
+  .node-nick { font-size: 10px; fill: var(--accent); font-style: italic; }
+  .node-name.long { font-size: 11px; }
+  .node-gen { font-size: 9px; font-weight: 700; fill: var(--ink-3); }
+
+  /* Branch left-border palette */
+  .br-apor { fill: #2f6df6; }
+  .br-feliciano { fill: #16b364; }
+  .br-pedro { fill: #e8a63d; }
+  .br-presbitero { fill: #8b5cf6; }
+  .br-lumbab { fill: #ef4565; }
+
+  /* Orthogonal edges */
+  .edge { stroke: var(--ink-3); stroke-width: 1.5; fill: none; }
+  .edge.marriage { stroke: var(--rose); stroke-dasharray: 6 4; stroke-width: 2; }
+  .edge.parent { stroke: var(--ink-3); stroke-width: 1.5; }
+  .edge.bus { stroke: var(--ink-3); stroke-width: 1.5; }
+  .edge.branch { stroke: var(--ink-3); stroke-width: 1.2; }
+
+  /* detail popover */
+  .detail {
+    position: fixed; right: 1.25rem; bottom: 1.25rem; width: min(340px, calc(100vw - 2.5rem));
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 16px 50px rgba(26,34,51,.2); padding: 1.25rem 1.4rem; display: none; z-index: 40;
+  }
+  .detail.show { display: block; animation: fade .2s ease; }
+  .detail h3 { margin: 0; font-size: 1.05rem; font-weight: 700; padding-right: 1.5rem; }
+  .detail .d-meta { color: var(--ink-2); font-size: .82rem; margin: .3rem 0 .9rem; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .4rem .9rem; font-size: .85rem; }
+  .detail dt { color: var(--ink-3); font-weight: 600; }
+  .detail dd { margin: 0; }
+  .detail .close { position: absolute; top: .7rem; right: .9rem; cursor: pointer; color: var(--ink-3); border: none; background: none; font-size: 1.3rem; line-height: 1; }
+  .badge { display: inline-block; font-size: .7rem; font-weight: 700; padding: .12rem .55rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .badge.rose { background: var(--rose-soft); color: var(--rose); }
+
+  .footer-note { text-align: center; color: var(--ink-3); font-size: .8rem; margin-top: 2rem; }
+
+  @media print {
+    .lang-bar, nav.tabs, .tree-toolbar, .footer-note, .detail, header.brand .motto { display: none !important; }
+    .view { display: block !important; }
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Language selector -->
+<div class="lang-bar">
+  <span class="lbl" data-i18n="language">Language</span>
+  <button class="lang-btn active" data-lang="en" onclick="setLang('en')">English</button>
+  <button class="lang-btn" data-lang="tl" onclick="setLang('tl')">Tagalog</button>
+  <button class="lang-btn" data-lang="ceb" onclick="setLang('ceb')">Cebuano</button>
+</div>
+
+<header class="brand">
+  <div class="crest">🌳</div>
+  <h1 data-i18n="title">Apor Family</h1>
+  <p class="tag" data-i18n="subtitle">Family Reunion &amp; Tree — Member Form</p>
+  <p class="motto">Salingsing ni Gerbacio &amp; Marciana Apor</p>
+</header>
+
+<nav class="tabs">
+  <button id="tab-form" class="active" onclick="showView('form')">✍️ <span data-i18n="tabForm">Member Form</span></button>
+  <button id="tab-tree" onclick="showView('tree')">🌳 <span data-i18n="tabTree">Family Tree</span></button>
+</nav>
+
+<div class="wrap">
+
+  <!-- ════════════ MEMBER FORM ════════════ -->
+  <section id="view-form" class="view active">
+    <div class="card">
+      <div class="card-head">
+        <h2 data-i18n="formTitle">Add a Family Member</h2>
+        <p data-i18n="formSub">Fill out as much as you can. Print it or save it and send to the family admin.</p>
+      </div>
+
+      <div id="form-banner"></div>
+
+      <form id="memberForm" onsubmit="return handleSubmit(event)">
+        <div class="grid2">
+          <div class="field full">
+            <label for="parentName" data-i18n="parentName">Parents / Root connection</label>
+            <input id="parentName" name="parentName" maxlength="200" placeholder="e.g. Basilio Jr. & Lydia" />
+            <span class="hint" data-i18n="parentHint">Who are this person's parents? Helps place them on the tree.</span>
+          </div>
+          <div class="field">
+            <label for="firstName"><span data-i18n="firstName">First name</span> <span class="req">*</span></label>
+            <input id="firstName" name="firstName" required maxlength="100" />
+          </div>
+          <div class="field">
+            <label for="lastName"><span data-i18n="lastName">Last name</span> <span class="req">*</span></label>
+            <input id="lastName" name="lastName" required maxlength="100" value="Apor" />
+          </div>
+          <div class="field">
+            <label for="middleName" data-i18n="middleName">Middle name</label>
+            <input id="middleName" name="middleName" maxlength="100" />
+          </div>
+          <div class="field">
+            <label for="gender" data-i18n="gender">Gender</label>
+            <select id="gender" name="gender">
+              <option value="UNKNOWN" data-i18n="gUnknown">Prefer not to say</option>
+              <option value="MALE" data-i18n="gMale">Male</option>
+              <option value="FEMALE" data-i18n="gFemale">Female</option>
+              <option value="OTHER" data-i18n="gOther">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="maritalStatus" data-i18n="maritalStatus">Marital status</label>
+            <select id="maritalStatus" name="maritalStatus">
+              <option value="single" data-i18n="mSingle">Single</option>
+              <option value="married" data-i18n="mMarried">Married</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="birthDate" data-i18n="birthDate">Birth date</label>
+            <input id="birthDate" name="birthDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="deathDate"><span data-i18n="deathDate">Death date</span> <span style="font-weight:400" data-i18n="ifDeceased">(if deceased)</span></label>
+            <input id="deathDate" name="deathDate" type="date" />
+          </div>
+          <div class="field">
+            <label for="privacyLevel" data-i18n="visibility">Visibility</label>
+            <select id="privacyLevel" name="privacyLevel">
+              <option value="PUBLIC" data-i18n="vPublic">Public — everyone can see</option>
+              <option value="MEMBERS_ONLY" data-i18n="vMembers">Members only</option>
+              <option value="PRIVATE" data-i18n="vPrivate">Private — admins only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="photoUrl" data-i18n="photoUrl">Photo URL</label>
+            <input id="photoUrl" name="photoUrl" type="url" placeholder="https://…" />
+            <span class="hint" data-i18n="photoHint">Link to a photo online (optional).</span>
+          </div>
+          <div class="field full check">
+            <input id="isLiving" name="isLiving" type="checkbox" checked />
+            <label for="isLiving" style="font-weight:500" data-i18n="living">Living</label>
+          </div>
+          <div class="field full">
+            <label for="siblings" data-i18n="siblings">Siblings</label>
+            <input id="siblings" name="siblings" maxlength="500" placeholder="e.g. Maria, Jose, Ana" />
+            <span class="hint" data-i18n="siblingsHint">Comma-separated names (optional).</span>
+          </div>
+          <div class="field full">
+            <label for="notes" data-i18n="notes">Notes</label>
+            <textarea id="notes" name="notes" maxlength="5000" placeholder=""></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <button type="submit" class="btn btn-primary" data-i18n="saveBtn">Save member</button>
+          <button type="button" class="btn btn-secondary" onclick="window.print()" data-i18n="printBtn">🖨️ Print / Save as PDF</button>
+          <button type="button" class="btn btn-ghost" onclick="copyJson()" data-i18n="copyBtn">Copy as JSON</button>
+          <button type="reset" class="btn btn-ghost" data-i18n="clearBtn">Clear</button>
+        </div>
+      </form>
+    </div>
+    <p class="footer-note" data-i18n="formNote">This form is a standalone copy you can fill in offline. A family admin still needs to add details to the live site.</p>
+  </section>
+
+  <!-- ════════════ FAMILY TREE ════════════ -->
+  <section id="view-tree" class="view">
+    <div class="tree-toolbar">
+      <div class="legend" id="legend">
+        <!-- branch swatches injected by JS -->
+      </div>
+      <div class="tree-controls">
+        <label class="filter-label" data-i18n="filterLabel">Branch:</label>
+        <div class="filter-chips" id="filterChips"></div>
+        <div class="zoom-controls">
+          <button class="btn btn-ghost zoom-btn" onclick="zoomTree(-0.1)" data-i18n="zoomOut" aria-label="Zoom out">−</button>
+          <button class="btn btn-ghost zoom-btn" onclick="zoomTree(0)" data-i18n="zoomReset" aria-label="Reset zoom">100%</button>
+          <button class="btn btn-ghost zoom-btn" onclick="zoomTree(0.1)" data-i18n="zoomIn" aria-label="Zoom in">+</button>
+          <button class="btn btn-ghost" onclick="fitTree()" data-i18n="fitBtn">⛶ Fit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tree-scroll" id="treeScroll">
+      <svg id="tree" class="tree" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <p class="footer-note" data-i18n="treeNote">Click any person to see their details. Scroll or drag to explore.</p>
+  </section>
+
+</div>
+
+<!-- detail popover -->
+<div class="detail" id="detail">
+  <button class="close" onclick="closeDetail()">×</button>
+  <h3 id="d-name"></h3>
+  <div class="d-meta" id="d-meta"></div>
+  <dl id="d-body"></dl>
+</div>
+
+<script>
+  // ─── Translations ───────────────────────────────────────────────
+  const I18N = {
+    en: {
+      language: "Language", title: "Apor Family", subtitle: "Family Reunion & Tree — Member Form",
+      tabForm: "Member Form", tabTree: "Family Tree",
+      formTitle: "Add a Family Member", formSub: "Fill out as much as you can, then submit — a family admin reviews every entry before it joins the tree.",
+      firstName: "First name", lastName: "Last name", middleName: "Middle name", gender: "Gender",
+      gUnknown: "Prefer not to say", gMale: "Male", gFemale: "Female", gOther: "Other",
+      birthDate: "Birth date", deathDate: "Death date", ifDeceased: "(if deceased)",
+      visibility: "Visibility", vPublic: "Public — everyone can see", vMembers: "Members only", vPrivate: "Private — admins only",
+      photoUrl: "Photo URL", photoHint: "Link to a photo online (optional).",
+      living: "Living", notes: "Notes",
+      saveBtn: "Save member", printBtn: "🖨️ Print / Save as PDF", copyBtn: "Copy as JSON", clearBtn: "Clear",
+      formNote: "Submissions go to the family admins for review. You can also Print or Copy as JSON to share offline.",
+      legParent: "Parent–child", legSpouse: "Spouse", legSibling: "Sibling", centerBtn: "Center tree",
+      treeNote: "Click any person to see their details. Scroll or drag to explore.",
+      savedOk: "✓ Saved locally. Use “Copy as JSON” or “Print” to share it with the family admin.",
+      parentName: "Parents / Root connection", parentHint: "Who are this person's parents? Helps place them on the tree.",
+      maritalStatus: "Marital status", mSingle: "Single", mMarried: "Married",
+      siblings: "Siblings", siblingsHint: "Comma-separated names (optional).",
+      saving: "Submitting…", submittedOk: "✓ Submitted for review. A family admin will approve it and add it to the live tree.",
+      submitErr: "✗ Could not submit. Check your connection and try again.", nameRequired: "Please enter at least a first and last name.",
+      copyFirst: "Fill and save the form first, then copy.", copiedOk: "✓ Copied JSON to clipboard.",
+      born: "Born", died: "Died", genderLbl: "Gender", note: "Note", livingBadge: "Living", deceasedBadge: "Deceased",
+      notesPlaceholder: "Anything the family should know — nickname, hometown, story…",
+      filterLabel: "Branch:", filterAll: "All", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
+      zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "Fit",
+      branchLbl: "Branch", genLbl: "Generation", spouseLbl: "Spouse", parentsLbl: "Parents", nickLbl: "Nickname",
+    },
+    tl: {
+      language: "Wika", title: "Pamilya Apor", subtitle: "Pagsasama & PunoTauhan — Form ng Miyembro",
+      tabForm: "Form ng Miyembro", tabTree: "Puno ng Pamilya",
+      formTitle: "Magdagdag ng Miyembro ng Pamilya", formSub: "Punan ang makakaya, pagkatapos i-submit — sinusuri ng admin ang bawat entry bago ito lumabas sa puno.",
+      firstName: "Pangalan", lastName: "Apelyido", middleName: "Gitnang pangalan", gender: "Kasarian",
+      gUnknown: "Ayaw sabihin", gMale: "Lalaki", gFemale: "Babae", gOther: "Iba pa",
+      birthDate: "Petsa ng kapanganakan", deathDate: "Petsa ng pagpanaw", ifDeceased: "(kung pumanaw na)",
+      visibility: "Nakikita ba", vPublic: "Publiko — nakikita ng lahat", vMembers: "Mga miyembro lang", vPrivate: "Pribado — admin lang",
+      photoUrl: "URL ng Larawan", photoHint: "Link sa larawan online (opsyonal).",
+      living: "Buhay", notes: "Tala",
+      saveBtn: "I-save ang miyembro", printBtn: "🖨️ I-print / Save bilang PDF", copyBtn: "Kopyahin bilang JSON", clearBtn: "Burahin",
+      formNote: "Napupunta sa mga admin ng pamilya ang mga isinumite para suriin. Pwede ring i-Print o Copy as JSON para ibahagi offline.",
+      legParent: "Magulang–anak", legSpouse: "Asawa", legSibling: "magkapatid", centerBtn: "I-center ang puno",
+      treeNote: "I-click ang isang tao para makita ang detalye. Mag-scroll o drag para mag-explore.",
+      savedOk: "✓ Nai-save locally. Gamitin ang “Copy as JSON” o “Print” para ibahagi sa admin ng pamilya.",
+      parentName: "Mga magulang / Ugnayan sa ugat", parentHint: "Sino ang mga magulang nito? Tumutulong ilagay sila sa puno.",
+      maritalStatus: "Katayuang sibil", mSingle: "Walang asawa", mMarried: "May asawa",
+      siblings: "Mga kapatid", siblingsHint: "Mga pangalan na may pagitan ng kuwit (opsyonal).",
+      saving: "Isinusumite…", submittedOk: "✓ Naisumite para suriin. Aaprubahan ito ng admin at idadagdag sa live na puno.",
+      submitErr: "✗ Hindi naisumite. Tingnan ang koneksyon at subukan ulit.", nameRequired: "Maglagay man lang ng pangalan at apelyido.",
+      copyFirst: "Punan at i-save muna ang form bago kopyahin.", copiedOk: "✓ Nakopya ang JSON sa clipboard.",
+      born: "Ipinanganak", died: "Pumanaw", genderLbl: "Kasarian", note: "Tala", livingBadge: "Buhay", deceasedBadge: "Pumanaw",
+      notesPlaceholder: "Anumang dapat malaman ng pamilya — palayaw, bayan, kwento…",
+      filterLabel: "Sanga:", filterAll: "Lahat", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
+      zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
+      branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Asawa", parentsLbl: "Mga magulang", nickLbl: "Palayaw",
+    },
+    ceb: {
+      language: "Lengguwahe", title: "Pamilya Apor", subtitle: "Family Reunion & Tree — Form sa Miyembro",
+      tabForm: "Form sa Miyembro", tabTree: "Kahoy sa Pamilya",
+      formTitle: "Dugang og Miyembro sa Pamilya", formSub: "Punan kutob sa kaya, dayon i-submit — ribyuhon sa admin ang matag entry una kini mogawas sa kahoy.",
+      firstName: "Ngalan", lastName: "Apelyido", middleName: "Tunga nga ngalan", gender: "Kasarian",
+      gUnknown: "Dili buot mogawas", gMale: "Lalaki", gFemale: "Babaye", gOther: "Lain pa",
+      birthDate: "Petsa sa katawhan", deathDate: "Petsa sa kamatayon", ifDeceased: "(kung namatay na)",
+      visibility: "Makita ba", vPublic: "Publiko — makita sa tanan", vMembers: "Mga miyembro lang", vPrivate: "Pribado — admin lang",
+      photoUrl: "URL sa Litrato", photoHint: "Link sa litrato online (opsyonal).",
+      living: "Buhay", notes: "Tala",
+      saveBtn: "I-save ang miyembro", printBtn: "🖨️ I-print / Save as PDF", copyBtn: "Kopyahi as JSON", clearBtn: "Hawaon",
+      formNote: "Ang mga gisumite moadto sa mga admin sa pamilya aron ribyuhon. Pwede sab i-Print o Copy as JSON aron i-share offline.",
+      legParent: "Ginikanan–anak", legSpouse: "Asawa", legSibling: "mag-igsuon", centerBtn: "I-center ang kahoy",
+      treeNote: "I-click ang usa ka tawo para makita ang detalye. Mag-scroll o drag para mag-explore.",
+      savedOk: "✓ Nabutang sa lokal. Gamita ang “Copy as JSON” o “Print” para i-share sa admin sa pamilya.",
+      parentName: "Mga ginikanan / Koneksyon sa gamot", parentHint: "Kinsa ang mga ginikanan niini? Makatabang pagbutang nila sa kahoy.",
+      maritalStatus: "Kahimtang sa kaminyoon", mSingle: "Walay bana/asawa", mMarried: "Minyo",
+      siblings: "Mga igsuon", siblingsHint: "Mga ngalan nga gibulag og koma (opsyonal).",
+      saving: "Gisumite…", submittedOk: "✓ Gisumite aron ribyuhon. Aprubahan kini sa admin ug idugang sa live nga kahoy.",
+      submitErr: "✗ Wala ma-submit. Susiha ang koneksyon ug sulayi pag-usab.", nameRequired: "Pagbutang og ngalan ug apelyido.",
+      copyFirst: "Punan ug i-save daan ang form antes kopyahi.", copiedOk: "✓ Nakopya ang JSON sa clipboard.",
+      born: "Gipanganak", died: "Kamatayon", genderLbl: "Kasarian", note: "Tala", livingBadge: "Buhay", deceasedBadge: "Kamatayon",
+      notesPlaceholder: "Bisan unsa nga dapat mahibaw-an sa pamilya — tawag, lugar, istorya…",
+      filterLabel: "Sanga:", filterAll: "Tanang", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
+      zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
+      branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Bana/Asawa", parentsLbl: "Mga ginikanan", nickLbl: "Tawag",
+    },
+  };
+  // fix ceb copyFirst key typo
+  I18N.ceb.copyFirst = "Punan ug i-save daan ang form antes kopyahi.";
+
+  let CUR = 'en';
+
+  function setLang(l) {
+    CUR = l;
+    document.documentElement.lang = l === 'tl' ? 'tl' : l === 'ceb' ? 'ceb' : 'en';
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (I18N[l][key] != null) el.textContent = I18N[l][key];
+    });
+    // notes placeholder
+    const notes = document.getElementById('notes');
+    if (notes && !notes.value) notes.placeholder = I18N[l].notesPlaceholder;
+    // re-render chips and legend with the new locale
+    renderChips(); renderLegend();
+    // re-render tree labels (none needed, but refresh detail if open)
+    if (document.getElementById('detail').classList.contains('show')) {
+      // noop — detail text is set on click; could re-open for current member
+    }
+  }
+
+  // ─── Tab switching ───────────────────────────────────────────────
+  function showView(v) {
+    document.getElementById('view-form').classList.toggle('active', v === 'form');
+    document.getElementById('view-tree').classList.toggle('active', v === 'tree');
+    document.getElementById('tab-form').classList.toggle('active', v === 'form');
+    document.getElementById('tab-tree').classList.toggle('active', v === 'tree');
+    if (v === 'tree') requestAnimationFrame(fitTree);
+  }
+
+  // ─── Form submit (Firestore via contributions API) ─────────────
+  // Posts an "add_member" contribution to the same-origin Next.js API. It
+  // lands in the `contributions` collection as status:"pending"; a family
+  // admin approves it, which creates the real family_members doc. Served
+  // from /public, so a relative fetch reaches the app's own API route.
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const f = e.target;
+    const T = I18N[CUR];
+    const banner = document.getElementById('form-banner');
+
+    const firstName = f.firstName.value.trim();
+    const lastName = f.lastName.value.trim();
+    if (!firstName || !lastName) {
+      banner.className = 'banner banner-err';
+      banner.textContent = T.nameRequired;
+      return false;
+    }
+
+    const middleName = f.middleName.value.trim();
+    const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
+    const isLiving = f.isLiving.checked;
+    const notes = f.notes.value.trim();
+    // MemberContributionData.sex only allows male/female; leave blank for the
+    // unknown/other choices so the admin can set it on approval.
+    const sex = { MALE: 'male', FEMALE: 'female' }[f.gender.value] || '';
+
+    // Keep the offline copy working for "Copy as JSON" / "Print".
+    const local = {
+      firstName, middleName: middleName || null, lastName,
+      gender: f.gender.value, birthDate: f.birthDate.value || null,
+      deathDate: f.deathDate.value || null, isLiving,
+      maritalStatus: f.maritalStatus.value,
+      privacyLevel: f.privacyLevel.value, photoUrl: f.photoUrl.value.trim() || null,
+      parentName: f.parentName.value.trim() || null,
+      siblings: f.siblings.value.trim() || null,
+      notes: notes || null,
+    };
+    window._lastMember = local;
+
+    // Fold fields the contribution schema can't carry into the description so
+    // the admin still sees them.
+    const gLabel = { MALE: T.gMale, FEMALE: T.gFemale, OTHER: T.gOther, UNKNOWN: T.gUnknown };
+    const vLabel = { PUBLIC: T.vPublic, MEMBERS_ONLY: T.vMembers, PRIVATE: T.vPrivate };
+    const extra = [];
+    if (!sex) extra.push(`Gender: ${gLabel[f.gender.value] || f.gender.value}`);
+    if (local.deathDate) extra.push(`Died: ${local.deathDate}`);
+    if (local.photoUrl) extra.push(`Photo: ${local.photoUrl}`);
+    extra.push(`Visibility: ${vLabel[f.privacyLevel.value] || f.privacyLevel.value}`);
+    const description = [notes, extra.join(' · ')].filter(Boolean).join('\n\n');
+
+    const payload = {
+      type: 'add_member',
+      category: 'general',
+      title: `New member: ${fullName}`,
+      description,
+      data: {
+        parentName: f.parentName.value.trim(),
+        fullName,
+        sex,
+        dateOfBirth: f.birthDate.value || '',
+        maritalStatus: f.maritalStatus.value,
+        livingStatus: isLiving ? 'living' : 'deceased',
+        siblings: f.siblings.value.trim(),
+      },
+    };
+
+    const submitBtn = f.querySelector('button[type="submit"]');
+    banner.className = 'banner banner-info';
+    banner.textContent = T.saving;
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/contributions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      banner.className = 'banner banner-ok';
+      banner.textContent = T.submittedOk;
+      f.reset();
+      f.lastName.value = 'Apor';
+    } catch (err) {
+      banner.className = 'banner banner-err';
+      banner.textContent = T.submitErr;
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+    return false;
+  }
+
+  function copyJson() {
+    const data = window._lastMember;
+    const banner = document.getElementById('form-banner');
+    if (!data) { banner.className = 'banner banner-err'; banner.textContent = I18N[CUR].copyFirst; return; }
+    navigator.clipboard?.writeText(JSON.stringify(data, null, 2));
+    banner.className = 'banner banner-ok'; banner.textContent = I18N[CUR].copiedOk;
+  }
+
+  // ─── Family data (seeded Apor family) ───────────────────────────
+  const MEMBERS = [
+    {"id":"gerbacio-apor","name":"Gerbacio Apor","nick":"Lolo Gerbacio","gen":0,"branch":"Apor","parents":[],"spouse":"marciana-apor","order":0,"living":false,"sex":"MALE","notes":"Family patriarch. Root of the Apor family."},
+    {"id":"marciana-apor","name":"Marciana Apor","nick":"Lola Marciana","gen":0,"branch":"Apor","parents":[],"spouse":"gerbacio-apor","order":0,"living":false,"sex":"FEMALE","notes":"Family matriarch. Root of the Apor family."},
+    {"id":"panfilo-apor","name":"Panfilo Apor","nick":"Lolo Panfilo","gen":1,"branch":"Apor","parents":["gerbacio-apor","marciana-apor"],"spouse":"antonia-montecalvo","order":1,"living":false,"sex":"MALE","notes":"Eldest of the six Apor siblings. Married to Antonia Montecalvo."},
+    {"id":"antonia-montecalvo","name":"Antonia Montecalvo","nick":"Lola Antonia","gen":1,"branch":"Apor","parents":[],"spouse":"panfilo-apor","order":0,"living":false,"sex":"FEMALE","notes":"Married to Panfilo Apor."},
+    {"id":"ricardenel-apor","name":"Ricardenel Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"rose-ursal","order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"rose-ursal","name":"Rose Ursal","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"ricardenel-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"charlita-apor","name":"Charlita Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"eliseo-arnado","order":2,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"eliseo-arnado","name":"Eliseo Arnado","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"charlita-apor","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"merlyn-apor","name":"Merlyn Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"persing-mauro","order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"persing-mauro","name":"Persing Mauro","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"merlyn-apor","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"yelbe-apor","name":"Yelbe Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"reco-sevilleno","order":4,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"reco-sevilleno","name":"Reco Sevilleno","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"yelbe-apor","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"lonifredo-apor","name":"Lonifredo Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":null,"order":5,"living":true,"sex":"MALE","notes":""},
+    {"id":"marlibeth-apor","name":"Marlibeth Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"alvin-bracero","order":6,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"alvin-bracero","name":"Alvin Bracero","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"marlibeth-apor","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"demelito-apor","name":"Demelito Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"reina-bajo","order":7,"living":true,"sex":"MALE","notes":""},
+    {"id":"reina-bajo","name":"Reina Bajo","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"demelito-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"jofersel-apor","name":"Jofersel Apor","nick":"","gen":2,"branch":"Apor","parents":["panfilo-apor","antonia-montecalvo"],"spouse":"rhea-boromeo","order":8,"living":true,"sex":"MALE","notes":""},
+    {"id":"rhea-boromeo","name":"Rhea Boromeo","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"jofersel-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"feliciano","name":"Feliciano Apor","nick":"","gen":1,"branch":"Feliciano","parents":["gerbacio-apor","marciana-apor"],"spouse":"flora","order":2,"living":true,"sex":"MALE","notes":"Sibling branch of the Apor family."},
+    {"id":"flora","name":"Flora","nick":"","gen":1,"branch":"Feliciano","parents":[],"spouse":"feliciano","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"bienvenido","name":"Bienvenido","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"narcisa","order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"narcisa","name":"Narcisa","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"bienvenido","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"willy-f","name":"Willy","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"marciana","order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"marciana","name":"Marciana","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"willy-f","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"alfredo","name":"Alfredo","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"nena","order":3,"living":true,"sex":"MALE","notes":""},
+    {"id":"nena","name":"Nena","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"alfredo","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"alberto","name":"Alberto","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"dionesia","order":4,"living":true,"sex":"MALE","notes":""},
+    {"id":"dionesia","name":"Dionesia","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"alberto","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"rodulfo","name":"Rodulfo","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"merlina","order":5,"living":true,"sex":"MALE","notes":""},
+    {"id":"merlina","name":"Merlina","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"rodulfo","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"vivina","name":"Vivina","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"teofilo","order":6,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"teofilo","name":"Teofilo","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"vivina","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"feliciano-jr","name":"Feliciano Jr.","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"nelsa","order":7,"living":true,"sex":"MALE","notes":""},
+    {"id":"nelsa","name":"Nelsa","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"feliciano-jr","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"helenia","name":"Helenia","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"antonio-h","order":8,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"antonio-h","name":"Antonio","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"helenia","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"merlinda","name":"Merlinda","nick":"","gen":2,"branch":"Feliciano","parents":["feliciano","flora"],"spouse":"elicio","order":9,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"elicio","name":"Elicio","nick":"","gen":2,"branch":"Feliciano","parents":[],"spouse":"merlinda","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"pedro-lumbab","name":"Pedro Apor","nick":"","gen":1,"branch":"Pedro","parents":["gerbacio-apor","marciana-apor"],"spouse":"mercedes-lumbab","order":3,"living":true,"sex":"MALE","notes":"Sibling branch of the Apor family."},
+    {"id":"mercedes-lumbab","name":"Mercedes Lumbab","nick":"","gen":1,"branch":"Pedro","parents":[],"spouse":"pedro-lumbab","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"edita","name":"Edita","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":"gregorio-cole","order":1,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"gregorio-cole","name":"Gregorio Cole","nick":"","gen":2,"branch":"Pedro","parents":[],"spouse":"edita","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"geminda","name":"Geminda","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":2,"living":false,"sex":"FEMALE","notes":"Deceased."},
+    {"id":"amelita","name":"Amelita","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"venerando","name":"Venerando","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":4,"living":true,"sex":"MALE","notes":""},
+    {"id":"maridel","name":"Maridel","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":5,"living":false,"sex":"FEMALE","notes":"Deceased."},
+    {"id":"pedro-jr","name":"Pedro Jr.","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":6,"living":true,"sex":"MALE","notes":""},
+    {"id":"marites","name":"Marites","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":7,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"luchie","name":"Luchie","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":8,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"arnel","name":"Arnel","nick":"","gen":2,"branch":"Pedro","parents":["pedro-lumbab","mercedes-lumbab"],"spouse":null,"order":9,"living":true,"sex":"MALE","notes":""},
+    {"id":"pablo-apor","name":"Pablo Apor","nick":"","gen":1,"branch":"Apor","parents":["gerbacio-apor","marciana-apor"],"spouse":"victoriana-apor","order":4,"living":true,"sex":"MALE","notes":"Sibling of Panfilo Apor."},
+    {"id":"victoriana-apor","name":"Victoriana Apor","nick":"","gen":1,"branch":"Apor","parents":[],"spouse":"pablo-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"rosalio-apor","name":"Rosalio Apor","nick":"","gen":2,"branch":"Apor","parents":["pablo-apor","victoriana-apor"],"spouse":"cleopatra-arnejo","order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"cleopatra-arnejo","name":"Cleopatra Arnejo","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"rosalio-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"leo-apor","name":"Leo Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"lito-apor","name":"Lito Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"cleofe-apor","name":"Cleofe Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"ethel-apor","name":"Ethel Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":4,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"benjie-apor","name":"Benjie Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":5,"living":true,"sex":"MALE","notes":""},
+    {"id":"ida-apor","name":"Ida Apor","nick":"","gen":3,"branch":"Apor","parents":["rosalio-apor","cleopatra-arnejo"],"spouse":null,"order":6,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"roselo-apor","name":"Roselo Apor","nick":"","gen":2,"branch":"Apor","parents":["pablo-apor","victoriana-apor"],"spouse":"martiniana-ruelo","order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"martiniana-ruelo","name":"Martiniana Ruelo","nick":"","gen":2,"branch":"Apor","parents":[],"spouse":"roselo-apor","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"marvin-apor","name":"Marvin Apor","nick":"","gen":3,"branch":"Apor","parents":["roselo-apor","martiniana-ruelo"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"rosemarie-apor","name":"Rosemarie Apor","nick":"","gen":3,"branch":"Apor","parents":["roselo-apor","martiniana-ruelo"],"spouse":null,"order":2,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"ruth-apor","name":"Ruth Apor","nick":"","gen":3,"branch":"Apor","parents":["roselo-apor","martiniana-ruelo"],"spouse":null,"order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"purificasion-apor","name":"Purificasion Apor","nick":"","gen":1,"branch":"Presbitero","parents":["gerbacio-apor","marciana-apor"],"spouse":"eutiquio-presbitero","order":5,"living":true,"sex":"FEMALE","notes":"Sibling of Panfilo Apor."},
+    {"id":"eutiquio-presbitero","name":"Eutiquio Presbitero","nick":"","gen":1,"branch":"Presbitero","parents":[],"spouse":"purificasion-apor","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"winefredo-presbitero","name":"Winefredo Presbitero","nick":"Wenie","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"erlinda-p","order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"erlinda-p","name":"Erlinda","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"winefredo-presbitero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"elgendo-presbitero","name":"Elgendo Presbitero","nick":"Angi","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"liza-p","order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"liza-p","name":"Liza","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"elgendo-presbitero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"marite-presbitero","name":"Marite Presbitero","nick":"","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"cesar-comendador","order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"cesar-comendador","name":"Cesar Comendador","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"marite-presbitero","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"linibeth-presbitero","name":"Linibeth Presbitero","nick":"","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"catalino-pino","order":4,"living":false,"sex":"FEMALE","notes":"Deceased (+)."},
+    {"id":"catalino-pino","name":"Catalino Pino","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"linibeth-presbitero","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"arlene-presbitero","name":"Arlene Presbitero","nick":"","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"tinoy-magliante","order":5,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"tinoy-magliante","name":"Tinoy Magliante","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"arlene-presbitero","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"herenito-presbitero","name":"Herenito Presbitero","nick":"Ritoy","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"adela-p","order":6,"living":true,"sex":"MALE","notes":""},
+    {"id":"adela-p","name":"Adela","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"herenito-presbitero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"junito-presbitero","name":"Junito Presbitero","nick":"","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":null,"order":7,"living":true,"sex":"MALE","notes":""},
+    {"id":"airic-presbitero","name":"Airic Presbitero","nick":"","gen":2,"branch":"Presbitero","parents":["purificasion-apor","eutiquio-presbitero"],"spouse":"flor-p","order":8,"living":true,"sex":"MALE","notes":""},
+    {"id":"flor-p","name":"Flor","nick":"","gen":2,"branch":"Presbitero","parents":[],"spouse":"airic-presbitero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"consorcia-apor","name":"Consorcia Apor","nick":"","gen":1,"branch":"Lumbab","parents":["gerbacio-apor","marciana-apor"],"spouse":"basilio-lumbab","order":6,"living":true,"sex":"FEMALE","notes":"Sibling of Panfilo Apor."},
+    {"id":"basilio-lumbab","name":"Basilio Lumbab","nick":"","gen":1,"branch":"Lumbab","parents":[],"spouse":"consorcia-apor","order":0,"living":false,"sex":"MALE","notes":"Deceased (+)."},
+    {"id":"wilda-tejero","name":"Wilda Tejero","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"abemeles-tejero","order":1,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"abemeles-tejero","name":"Abemeles Tejero","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"wilda-tejero","order":0,"living":false,"sex":"MALE","notes":"Deceased (+)."},
+    {"id":"limwil-tejero","name":"Limwil Tejero","nick":"","gen":3,"branch":"Lumbab","parents":["wilda-tejero","abemeles-tejero"],"spouse":"eva-tejero","order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"eva-tejero","name":"Eva","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"limwil-tejero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"willy-tejero","name":"Willy Tejero","nick":"","gen":3,"branch":"Lumbab","parents":["wilda-tejero","abemeles-tejero"],"spouse":"marie-molinas","order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"marie-molinas","name":"Marie Molinas","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"willy-tejero","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"jesha-tejero","name":"Jesha Tejero","nick":"","gen":3,"branch":"Lumbab","parents":["wilda-tejero","abemeles-tejero"],"spouse":"jun-preagido","order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"jun-preagido","name":"Jun Preagido","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"jesha-tejero","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"apertito-lumbab","name":"Apertito Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"antonia-lanza","order":2,"living":false,"sex":"MALE","notes":"Deceased (+)."},
+    {"id":"antonia-lanza","name":"Antonia Lanza","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"apertito-lumbab","order":0,"living":false,"sex":"FEMALE","notes":"Deceased (+)."},
+    {"id":"maryjane-lumbab","name":"Maryjane Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["apertito-lumbab","antonia-lanza"],"spouse":"dante-montecillo","order":1,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"dante-montecillo","name":"Dante Montecillo","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"maryjane-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"faye-marie-lumbab","name":"Faye Marie Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["apertito-lumbab","antonia-lanza"],"spouse":null,"order":2,"living":true,"sex":"FEMALE","notes":"Partner: James Dennison."},
+    {"id":"angel-ann-lumbab","name":"Angel Ann Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["apertito-lumbab","antonia-lanza"],"spouse":null,"order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"vilma-lumbab","name":"Vilma Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"antonio-hastia","order":3,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"antonio-hastia","name":"Antonio Hastia","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"vilma-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"mark-anthony-lumbab","name":"Mark Anthony Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["vilma-lumbab","antonio-hastia"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":"Partner: Enrika Narvios."},
+    {"id":"karl-kenneth-lumbab","name":"Karl Kenneth Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["vilma-lumbab","antonio-hastia"],"spouse":null,"order":2,"living":true,"sex":"MALE","notes":"Partner: Marichu Gabutin."},
+    {"id":"basilio-jr-lumbab","name":"Basilio Jr. Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"lydia-talandron","order":4,"living":true,"sex":"MALE","notes":""},
+    {"id":"lydia-talandron","name":"Lydia Talandron","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"basilio-jr-lumbab","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"haydee-lumbab","name":"Haydee Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["basilio-jr-lumbab","lydia-talandron"],"spouse":null,"order":1,"living":true,"sex":"FEMALE","notes":"Partner: J.R. Roto."},
+    {"id":"junalyn-lumbab","name":"Junalyn Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["basilio-jr-lumbab","lydia-talandron"],"spouse":"jan-bakkerud","order":2,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"jan-bakkerud","name":"Jan Bakkerud","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"junalyn-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"james-lumbab","name":"James Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["basilio-jr-lumbab","lydia-talandron"],"spouse":"chrislyn-aranco","order":3,"living":true,"sex":"MALE","notes":""},
+    {"id":"chrislyn-aranco","name":"Chrislyn Aranco","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"james-lumbab","order":0,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"harrold-lumbab","name":"Harrold Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["basilio-jr-lumbab","lydia-talandron"],"spouse":null,"order":4,"living":true,"sex":"MALE","notes":""},
+    {"id":"christine-ann-lumbab","name":"Christine Ann Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["basilio-jr-lumbab","lydia-talandron"],"spouse":null,"order":5,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"ruel-lumbab","name":"Ruel Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"linda-ygay","order":5,"living":true,"sex":"MALE","notes":""},
+    {"id":"linda-ygay","name":"Linda Ygay","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"ruel-lumbab","order":0,"living":false,"sex":"FEMALE","notes":"Deceased (+)."},
+    {"id":"michael-lumbab","name":"Michael Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["ruel-lumbab","linda-ygay"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":"Partner: Lyca."},
+    {"id":"charles-lumbab","name":"Charles Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["ruel-lumbab","linda-ygay"],"spouse":null,"order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"elma-lumbab","name":"Elma Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":null,"order":6,"living":true,"sex":"FEMALE","notes":"Partner: Robert Dela Cruz."},
+    {"id":"harlyn-lumbab","name":"Harlyn Nueva Millen Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["elma-lumbab"],"spouse":"john-mart-caparoso","order":1,"living":true,"sex":"FEMALE","notes":"Adopted child of Elma. Partner: John Mart Caparoso."},
+    {"id":"john-mart-caparoso","name":"John Mart Caparoso","nick":"","gen":3,"branch":"Lumbab","parents":[],"spouse":"harlyn-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"ida-lumbab","name":"Ida Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":null,"order":7,"living":true,"sex":"FEMALE","notes":"Partner: Arnel Verano."},
+    {"id":"khea-marie-lumbab","name":"Khea Marie Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["ida-lumbab"],"spouse":null,"order":1,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"sherlie-lumbab","name":"Sherlie Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"romeo-surban","order":8,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"romeo-surban","name":"Romeo Surban","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"sherlie-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"jean-philip-lumbab","name":"Jean Philip Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["sherlie-lumbab","romeo-surban"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":""},
+    {"id":"christian-lumbab","name":"Christian Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["sherlie-lumbab","romeo-surban"],"spouse":null,"order":2,"living":true,"sex":"MALE","notes":""},
+    {"id":"wienna-lumbab","name":"Wienna Lumbab","nick":"","gen":2,"branch":"Lumbab","parents":["consorcia-apor","basilio-lumbab"],"spouse":"eric-spencer","order":9,"living":true,"sex":"FEMALE","notes":""},
+    {"id":"eric-spencer","name":"Eric Spencer","nick":"","gen":2,"branch":"Lumbab","parents":[],"spouse":"wienna-lumbab","order":0,"living":true,"sex":"MALE","notes":""},
+    {"id":"eric-glenn-lumbab","name":"Eric Glenn Lumbab","nick":"","gen":3,"branch":"Lumbab","parents":["wienna-lumbab","eric-spencer"],"spouse":null,"order":1,"living":true,"sex":"MALE","notes":""},
+  ];
+
+  const BOX_W = 132, BOX_H = 52, H_GAP = 22, COUPLE_GAP = 12, ROW_H = 128;
+
+  function buildLayout(members = MEMBERS) {
+    const byId = {}; members.forEach(m => byId[m.id] = m);
+    const kidsOf = {}; members.forEach(m => { const p = m.parents[0]; if (p && byId[p]) (kidsOf[p] ||= []).push(m); });
+    Object.values(kidsOf).forEach(k => k.sort((a,b) => a.order - b.order || a.id.localeCompare(b.id)));
+    const coupleW = m => m.spouse && byId[m.spouse] ? 2*BOX_W + COUPLE_GAP : BOX_W;
+    const subtreeWidth = n => {
+      const kids = kidsOf[n.id] || [];
+      if (!kids.length) return coupleW(n);
+      return Math.max(coupleW(n), kids.reduce((s,k) => s + subtreeWidth(k), 0) + (kids.length-1)*H_GAP);
+    };
+    const pos = {};
+    const placed = new Set();
+    const place = (n, left) => {
+      const kids = kidsOf[n.id] || [];
+      const kidsW = kids.length ? kids.reduce((s,k) => s + subtreeWidth(k), 0) + (kids.length-1)*H_GAP : 0;
+      const subW = subtreeWidth(n);
+      const cx = left + subW/2;
+      const y = n.gen * ROW_H;
+      const x = cx - coupleW(n)/2;
+      pos[n.id] = { x, y }; placed.add(n.id);
+      if (n.spouse && byId[n.spouse]) {
+        const s = byId[n.spouse];
+        pos[s.id] = { x: x + BOX_W + COUPLE_GAP, y }; placed.add(s.id);
+      }
+      if (kids.length) {
+        let cursor = left + (subW - kidsW)/2;
+        kids.forEach(k => { place(k, cursor); cursor += subtreeWidth(k) + H_GAP; });
+      }
+    };
+    const isParent0 = new Set(Object.keys(kidsOf));
+    const anchors = members
+      .filter(m => m.parents.length === 0 || !m.parents.some(p => byId[p]) || !isParent0.has(m.id))
+      .sort((a,b) => a.gen - b.gen || (a.parents.length === 0 ? 1 : 0) - (b.parents.length === 0 ? 1 : 0) || a.order - b.order || a.id.localeCompare(b.id));
+    let left = 0;
+    anchors.forEach(a => { if (placed.has(a.id)) return; place(a, left); left += subtreeWidth(a) + H_GAP; });
+    let maxX = 0, maxGen = 0;
+    members.forEach(m => { const p = pos[m.id]; maxX = Math.max(maxX, p.x + BOX_W); maxGen = Math.max(maxGen, m.gen); });
+    return { pos, rows: maxGen + 1, width: maxX, height: (maxGen + 1) * ROW_H };
+  }
+
+  function renderTree(members = MEMBERS) {
+    const svg = document.getElementById('tree');
+    const { pos, width, height } = buildLayout(members);
+    const W = width + 40, H = height + 40;
+    svg._w = W; svg._h = H;
+    svg.setAttribute('width', W); svg.setAttribute('height', H); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = '';
+    const NS = 'http://www.w3.org/2000/svg';
+    const pathEl = (d, cls) => {
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d); p.setAttribute('class', cls);
+      svg.appendChild(p);
+    };
+    const midX = m => pos[m.id].x + (m.spouse ? BOX_W + COUPLE_GAP/2 : BOX_W/2);
+    members.forEach(m => {
+      if (m.spouse && m.id.localeCompare(m.spouse) < 0) {
+        const A = pos[m.id], B = pos[m.spouse];
+        const y = A.y + BOX_H/2;
+        pathEl(`M ${A.x + BOX_W} ${y} L ${B.x} ${y}`, 'edge marriage');
+      }
+    });
+    const kidsOf = {}; members.forEach(m => { const p = m.parents[0]; if (p && pos[p]) (kidsOf[p] ||= []).push(m); });
+    Object.values(kidsOf).forEach(k => k.sort((a,b) => a.order - b.order || a.id.localeCompare(b.id)));
+    members.forEach(p => {
+      const kids = kidsOf[p.id];
+      if (!kids || !kids.length) return;
+      const py = pos[p.id].y, pm = midX(p);
+      const busY = py + BOX_H + 34;
+      pathEl(`M ${pm} ${py + BOX_H} L ${pm} ${busY}`, 'edge parent');
+      const mids = kids.map(k => midX(k));
+      let d = `M ${Math.min(...mids)} ${busY} L ${Math.max(...mids)} ${busY}`;
+      kids.forEach(k => { const mx = midX(k); d += ` M ${mx} ${busY} L ${mx} ${pos[k.id].y}`; });
+      pathEl(d, 'edge bus');
+    });
+    members.forEach(m => {
+      const p = pos[m.id];
+      const g = document.createElementNS(NS, 'g'); g.setAttribute('transform', `translate(${p.x}, ${p.y})`); g.style.cursor='pointer';
+      g.addEventListener('click', () => showDetail(m));
+      const rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('width', BOX_W); rect.setAttribute('height', BOX_H); rect.setAttribute('rx', 12);
+      rect.setAttribute('class', 'node-box' + (m.living ? '' : ' deceased')); g.appendChild(rect);
+      const strip = document.createElementNS(NS, 'rect');
+      strip.setAttribute('width', 5); strip.setAttribute('height', BOX_H); strip.setAttribute('rx', 2);
+      strip.setAttribute('class', 'br-' + m.branch.toLowerCase()); g.appendChild(strip);
+      const name = document.createElementNS(NS, 'text');
+      name.setAttribute('x', BOX_W/2); name.setAttribute('y', m.nick ? 20 : 28); name.setAttribute('text-anchor','middle');
+      name.setAttribute('class', 'node-name' + (m.name.length > 14 ? ' long' : '')); name.textContent = m.name; g.appendChild(name);
+      if (m.nick) {
+        const nick = document.createElementNS(NS, 'text');
+        nick.setAttribute('x', BOX_W/2); nick.setAttribute('y', 33); nick.setAttribute('text-anchor','middle');
+        nick.setAttribute('class','node-nick'); nick.textContent = m.nick; g.appendChild(nick);
+      }
+      const gen = document.createElementNS(NS, 'text');
+      gen.setAttribute('x', BOX_W - 6); gen.setAttribute('y', 12); gen.setAttribute('text-anchor','end');
+      gen.setAttribute('class','node-gen'); gen.textContent = 'G' + m.gen; g.appendChild(gen);
+      const meta = document.createElementNS(NS, 'text');
+      meta.setAttribute('x', BOX_W/2); meta.setAttribute('y', 47); meta.setAttribute('text-anchor','middle'); meta.setAttribute('class','node-meta');
+      meta.textContent = m.living ? 'living' : 'deceased'; g.appendChild(meta);
+      svg.appendChild(g);
+    });
+  }
+
+  function showDetail(m) {
+    const T = I18N[CUR];
+    const byId = id => { const p = MEMBERS.find(x => x.id === id); return p ? p.name : id; };
+    const d = document.getElementById('detail');
+    document.getElementById('d-name').textContent = m.name;
+    document.getElementById('d-meta').innerHTML = m.living
+      ? `<span class="badge">${T.livingBadge}</span>`
+      : `<span class="badge rose">${T.deceasedBadge}</span>`;
+    const spouse = m.spouse ? byId(m.spouse) : '—';
+    const parents = m.parents && m.parents.length ? m.parents.map(byId).join(', ') : '—';
+    const rows = [
+      [T.nickLbl, m.nick || '—'],
+      [T.branchLbl, m.branch],
+      [T.genLbl, 'G' + m.gen],
+      [T.spouseLbl, spouse],
+      [T.parentsLbl, parents],
+      [T.note, m.notes || '—'],
+    ];
+    document.getElementById('d-body').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+    d.classList.add('show');
+  }
+  function closeDetail() { document.getElementById('detail').classList.remove('show'); }
+
+  let TREE_SCALE = 1;
+  function applyScale() {
+    const svg = document.getElementById('tree');
+    svg.setAttribute('width', svg._w * TREE_SCALE);
+    svg.setAttribute('height', svg._h * TREE_SCALE);
+    svg.setAttribute('viewBox', `0 0 ${svg._w} ${svg._h}`);
+  }
+  function zoomTree(delta) {
+    const sc = document.getElementById('treeScroll');
+    const svg = document.getElementById('tree');
+    if (!svg._w || !sc.clientWidth) return;
+    const next = delta === 0 ? 1 : Math.min(1.6, Math.max(0.4, TREE_SCALE + delta));
+    const cx = (sc.scrollLeft + sc.clientWidth/2) / TREE_SCALE;
+    const cy = (sc.scrollTop + sc.clientHeight/2) / TREE_SCALE;
+    TREE_SCALE = next;
+    applyScale();
+    sc.scrollLeft = cx * TREE_SCALE - sc.clientWidth/2;
+    sc.scrollTop = cy * TREE_SCALE - sc.clientHeight/2;
+  }
+  function fitTree() {
+    const sc = document.getElementById('treeScroll'); const svg = document.getElementById('tree');
+    if (!svg._w || !sc.clientWidth) return;
+    TREE_SCALE = Math.min(1.6, Math.max(0.4, Math.min((sc.clientWidth - 30) / svg._w, (sc.clientHeight - 30) / svg._h)));
+    applyScale();
+    sc.scrollLeft = (svg.clientWidth - sc.clientWidth)/2;
+    sc.scrollTop = Math.max(0, (svg.clientHeight - sc.clientHeight)/2);
+  }
+  (function initPan() {
+    const sc = document.getElementById('treeScroll');
+    let dragging = false, sx = 0, sy = 0, sl = 0, st = 0;
+    sc.addEventListener('pointerdown', e => {
+      dragging = true; sx = e.clientX; sy = e.clientY; sl = sc.scrollLeft; st = sc.scrollTop;
+      sc.classList.add('panning');
+      if (sc.setPointerCapture) sc.setPointerCapture(e.pointerId);
+    });
+    sc.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      sc.scrollLeft = sl - (e.clientX - sx);
+      sc.scrollTop = st - (e.clientY - sy);
+    });
+    sc.addEventListener('pointerup', () => { dragging = false; sc.classList.remove('panning'); });
+    sc.addEventListener('pointercancel', () => { dragging = false; sc.classList.remove('panning'); });
+  })();
+
+  const BRANCHES = [
+    { id: 'Apor', color: '#2f6df6' },
+    { id: 'Feliciano', color: '#16b364' },
+    { id: 'Pedro', color: '#e8a63d' },
+    { id: 'Presbitero', color: '#8b5cf6' },
+    { id: 'Lumbab', color: '#ef4565' },
+  ];
+  let CUR_FILTER = 'all';
+  function renderLegend() {
+    const T = I18N[CUR];
+    document.getElementById('legend').innerHTML = BRANCHES.map(b =>
+      `<span><span class="sw" style="border-top-color: ${b.color}"></span>${T['filter' + b.id]}</span>`).join('');
+  }
+  function renderChips() {
+    const T = I18N[CUR];
+    const wrap = document.getElementById('filterChips');
+    wrap.innerHTML = `<button class="filter-chip${CUR_FILTER === 'all' ? ' active' : ''}" data-filter="all">${T.filterAll}</button>`
+      + BRANCHES.map(b => `<button class="filter-chip${CUR_FILTER === b.id ? ' active' : ''}" data-filter="${b.id}">${T['filter' + b.id]}</button>`).join('');
+    [...wrap.children].forEach(c => c.addEventListener('click', () => setFilter(c.dataset.filter)));
+  }
+  function setFilter(branch) {
+    CUR_FILTER = branch;
+    renderChips();
+    const visible = branch === 'all' ? MEMBERS : MEMBERS.filter(m => m.branch === branch);
+    buildLayout(visible);
+    renderTree(visible);
+    fitTree();
+  }
+
+  renderLegend();
+  renderChips();
+  renderTree();
+  window.addEventListener('resize', () => { if (document.getElementById('view-tree').classList.contains('active')) fitTree(); });
+</script>
+</body>
+</html>
