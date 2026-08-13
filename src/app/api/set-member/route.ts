@@ -10,6 +10,16 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json({ ok: true });
 
+    // Establish the family session here too, so the middleware lets the visitor
+    // through even when the passcode step was skipped (open registration).
+    response.cookies.set("family-session", "true", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
     response.cookies.set("family-member-id", memberId || "", {
       path: "/",
       maxAge: 60 * 60 * 24 * 365, // 1 year
