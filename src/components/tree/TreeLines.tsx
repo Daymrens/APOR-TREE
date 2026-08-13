@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FamilyMember } from "@/lib/types";
-import { getBranchColor } from "@/lib/tree/layout";
+import { BRANCH_COLORS } from "@/lib/branches";
 
 interface TreeLinesProps {
   members: FamilyMember[];
@@ -48,7 +48,6 @@ export default function TreeLines({ members, containerRef }: TreeLinesProps) {
         });
       });
 
-      const allBranches = Array.from(new Set(members.map((m) => m.branch))).sort();
       const next: Line[] = [];
 
       members.forEach((m) => {
@@ -57,7 +56,7 @@ export default function TreeLines({ members, containerRef }: TreeLinesProps) {
         const b = boxes.get(m.spouseId);
         if (!a || !b) return;
         const y = a.top + (a.bottom - a.top) / 2;
-        const color = getBranchColor(m.branch, allBranches);
+        const color = BRANCH_COLORS[m.branch] ?? BRANCH_COLORS["Unassigned"];
         next.push({
           kind: "spouse",
           color,
@@ -71,7 +70,7 @@ export default function TreeLines({ members, containerRef }: TreeLinesProps) {
         child.parentIds.forEach((parentId) => {
           const p = boxes.get(parentId);
           if (!p) return;
-          const color = getBranchColor(child.branch, allBranches);
+          const color = BRANCH_COLORS[child.branch] ?? BRANCH_COLORS["Unassigned"];
           const midY = p.bottom + (c.top - p.bottom) / 2;
           next.push({
             kind: "parent-child",
