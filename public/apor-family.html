@@ -208,10 +208,35 @@
   .badge { display: inline-block; font-size: .7rem; font-weight: 700; padding: .12rem .55rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
   .badge.rose { background: var(--rose-soft); color: var(--rose); }
 
+  /* ─── Directory panel ─────────────────────────────────────────── */
+  .dir-btn { padding: .35rem .7rem; font-size: .8rem; }
+  .directory {
+    position: fixed; top: 1.25rem; right: 1.25rem; bottom: 1.25rem; width: min(420px, calc(100vw - 2.5rem));
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 16px 50px rgba(26,34,51,.2); display: none; z-index: 45; padding: 1.25rem 1.4rem;
+  }
+  .directory.show { display: block; animation: fade .2s ease; }
+  .directory h3 { margin: 0 0 .4rem; font-size: 1.05rem; font-weight: 700; padding-right: 1.5rem; }
+  .directory .close { position: absolute; top: .7rem; right: .9rem; cursor: pointer; color: var(--ink-3); border: none; background: none; font-size: 1.3rem; line-height: 1; }
+  .dir-list { overflow-y: auto; max-height: calc(100vh - 7rem); padding-right: .25rem; }
+  .dir-group h4 { margin: .9rem 0 .35rem; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); }
+  .dir-group h4:first-child { margin-top: 0; }
+  .dir-row {
+    display: flex; align-items: center; gap: .5rem; width: 100%; font: inherit; text-align: left;
+    border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+    padding: .4rem .6rem; margin-bottom: .3rem; cursor: pointer; font-size: .85rem; transition: all .15s ease;
+  }
+  .dir-row:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .dir-name { flex: 1; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dir-gen { font-size: .7rem; font-weight: 700; color: var(--ink-3); }
+  .dir-search { width: 100%; font: inherit; font-size: .85rem; padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); margin-bottom: .6rem; }
+  .dir-search:focus { outline: none; border-color: var(--accent); }
+  .dir-empty { padding: 1rem; text-align: center; color: var(--ink-3); font-size: .85rem; }
+
   .footer-note { text-align: center; color: var(--ink-3); font-size: .8rem; margin-top: 2rem; }
 
   @media print {
-    .lang-bar, nav.tabs, .tree-toolbar, .footer-note, .detail, header.brand .motto { display: none !important; }
+    .lang-bar, nav.tabs, .tree-toolbar, .footer-note, .detail, .directory, header.brand .motto { display: none !important; }
     .view { display: block !important; }
     body { background: #fff; }
     .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
@@ -343,6 +368,7 @@
       <div class="tree-controls">
         <label class="filter-label" data-i18n="filterLabel">Branch:</label>
         <div class="filter-chips" id="filterChips"></div>
+        <button class="btn btn-ghost dir-btn" onclick="openDirectory()" data-i18n="directory">Directory</button>
         <div class="zoom-controls">
           <button class="btn btn-ghost zoom-btn" onclick="zoomTree(-0.1)" data-i18n="zoomOut" aria-label="Zoom out">−</button>
           <button class="btn btn-ghost zoom-btn" onclick="zoomTree(0)" data-i18n="zoomReset" aria-label="Reset zoom">100%</button>
@@ -366,6 +392,14 @@
   <h3 id="d-name"></h3>
   <div class="d-meta" id="d-meta"></div>
   <dl id="d-body"></dl>
+</div>
+
+<!-- directory panel -->
+<div class="directory" id="directory">
+  <button class="close" onclick="closeDirectory()">×</button>
+  <h3 data-i18n="directory">Directory</h3>
+  <input type="search" id="dirSearch" class="dir-search" placeholder="" autocomplete="off" />
+  <div class="dir-list" id="dirList"></div>
 </div>
 
 <script>
@@ -397,6 +431,7 @@
       filterLabel: "Branch:", filterAll: "All", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "Fit",
       branchLbl: "Branch", genLbl: "Generation", spouseLbl: "Spouse", parentsLbl: "Parents", nickLbl: "Nickname",
+      directory: "Directory", searchPlaceholder: "Search name or nickname...", noResults: "No results",
     },
     tl: {
       language: "Wika", title: "Pamilya Apor", subtitle: "Pagsasama & PunoTauhan — Form ng Miyembro",
@@ -424,6 +459,7 @@
       filterLabel: "Sanga:", filterAll: "Lahat", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Asawa", parentsLbl: "Mga magulang", nickLbl: "Palayaw",
+      directory: "Direktoryo", searchPlaceholder: "Maghanap ng pangalan o palayaw...", noResults: "Walang nahanap",
     },
     ceb: {
       language: "Lengguwahe", title: "Pamilya Apor", subtitle: "Family Reunion & Tree — Form sa Miyembro",
@@ -451,6 +487,7 @@
       filterLabel: "Sanga:", filterAll: "Tanang", filterApor: "Apor", filterFeliciano: "Feliciano", filterPedro: "Pedro", filterPresbitero: "Presbitero", filterLumbab: "Lumbab",
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Bana/Asawa", parentsLbl: "Mga ginikanan", nickLbl: "Tawag",
+      directory: "Direktorya", searchPlaceholder: "Pangitaa ang ngalan o angga...", noResults: "Wala'y nakit-an",
     },
   };
   // fix ceb copyFirst key typo
@@ -471,6 +508,10 @@
     if (notes && !notes.value) notes.placeholder = I18N[l].notesPlaceholder;
     // re-render chips and legend with the new locale
     renderChips(); renderLegend();
+    // directory search placeholder + labels (re-render keeps the active query)
+    const dirSearch = document.getElementById('dirSearch');
+    if (dirSearch) dirSearch.placeholder = I18N[l].searchPlaceholder;
+    if (document.getElementById('directory').classList.contains('show')) renderDirectory();
     // re-render tree labels (none needed, but refresh detail if open)
     if (document.getElementById('detail').classList.contains('show')) {
       // noop — detail text is set on click; could re-open for current member
@@ -844,6 +885,41 @@
     d.classList.add('show');
   }
   function closeDetail() { document.getElementById('detail').classList.remove('show'); }
+
+  let DIR_QUERY = '';
+  function renderDirectory() {
+    const T = I18N[CUR];
+    const list = document.getElementById('dirList');
+    const q = DIR_QUERY;
+    const match = m => !q || m.name.toLowerCase().includes(q) || (m.nick && m.nick.toLowerCase().includes(q));
+    const byBranch = {};
+    BRANCHES.forEach(b => { byBranch[b.id] = []; });
+    MEMBERS.forEach(m => { if (match(m)) (byBranch[m.branch] ||= []).push(m); });
+    const html = BRANCHES.map(b => {
+      const rows = byBranch[b.id].slice().sort((a, c) => a.name.localeCompare(c.name));
+      if (!rows.length) return '';
+      return `<div class="dir-group"><h4>${T['filter' + b.id]}</h4>` + rows.map(m =>
+        `<button class="dir-row" data-id="${m.id}"><span class="dir-name">${m.name}</span><span class="dir-gen">G${m.gen}</span><span class="badge${m.living ? '' : ' rose'}">${m.living ? T.livingBadge : T.deceasedBadge}</span></button>`).join('') + '</div>';
+    }).join('');
+    list.innerHTML = html || `<div class="dir-empty">${T.noResults}</div>`;
+    [...list.querySelectorAll('.dir-row')].forEach(r => r.addEventListener('click', () => {
+      const m = MEMBERS.find(x => x.id === r.dataset.id);
+      if (m) { showDetail(m); closeDirectory(); }
+    }));
+  }
+  function openDirectory() {
+    DIR_QUERY = '';
+    const input = document.getElementById('dirSearch'); if (input) input.value = '';
+    renderDirectory();
+    document.getElementById('directory').classList.add('show');
+  }
+  function closeDirectory() { document.getElementById('directory').classList.remove('show'); }
+  (function initDirSearch() {
+    const input = document.getElementById('dirSearch');
+    if (!input) return;
+    input.placeholder = I18N[CUR].searchPlaceholder;
+    input.addEventListener('input', () => { DIR_QUERY = input.value.trim().toLowerCase(); renderDirectory(); });
+  })();
 
   let TREE_SCALE = 1;
   function applyScale() {
