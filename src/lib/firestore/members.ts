@@ -10,6 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import type { FamilyMember } from "@/lib/types";
+import { withDerivedBranches, BRANCH_ORDER } from "@/lib/branches";
 
 const COLLECTION = "family_members";
 
@@ -28,8 +29,8 @@ export async function getMembers(): Promise<FamilyMember[]> {
 
 export async function getBranches(): Promise<string[]> {
   const members = await getMembers();
-  const branches = new Set(members.map((m) => m.branch));
-  return Array.from(branches).sort();
+  const derived = withDerivedBranches(members);
+  return BRANCH_ORDER.filter((b) => derived.some((m) => m.branch === b));
 }
 
 export async function getMembersByBranch(

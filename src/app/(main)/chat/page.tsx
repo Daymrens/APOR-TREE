@@ -8,13 +8,7 @@ import {
   sendMessage,
 } from "@/lib/firestore/messages";
 import type { ChatMessage } from "@/lib/types";
-
-const BRANCH_COLORS: Record<string, string> = {
-  Apor: "#3E8E68",
-  Jose: "#E26A8C",
-  Rosa: "#E8A63D",
-  Antonio: "#4A9C92",
-};
+import { BRANCH_COLORS } from "@/lib/branches";
 
 function getCookie(name: string): string | null {
   const cookies = document.cookie.split(";");
@@ -168,7 +162,7 @@ export default function ChatPage() {
           <div className="space-y-3">
             {messages.map((msg) => {
               const branchColor = msg.authorBranch
-                ? BRANCH_COLORS[msg.authorBranch] || "#C9A876"
+                ? BRANCH_COLORS[msg.authorBranch] || "#94a3b8"
                 : null;
               return (
                 <div
