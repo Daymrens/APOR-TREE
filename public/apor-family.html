@@ -1635,7 +1635,7 @@
     if (LIVE_FETCH_IN_FLIGHT) return; // in-flight guard (F15)
     LIVE_FETCH_IN_FLIGHT = true;
     try {
-      const res = await fetch('https://apor-tree.vercel.app/api/members', { cache: 'no-store' });
+      const res = await fetch('https://apor-tree.vercel.app/api/members');
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const j = await res.json();
       if (j && Array.isArray(j.members)) {
