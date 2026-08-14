@@ -15,7 +15,13 @@ export default function GalleryPage() {
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [scale, setScale] = useState(1);
+  const [pinching, setPinching] = useState(false);
   const touchStartX = useRef(0);
+  const scaleRef = useRef(1);
+  const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 });
+  const lastTapRef = useRef(0);
+  const lightboxMediaRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const q = query(
@@ -58,6 +64,66 @@ export default function GalleryPage() {
 
   useEffect(() => {
     if (selectedIndex === null) return;
+    setScale(1);
+    scaleRef.current = 1;
+
+    const el = lightboxMediaRef.current;
+    if (!el) return;
+
+    const dist = (a: Touch, b: Touch) =>
+      Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+
+    function onTouchStart(e: TouchEvent) {
+      if (e.touches.length === 2) {
+        pinchRef.current = {
+          active: true,
+          startDist: dist(e.touches[0], e.touches[1]),
+          startScale: scaleRef.current,
+        };
+        setPinching(true);
+      }
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      const p = pinchRef.current;
+      if (!p.active || e.touches.length !== 2) return;
+      e.preventDefault();
+      const ratio = dist(e.touches[0], e.touches[1]) / p.startDist;
+      const next = Math.min(3, Math.max(1, p.startScale * ratio));
+      scaleRef.current = next;
+      setScale(next);
+    }
+
+    function onTouchEnd(e: TouchEvent) {
+      if (pinchRef.current.active) {
+        pinchRef.current.active = false;
+        setPinching(false);
+        return;
+      }
+      if (e.changedTouches.length !== 1) return;
+      const now = Date.now();
+      if (now - lastTapRef.current < 300) {
+        const next = scaleRef.current > 1 ? 1 : 2.5;
+        scaleRef.current = next;
+        setScale(next);
+        lastTapRef.current = 0;
+      } else {
+        lastTapRef.current = now;
+      }
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (selectedIndex === null) return;
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
@@ -80,10 +146,16 @@ export default function GalleryPage() {
   }, [selectedIndex, goNext, goPrev, closeLightbox]);
 
   function handleTouchStart(e: React.TouchEvent) {
-    touchStartX.current = e.touches[0].clientX;
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+    } else {
+      touchStartX.current = NaN;
+    }
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
+    if (e.changedTouches.length !== 1) return;
+    if (Number.isNaN(touchStartX.current) || scaleRef.current > 1) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
       if (diff > 0) goNext();
@@ -114,7 +186,7 @@ export default function GalleryPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="aspect-square rounded-2xl bg-rattan/10 animate-pulse" />
           ))}
@@ -131,7 +203,7 @@ export default function GalleryPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {photos.map((photo, index) => (
             <button
               key={photo.id}
@@ -215,7 +287,9 @@ export default function GalleryPage() {
           )}
 
           <div
+            ref={lightboxMediaRef}
             className="max-w-3xl w-full mx-4 sm:mx-12 animate-scale-in"
+            style={{ touchAction: "manipulation" }}
             onClick={(e) => e.stopPropagation()}
           >
             {selectedPhoto.mediaType === "video" ? (
@@ -231,6 +305,11 @@ export default function GalleryPage() {
                 src={selectedPhoto.storageUrl}
                 alt={selectedPhoto.caption || "Reunion photo"}
                 className="w-full max-h-[80vh] object-contain rounded-2xl"
+                style={{
+                  touchAction: "manipulation",
+                  transform: `scale(${scale})`,
+                  transition: pinching ? "none" : "transform 0.2s ease-out",
+                }}
                 key={selectedPhoto.id}
               />
             )}
