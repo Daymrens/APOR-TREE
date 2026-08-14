@@ -51,12 +51,25 @@ export default function ContributePage() {
   const isAddMember = type === "add_member";
 
   useEffect(() => {
-    setMemberName(
-      document.cookie.split("; ").find((c) => c.startsWith("family-member-name="))?.split("=")[1] || null
-    );
-    setMemberBranch(
-      document.cookie.split("; ").find((c) => c.startsWith("family-member-branch="))?.split("=")[1] || null
-    );
+    function safeDecode(s: string): string {
+      try {
+        return decodeURIComponent(s);
+      } catch {
+        return s;
+      }
+    }
+    function getCookie(name: string): string | null {
+      const cookies = document.cookie.split(";");
+      for (const c of cookies) {
+        const [key, ...rest] = c.trim().split("=");
+        if (key === name) {
+          return safeDecode(rest.join("="));
+        }
+      }
+      return null;
+    }
+    setMemberName(getCookie("family-member-name"));
+    setMemberBranch(getCookie("family-member-branch"));
   }, []);
 
   function validate(): boolean {

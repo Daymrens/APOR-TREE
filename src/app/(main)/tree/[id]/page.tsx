@@ -78,12 +78,12 @@ export default function MemberProfilePage() {
   }, [allMembers]);
 
   const parents = useMemo(
-    () => member.parentIds.map((pid) => memberMap.get(pid)).filter(Boolean) as FamilyMember[],
+    () => (member.parentIds ?? []).map((pid) => memberMap.get(pid)).filter(Boolean) as FamilyMember[],
     [member.parentIds, memberMap]
   );
 
   const children = useMemo(
-    () => allMembers.filter((m) => m.parentIds.includes(member.id)),
+    () => allMembers.filter((m) => (m.parentIds ?? []).includes(member.id)),
     [member.id, allMembers]
   );
 
@@ -97,7 +97,7 @@ export default function MemberProfilePage() {
     return allMembers.filter(
       (m) =>
         m.id !== member.id &&
-        m.parentIds.some((pid) => member.parentIds.includes(pid))
+        (m.parentIds ?? []).some((pid) => (member.parentIds ?? []).includes(pid))
     );
   }, [member, allMembers, parents]);
 
@@ -168,7 +168,7 @@ export default function MemberProfilePage() {
         <div className="space-y-3 text-sm font-sans">
           <div className="flex justify-between">
             <span className="text-soft">Birth order</span>
-            <span className="text-ink font-medium">{member.birthOrder + 1}</span>
+            <span className="text-ink font-medium">{member.birthOrder != null ? member.birthOrder + 1 : "—"}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-soft">Status</span>
