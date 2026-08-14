@@ -1417,6 +1417,7 @@
   }
 
   function showDetail(m) {
+    OPEN_DETAIL_ID = m.id;
     const T = I18N[CUR];
     const byId = id => { const p = MEMBERS.find(x => x.id === id); return p ? p.name : id; };
     const d = document.getElementById('detail');
@@ -1445,7 +1446,7 @@
     document.getElementById('d-body').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     d.classList.add('show');
   }
-  function closeDetail() { document.getElementById('detail').classList.remove('show'); }
+  function closeDetail() { OPEN_DETAIL_ID = null; document.getElementById('detail').classList.remove('show'); }
 
   let DIR_QUERY = '';
   function renderDirectory() {
@@ -1582,7 +1583,43 @@
   }
 
   let LIVE_FETCH_IN_FLIGHT = false;
-  async function fetchLiveMembers() {
+  let OPEN_DETAIL_ID = null;
+
+  function rebuildSddOptions() {
+    Object.keys(SDD).forEach(k => {
+      const st = SDD[k];
+      if (k === 'branchSearch') {
+        st.options = getBranches().map(s => ({
+          id: s.id, label: s.name.split(' ')[0], branch: s.name.split(' ')[0], sibling: s,
+        }));
+      } else if (k === 'targetSearch') {
+        const sib = PICK.branchSib;
+        st.options = sib ? branchPeople(sib.id).map(m => ({
+          id: m.id, label: m.name + (m.nick ? ' (' + m.nick + ')' : ''),
+          badge: `<span class="badge${m.living ? '' : ' rose'}">${esc(I18N[CUR].livingBadge)}</span>`, m,
+        })) : [];
+      } else if (k === 'personSearch') {
+        st.options = MEMBERS.slice().sort((a, b) => a.name.localeCompare(b.name)).map(m => ({
+          id: m.id, label: `${m.name} (G${m.gen} — ${m.branch})`, m,
+        }));
+      }
+    });
+  }
+
+  function refreshAfterSync() {
+    renderDirectory();
+    rebuildSddOptions();
+    Object.keys(SDD).forEach(k => renderSdd(k));
+    if (PICK.branchSib) renderBranchInfo(PICK.branchSib);
+    if (PICK.person) renderCorrCard(PICK.person);
+    if (document.getElementById('view-tree').classList.contains('active')) setFilter(CUR_FILTER);
+    if (OPEN_DETAIL_ID) {
+      const fresh = MEMBERS.find(m => m.id === OPEN_DETAIL_ID);
+      if (fresh) showDetail(fresh);
+    }
+  }
+
+  async function syncMembers() {
     if (LIVE_FETCH_IN_FLIGHT) return; // in-flight guard (F15)
     LIVE_FETCH_IN_FLIGHT = true;
     try {
@@ -1593,19 +1630,20 @@
         const mapped = j.members.map(mapMember).filter(m => m && m.id && m.name);
         if (mapped.length) {
           MEMBERS = mapped;
-          setFilter(CUR_FILTER);
-          renderDirectory();
+          refreshAfterSync();
         }
       }
     } catch (e) {
-      // keep current MEMBERS (embedded fallback); no offline banner on API failure
+      // silent: keep current MEMBERS (embedded fallback); no offline banner on API failure
     } finally {
       LIVE_FETCH_IN_FLIGHT = false;
     }
   }
 
-  fetchLiveMembers();
-  setInterval(() => { if (document.visibilityState === 'visible') fetchLiveMembers(); }, 300000);
+  syncMembers();
+  setInterval(syncMembers, 60000);
+  setInterval(() => { if (document.visibilityState === 'visible') syncMembers(); }, 300000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncMembers(); });
 </script>
 
 <div id="thanksModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,16,.55);z-index:999;align-items:center;justify-content:center;">
