@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { FieldValue, type Firestore } from "firebase-admin/firestore";
-import type { MemberContributionData } from "@/lib/types";
+import { BRANCH_ORDER, deriveBranch } from "@/lib/branches";
+import type { FamilyMember, MemberContributionData } from "@/lib/types";
 
 const COLLECTION = "contributions";
 const MEMBERS = "family_members";
@@ -42,14 +43,52 @@ export async function POST(request: Request) {
         typeof memberData.parentName === "string" ? memberData.parentName : "";
       const members = await fetchMembers(db);
 
+      const byId = new Map(
+        (members as FamilyMember[]).map((m) => [m.id, m])
+      );
+
+      const extra = memberData as MemberContributionData & {
+        branch?: unknown;
+        targetId?: unknown;
+        targetName?: unknown;
+        relation?: unknown;
+      };
+
+      let target: FamilyMember | null = null;
+      if (typeof extra.targetId === "string" && byId.has(extra.targetId)) {
+        target = byId.get(extra.targetId) ?? null;
+      } else if (typeof extra.targetName === "string") {
+        const byName = findMemberByFullName(members, extra.targetName);
+        if (byName) target = byId.get(byName.id) ?? null;
+      }
+
+      const parent = findParent(members, parentName);
+
+      const submittedBranch =
+        typeof extra.branch === "string" && BRANCH_ORDER.includes(extra.branch)
+          ? extra.branch
+          : null;
+      const derivedBranch = target ? deriveBranch(target, byId) : null;
+      const branch =
+        submittedBranch ?? derivedBranch ?? (parent ? parent.branch : "Unassigned");
+
+      const relation = typeof extra.relation === "string" ? extra.relation : "";
+      let generation: number;
+      if (target && relation === "child") generation = (target.generation ?? 0) + 1;
+      else if (target && (relation === "sibling" || relation === "spouse"))
+        generation = target.generation ?? 0;
+      else if (parent) generation = parent.generation + 1;
+      else generation = 0;
+
       // Idempotent: if a member with this exact name already exists, link it
       // instead of creating a duplicate.
       const existing = findMemberByFullName(members, memberData.fullName);
       let memberId: string | null = existing?.id ?? null;
 
       if (!memberId) {
-        const parent = findParent(members, parentName);
-        const created = await db.collection(MEMBERS).add(buildMember(memberData, parent));
+        const created = await db
+          .collection(MEMBERS)
+          .add(buildMember(memberData, parent, branch, generation));
         memberId = created.id;
       }
 
@@ -107,7 +146,12 @@ function findParent(
   };
 }
 
-function buildMember(d: MemberContributionData, parent: ParentInfo | null) {
+function buildMember(
+  d: MemberContributionData,
+  parent: ParentInfo | null,
+  branch: string,
+  generation: number
+) {
   const firstName = d.fullName.trim().split(/\s+/)[0] || d.fullName.trim();
 
   const member: Record<string, unknown> = {
@@ -121,18 +165,10 @@ function buildMember(d: MemberContributionData, parent: ParentInfo | null) {
     photoUrl: null,
     spouseId: null,
     notes: d.siblings ? `Siblings: ${d.siblings}` : "",
+    parentIds: parent ? [parent.id] : [],
+    branch,
+    generation,
   };
-
-  if (parent) {
-    member.parentIds = [parent.id];
-    member.branch = parent.branch;
-    member.generation = parent.generation + 1;
-  } else {
-    // No matching parent in the tree yet — admin can tidy this up later.
-    member.parentIds = [];
-    member.branch = "Unassigned";
-    member.generation = 0;
-  }
 
   return member;
 }
