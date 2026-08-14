@@ -2,13 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
 import FamilyWordmark from "@/components/FamilyWordmark";
 import Countdown from "@/components/ui/Countdown";
 import ShareButton from "@/components/ShareButton";
 import { getConfig } from "@/lib/firestore/config";
 import type { ReunionConfig } from "@/lib/types";
+
+const safeDecode = (s: string) => {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+};
 
 export default function HomePage() {
   const [counts, setCounts] = useState({
@@ -60,48 +66,38 @@ export default function HomePage() {
       for (const c of cookies) {
         const [key, ...rest] = c.trim().split("=");
         if (key === name) {
-          return decodeURIComponent(rest.join("="));
+          return safeDecode(rest.join("="));
         }
       }
       return null;
     }
     const memberName = getCookie("family-member-name");
     if (memberName) {
-      setGreeting(decodeURIComponent(memberName));
+      setGreeting(memberName);
     }
   }, []);
 
   useEffect(() => {
-    try {
-      const unsub = onSnapshot(
-        collection(db, "rsvps"),
-        (snapshot) => {
-          let confirmed = 0;
-          let maybe = 0;
-          let headcount = 0;
-
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.attending === "yes") {
-              confirmed++;
-              headcount += 1 + (data.guestCount || 0);
-            } else if (data.attending === "maybe") {
-              maybe++;
-              headcount += 1 + (data.guestCount || 0);
-            }
+    let cancelled = false;
+    fetch("/api/rsvp-count")
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("rsvp-count failed"))))
+      .then((data) => {
+        if (cancelled) return;
+        const c = data.counts;
+        if (c) {
+          setCounts({
+            confirmed: c.yes ?? 0,
+            maybe: c.maybe ?? 0,
+            headcount: (c.yes ?? 0) + (c.maybe ?? 0),
           });
-
-          setCounts({ confirmed, maybe, headcount });
-        },
-        (error) => {
-          if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error.message);
         }
-      );
-
-      return () => unsub();
-    } catch (error) {
-      if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
-    }
+      })
+      .catch((error) => {
+        if (process.env.NODE_ENV === "development") console.warn("rsvp-count unavailable:", error.message);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const sections = [

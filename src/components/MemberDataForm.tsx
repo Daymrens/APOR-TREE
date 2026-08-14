@@ -22,6 +22,22 @@ export default function MemberDataForm({
     getMembers().then((m) => setMembers(withDerivedBranches(m)));
   }, []);
 
+  useEffect(() => {
+    if (!data.targetId) return;
+    const t = members.find((m) => m.id === data.targetId);
+    if (!t) return;
+    const byId = new Map(members.map((m) => [m.id, m]));
+    const spouseName = t.spouseId ? (byId.get(t.spouseId)?.fullName ?? "") : "";
+    const parents = (t.parentIds ?? []).map((id) => byId.get(id)?.fullName).filter(Boolean);
+    let parentName = "";
+    if (data.relation === "child") parentName = t.fullName + (spouseName ? " & " + spouseName : "");
+    else if (data.relation === "sibling") parentName = parents.join(" & ");
+    else if (data.relation === "spouse") parentName = t.fullName;
+    if (parentName !== data.parentName) {
+      onChange({ ...data, parentName });
+    }
+  }, [data.relation, data.targetId, data.targetName, members]);
+
   const inputClass =
     "w-full input rounded-xl px-3 py-2 text-sm font-sans text-ink placeholder:text-soft/40 focus:outline-none [&>option]:bg-parchment";
   const labelClass = "block text-sm font-sans font-medium text-balete mb-1.5";
@@ -44,7 +60,9 @@ export default function MemberDataForm({
   }
 
   function clearTarget() {
-    onChange({ ...data, targetId: "", targetName: "", branch: "" });
+    const next = { ...data, targetId: "", targetName: "", branch: "" };
+    if (data.targetId) next.parentName = "";
+    onChange(next);
     setSelected(null);
   }
 
