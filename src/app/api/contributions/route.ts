@@ -35,6 +35,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(contributions);
   } catch (err) {
     console.error("contributions API error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    if ((err as { code?: unknown })?.code === 4 || /RESOURCE_EXHAUSTED|Quota exceeded/i.test(msg)) {
+      return NextResponse.json({ error: "Firestore quota exceeded. Try again after the daily reset." }, { status: 503 });
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -68,6 +72,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ id: docRef.id, ...data }, { headers: corsHeaders });
   } catch (err) {
     console.error("contributions API error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    if ((err as { code?: unknown })?.code === 4 || /RESOURCE_EXHAUSTED|Quota exceeded/i.test(msg)) {
+      return NextResponse.json({ error: "Firestore quota exceeded. Try again after the daily reset." }, { status: 503, headers: corsHeaders });
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
