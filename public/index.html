@@ -1457,10 +1457,11 @@
     const byBranch = {};
     BRANCHES.forEach(b => { byBranch[b.id] = []; });
     MEMBERS.forEach(m => { if (match(m)) (byBranch[m.branch] ||= []).push(m); });
-    const html = BRANCHES.map(b => {
-      const rows = byBranch[b.id].slice().sort((a, c) => a.name.localeCompare(c.name));
+    const branches = branchList();
+    const html = branches.map(b => {
+      const rows = (byBranch[b.id] || []).slice().sort((a, c) => a.name.localeCompare(c.name));
       if (!rows.length) return '';
-      return `<div class="dir-group"><h4>${esc(T['filter' + b.id])}</h4>` + rows.map(m =>
+      return `<div class="dir-group"><h4>${esc(T['filter' + b.id] || b.id)}</h4>` + rows.map(m =>
         `<button class="dir-row" data-id="${m.id}"><span class="dir-name">${esc(m.name)}</span><span class="dir-gen">G${esc(m.gen)}</span><span class="badge${m.living ? '' : ' rose'}">${m.living ? T.livingBadge : T.deceasedBadge}</span></button>`).join('') + '</div>';
     }).join('');
     list.innerHTML = html || `<div class="dir-empty">${T.noResults}</div>`;
@@ -1534,17 +1535,26 @@
     { id: 'Presbitero', color: '#8b5cf6' },
     { id: 'Lumbab', color: '#ef4565' },
   ];
+  const EXTRA_BRANCH_COLORS = ['#0ea5e9', '#f97316', '#14b8a6', '#a855f7', '#84cc16', '#e11d48', '#d946ef', '#64748b'];
+  function branchList() {
+    const counts = {};
+    MEMBERS.forEach(m => { counts[m.branch] = (counts[m.branch] || 0) + 1; });
+    const extras = Object.keys(counts)
+      .filter(id => !BRANCHES.some(b => b.id === id))
+      .sort((a, c) => counts[c] - counts[a]);
+    return BRANCHES.concat(extras.map((id, i) => ({ id, color: EXTRA_BRANCH_COLORS[i % EXTRA_BRANCH_COLORS.length] })));
+  }
   let CUR_FILTER = 'all';
   function renderLegend() {
     const T = I18N[CUR];
-    document.getElementById('legend').innerHTML = BRANCHES.map(b =>
-      `<span><span class="sw" style="border-top-color: ${b.color}"></span>${esc(T['filter' + b.id])}</span>`).join('');
+    document.getElementById('legend').innerHTML = branchList().map(b =>
+      `<span><span class="sw" style="border-top-color: ${b.color}"></span>${esc(T['filter' + b.id] || b.id)}</span>`).join('');
   }
   function renderChips() {
     const T = I18N[CUR];
     const wrap = document.getElementById('filterChips');
     wrap.innerHTML = `<button class="filter-chip${CUR_FILTER === 'all' ? ' active' : ''}" data-filter="all">${T.filterAll}</button>`
-      + BRANCHES.map(b => `<button class="filter-chip${CUR_FILTER === b.id ? ' active' : ''}" data-filter="${b.id}">${esc(T['filter' + b.id])}</button>`).join('');
+      + branchList().map(b => `<button class="filter-chip${CUR_FILTER === b.id ? ' active' : ''}" data-filter="${b.id}">${esc(T['filter' + b.id] || b.id)}</button>`).join('');
     [...wrap.children].forEach(c => c.addEventListener('click', () => setFilter(c.dataset.filter)));
   }
   function setFilter(branch) {
@@ -1608,6 +1618,8 @@
 
   function refreshAfterSync() {
     renderDirectory();
+    renderLegend();
+    renderChips();
     rebuildSddOptions();
     Object.keys(SDD).forEach(k => renderSdd(k));
     if (PICK.branchSib) renderBranchInfo(PICK.branchSib);
