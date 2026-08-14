@@ -42,7 +42,7 @@ export default function AdminContributionsPage() {
     try {
       const res = await fetch("/api/contributions");
       const data = await res.json();
-      setContributions(data);
+      if (Array.isArray(data)) setContributions(data);
     } catch {
       if (process.env.NODE_ENV === "development") console.warn("Failed to fetch contributions");
     } finally {
@@ -52,7 +52,7 @@ export default function AdminContributionsPage() {
 
   useEffect(() => {
     fetchContributions();
-    const interval = setInterval(fetchContributions, 10000);
+    const interval = setInterval(fetchContributions, 60000);
     return () => clearInterval(interval);
   }, [fetchContributions]);
 

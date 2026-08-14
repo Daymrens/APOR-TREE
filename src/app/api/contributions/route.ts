@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json(contributions);
-  } catch {
+  } catch (err) {
+    console.error("contributions API error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -65,7 +66,8 @@ export async function POST(request: NextRequest) {
 
     const docRef = await db.collection(COLLECTION).add(data);
     return NextResponse.json({ id: docRef.id, ...data }, { headers: corsHeaders });
-  } catch {
+  } catch (err) {
+    console.error("contributions API error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500, headers: corsHeaders });
   }
 }
