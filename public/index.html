@@ -715,7 +715,7 @@
   }
 
   // ─── Family data (seeded Apor family) ───────────────────────────
-  const MEMBERS = [
+  let MEMBERS = [
     {"id":"gerbacio-apor","name":"Gerbacio Apor","nick":"Lolo Gerbacio","gen":0,"branch":"Apor","parents":[],"spouse":"marciana-apor","order":0,"living":false,"sex":"MALE","notes":"Family patriarch. Root of the Apor family."},
     {"id":"marciana-apor","name":"Marciana Apor","nick":"Lola Marciana","gen":0,"branch":"Apor","parents":[],"spouse":"gerbacio-apor","order":0,"living":false,"sex":"FEMALE","notes":"Family matriarch. Root of the Apor family."},
     {"id":"panfilo-apor","name":"Panfilo Apor","nick":"Lolo Panfilo","gen":1,"branch":"Apor","parents":["gerbacio-apor","marciana-apor"],"spouse":"antonia-montecalvo","order":1,"living":false,"sex":"MALE","notes":"Eldest of the six Apor siblings. Married to Antonia Montecalvo."},
@@ -1093,6 +1093,52 @@
   renderChips();
   renderTree();
   window.addEventListener('resize', () => { if (document.getElementById('view-tree').classList.contains('active')) fitTree(); });
+
+  // ─── Live sync (cached API endpoint; embedded MEMBERS is first paint + fallback) ───
+  function mapMember(m) {
+    return {
+      id: m.id,
+      name: m.fullName,
+      nick: m.nickname || '',
+      gen: m.generation,
+      branch: m.branch,
+      parents: m.parentIds || [],
+      spouse: m.spouseId || null,
+      order: m.birthOrder,
+      living: m.livingStatus !== false,
+      sex: m.sex || 'UNKNOWN',
+      notes: m.notes || '',
+      marital: m.maritalStatus || '',
+      dob: m.dateOfBirth || '',
+      photo: m.photoUrl || '',
+    };
+  }
+
+  let LIVE_FETCH_IN_FLIGHT = false;
+  async function fetchLiveMembers() {
+    if (LIVE_FETCH_IN_FLIGHT) return; // in-flight guard (F15)
+    LIVE_FETCH_IN_FLIGHT = true;
+    try {
+      const res = await fetch('https://apor-tree.vercel.app/api/members', { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const j = await res.json();
+      if (j && Array.isArray(j.members)) {
+        const mapped = j.members.map(mapMember).filter(m => m && m.id && m.name);
+        if (mapped.length) {
+          MEMBERS = mapped;
+          setFilter(CUR_FILTER);
+          renderDirectory();
+        }
+      }
+    } catch (e) {
+      // keep current MEMBERS (embedded fallback); no offline banner on API failure
+    } finally {
+      LIVE_FETCH_IN_FLIGHT = false;
+    }
+  }
+
+  fetchLiveMembers();
+  setInterval(() => { if (document.visibilityState === 'visible') fetchLiveMembers(); }, 300000);
 </script>
 </body>
 </html>
