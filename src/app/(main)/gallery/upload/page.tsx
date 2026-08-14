@@ -138,7 +138,7 @@ export default function UploadPage() {
             uploaderName: name.trim(),
             caption: caption.trim(),
             uploadedAt: Timestamp.now(),
-            approved: true,
+            approved: false,
           });
         } else {
           const [fullBlob, thumbBlob] = await Promise.all([
@@ -161,7 +161,7 @@ export default function UploadPage() {
             uploaderName: name.trim(),
             caption: caption.trim(),
             uploadedAt: Timestamp.now(),
-            approved: true,
+            approved: false,
           });
         }
 
