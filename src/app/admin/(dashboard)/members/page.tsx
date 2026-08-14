@@ -180,23 +180,29 @@ function MemberForm({
           <div>
             <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-soft/50 mb-3">Basic info</p>
             <div className="space-y-3">
-              <input
-                type="text"
-                required
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                className={inputClass}
-                placeholder="Full name"
-                aria-label="Full name"
-              />
-              <input
-                type="text"
-                value={form.nickname}
-                onChange={(e) => setForm({ ...form, nickname: e.target.value })}
-                className={inputClass}
-                placeholder="Nickname (optional)"
-                aria-label="Nickname"
-              />
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Full name</label>
+                <input
+                  type="text"
+                  required
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  className={inputClass}
+                  placeholder="Full name"
+                  aria-label="Full name"
+                />
+              </div>
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Nickname (optional)</label>
+                <input
+                  type="text"
+                  value={form.nickname}
+                  onChange={(e) => setForm({ ...form, nickname: e.target.value })}
+                  className={inputClass}
+                  placeholder="Nickname (optional)"
+                  aria-label="Nickname"
+                />
+              </div>
             </div>
           </div>
 
@@ -205,6 +211,7 @@ function MemberForm({
             <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-soft/50 mb-3">Family</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Generation</label>
                 <input
                   type="number"
                   min={0}
@@ -216,6 +223,7 @@ function MemberForm({
                 />
               </div>
               <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Birth order</label>
                 <input
                   type="number"
                   min={0}
@@ -228,39 +236,46 @@ function MemberForm({
               </div>
             </div>
             <div className="mt-3">
-              <input
-                type="text"
+              <label className="block font-sans text-xs font-medium text-soft mb-1.5">Branch</label>
+              <select
                 required
                 value={form.branch}
                 onChange={(e) => setForm({ ...form, branch: e.target.value })}
-                list="branch-suggestions"
                 className={inputClass}
-                placeholder="Branch (e.g. Lolo Pedro's line)"
-                aria-label="Branch"
-              />
-              <datalist id="branch-suggestions">
-                {branches.map((b) => (
-                  <option key={b} value={b} />
-                ))}
-              </datalist>
+              >
+                <option value="" disabled>Select branch</option>
+                <option value="Panfilo">Panfilo</option>
+                <option value="Feliciano">Feliciano</option>
+                <option value="Pedro">Pedro</option>
+                <option value="Pablo">Pablo</option>
+                <option value="Purificasion">Purificasion</option>
+                <option value="Consorcia">Consorcia</option>
+                <option value="Unassigned">Unassigned</option>
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-3">
-              <input
-                type="text"
-                value={form.parentIds}
-                onChange={(e) => setForm({ ...form, parentIds: e.target.value })}
-                className={inputClass}
-                placeholder="Parent IDs"
-                aria-label="Parent IDs"
-              />
-              <input
-                type="text"
-                value={form.spouseId}
-                onChange={(e) => setForm({ ...form, spouseId: e.target.value })}
-                className={inputClass}
-                placeholder="Spouse ID"
-                aria-label="Spouse ID"
-              />
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Parent IDs</label>
+                <input
+                  type="text"
+                  value={form.parentIds}
+                  onChange={(e) => setForm({ ...form, parentIds: e.target.value })}
+                  className={inputClass}
+                  placeholder="Parent IDs"
+                  aria-label="Parent IDs"
+                />
+              </div>
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Spouse ID</label>
+                <input
+                  type="text"
+                  value={form.spouseId}
+                  onChange={(e) => setForm({ ...form, spouseId: e.target.value })}
+                  className={inputClass}
+                  placeholder="Spouse ID"
+                  aria-label="Spouse ID"
+                />
+              </div>
             </div>
           </div>
 
@@ -268,34 +283,43 @@ function MemberForm({
           <div>
             <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.12em] text-soft/50 mb-3">Details</p>
             <div className="grid grid-cols-2 gap-3">
-              <select
-                value={form.livingStatus}
-                onChange={(e) =>
-                  setForm({ ...form, livingStatus: e.target.value as "living" | "deceased" })
-                }
-                className={inputClass}
-                aria-label="Living status"
-              >
-                <option value="living">Living</option>
-                <option value="deceased">Deceased</option>
-              </select>
-              <input
-                type="date"
-                value={form.dateOfBirth}
-                onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
-                className={inputClass}
-                aria-label="Date of birth"
-                max={new Date().toISOString().split("T")[0]}
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Living status</label>
+                <select
+                  value={form.livingStatus}
+                  onChange={(e) =>
+                    setForm({ ...form, livingStatus: e.target.value as "living" | "deceased" })
+                  }
+                  className={inputClass}
+                  aria-label="Living status"
+                >
+                  <option value="living">Living</option>
+                  <option value="deceased">Deceased</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-sans text-xs font-medium text-soft mb-1.5">Date of birth</label>
+                <input
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
+                  className={inputClass}
+                  aria-label="Date of birth"
+                  max={new Date().toISOString().split("T")[0]}
+                />
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className="block font-sans text-xs font-medium text-soft mb-1.5">Notes</label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                rows={3}
+                className={`${inputClass} resize-none`}
+                placeholder="Notes (optional)"
+                aria-label="Notes"
               />
             </div>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              rows={3}
-              className={`${inputClass} mt-3 resize-none`}
-              placeholder="Notes (optional)"
-              aria-label="Notes"
-            />
           </div>
 
           {/* Actions */}
