@@ -504,6 +504,7 @@
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "Fit",
       branchLbl: "Branch", genLbl: "Generation", spouseLbl: "Spouse", parentsLbl: "Parents", nickLbl: "Nickname",
       directory: "Directory", searchPlaceholder: "Search name or nickname...", noResults: "No results",
+      sexLbl: "Sex", birthOrderLbl: "Birth order", photoLink: "View photo", missing: "Missing information",
     },
     tl: {
       language: "Wika", title: "Pamilya Apor", subtitle: "Pagsasama & PunoTauhan — Form ng Miyembro",
@@ -532,6 +533,7 @@
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Asawa", parentsLbl: "Mga magulang", nickLbl: "Palayaw",
       directory: "Direktoryo", searchPlaceholder: "Maghanap ng pangalan o palayaw...", noResults: "Walang nahanap",
+      sexLbl: "Kasarian", birthOrderLbl: "Pagkakasunod-sunod", photoLink: "Tingnan ang larawan", missing: "Kulang ang impormasyon",
     },
     ceb: {
       language: "Lengguwahe", title: "Pamilya Apor", subtitle: "Family Reunion & Tree — Form sa Miyembro",
@@ -560,12 +562,24 @@
       zoomIn: "Zoom in", zoomOut: "Zoom out", zoomReset: "Reset", fitBtn: "I-fit",
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Bana/Asawa", parentsLbl: "Mga ginikanan", nickLbl: "Tawag",
       directory: "Direktorya", searchPlaceholder: "Pangitaa ang ngalan o angga...", noResults: "Wala'y nakit-an",
+      sexLbl: "Sekso", birthOrderLbl: "Pagkasunod-sunod", photoLink: "Tan-awon ang litrato", missing: "Kulang ang impormasyon",
     },
   };
   // fix ceb copyFirst key typo
   I18N.ceb.copyFirst = "Punan ug i-save daan ang form antes kopyahi.";
 
   let CUR = 'en';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function safeUrl(u) {
+    if (!u) return '';
+    try { const p = new URL(u, 'https://apor-tree.web.app'); return (p.protocol === 'https:' || p.protocol === 'http:') ? p.href : ''; } catch (e) { return ''; }
+  }
 
   function setLang(l) {
     CUR = l;
@@ -944,15 +958,23 @@
     document.getElementById('d-meta').innerHTML = m.living
       ? `<span class="badge">${T.livingBadge}</span>`
       : `<span class="badge rose">${T.deceasedBadge}</span>`;
-    const spouse = m.spouse ? byId(m.spouse) : '—';
-    const parents = m.parents && m.parents.length ? m.parents.map(byId).join(', ') : '—';
+    function valOrMissing(v, T) {
+      return v ? v : `<span class="badge warn">${T.missing}</span>`;
+    }
+    const sexLabel = { MALE: T.gMale, FEMALE: T.gFemale, OTHER: T.gOther, UNKNOWN: T.gUnknown }[m.sex] || m.sex || '';
+    const photoUrl = m.photo ? safeUrl(m.photo) : '';
     const rows = [
-      [T.nickLbl, m.nick || '—'],
-      [T.branchLbl, m.branch],
-      [T.genLbl, 'G' + m.gen],
-      [T.spouseLbl, spouse],
-      [T.parentsLbl, parents],
-      [T.note, m.notes || '—'],
+      [T.nickLbl, valOrMissing(esc(m.nick), T)],
+      [T.branchLbl, esc(m.branch)],
+      [T.genLbl, 'G' + esc(m.gen)],
+      [T.sexLbl, valOrMissing(esc(sexLabel), T)],
+      [T.maritalStatus, valOrMissing(esc(m.marital), T)],
+      [T.birthDate, valOrMissing(esc(m.dob), T)],
+      [T.spouseLbl, m.spouse ? esc(byId(m.spouse)) : valOrMissing('', T)],
+      [T.parentsLbl, m.parents && m.parents.length ? esc(m.parents.map(byId).join(', ')) : valOrMissing('', T)],
+      [T.birthOrderLbl, m.order != null && m.order !== 0 ? esc(String(m.order)) : valOrMissing('', T)],
+      [T.photoUrl, photoUrl ? `<a href="${photoUrl}" target="_blank" rel="noopener">${esc(T.photoLink)}</a>` : valOrMissing('', T)],
+      [T.note, valOrMissing(esc(m.notes), T)],
     ];
     document.getElementById('d-body').innerHTML = rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
     d.classList.add('show');
@@ -971,8 +993,8 @@
     const html = BRANCHES.map(b => {
       const rows = byBranch[b.id].slice().sort((a, c) => a.name.localeCompare(c.name));
       if (!rows.length) return '';
-      return `<div class="dir-group"><h4>${T['filter' + b.id]}</h4>` + rows.map(m =>
-        `<button class="dir-row" data-id="${m.id}"><span class="dir-name">${m.name}</span><span class="dir-gen">G${m.gen}</span><span class="badge${m.living ? '' : ' rose'}">${m.living ? T.livingBadge : T.deceasedBadge}</span></button>`).join('') + '</div>';
+      return `<div class="dir-group"><h4>${esc(T['filter' + b.id])}</h4>` + rows.map(m =>
+        `<button class="dir-row" data-id="${m.id}"><span class="dir-name">${esc(m.name)}</span><span class="dir-gen">G${esc(m.gen)}</span><span class="badge${m.living ? '' : ' rose'}">${m.living ? T.livingBadge : T.deceasedBadge}</span></button>`).join('') + '</div>';
     }).join('');
     list.innerHTML = html || `<div class="dir-empty">${T.noResults}</div>`;
     [...list.querySelectorAll('.dir-row')].forEach(r => r.addEventListener('click', () => {
@@ -1049,13 +1071,13 @@
   function renderLegend() {
     const T = I18N[CUR];
     document.getElementById('legend').innerHTML = BRANCHES.map(b =>
-      `<span><span class="sw" style="border-top-color: ${b.color}"></span>${T['filter' + b.id]}</span>`).join('');
+      `<span><span class="sw" style="border-top-color: ${b.color}"></span>${esc(T['filter' + b.id])}</span>`).join('');
   }
   function renderChips() {
     const T = I18N[CUR];
     const wrap = document.getElementById('filterChips');
     wrap.innerHTML = `<button class="filter-chip${CUR_FILTER === 'all' ? ' active' : ''}" data-filter="all">${T.filterAll}</button>`
-      + BRANCHES.map(b => `<button class="filter-chip${CUR_FILTER === b.id ? ' active' : ''}" data-filter="${b.id}">${T['filter' + b.id]}</button>`).join('');
+      + BRANCHES.map(b => `<button class="filter-chip${CUR_FILTER === b.id ? ' active' : ''}" data-filter="${b.id}">${esc(T['filter' + b.id])}</button>`).join('');
     [...wrap.children].forEach(c => c.addEventListener('click', () => setFilter(c.dataset.filter)));
   }
   function setFilter(branch) {
