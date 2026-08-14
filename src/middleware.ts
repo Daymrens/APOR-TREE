@@ -3,6 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 const publicPaths = ["/gate", "/api/verify-passcode"];
 
 export function middleware(request: NextRequest) {
+  // Cross-origin preflight for public API POSTs (Firebase-hosted static page
+  // submits contributions). Answer OPTIONS unconditionally so the browser
+  // allows the actual request regardless of cookies/session state.
+  if (request.method === "OPTIONS") {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS, GET, HEAD",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+  }
+
   const { pathname } = request.nextUrl;
 
   if (pathname === "/admin" || publicPaths.some((p) => pathname.startsWith(p))) {
