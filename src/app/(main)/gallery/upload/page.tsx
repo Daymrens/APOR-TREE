@@ -268,7 +268,7 @@ export default function UploadPage() {
         </div>
 
         {preview.length > 0 && (
-          <div className="grid grid-cols-3 gap-3 animate-fade-in">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 animate-fade-in">
             {preview.map((url, i) => (
               <div key={i} className="relative rounded-2xl overflow-hidden">
                 <img
