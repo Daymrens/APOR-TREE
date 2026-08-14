@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/auth/passcode";
 
 const publicPaths = ["/gate", "/api/verify-passcode", "/manifest.json"];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Cross-origin preflight for public API POSTs (Firebase-hosted static page
   // submits contributions). Answer OPTIONS unconditionally so the browser
   // allows the actual request regardless of cookies/session state.
@@ -37,7 +38,7 @@ export function middleware(request: NextRequest) {
   const adminSession = request.cookies.get("admin-session")?.value;
 
   if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
-    if (!adminSession) {
+    if (!(await verifySessionToken(adminSession))) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
