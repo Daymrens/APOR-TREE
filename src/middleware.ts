@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth/passcode";
 
-const publicPaths = ["/gate", "/api/verify-passcode", "/manifest.json"];
+const publicPaths = [
+  "/gate",
+  "/api/verify-passcode",
+  "/api/members",
+  "/api/rsvp-count",
+  "/manifest.json",
+];
 
 export async function middleware(request: NextRequest) {
   // Cross-origin preflight for public API POSTs (Firebase-hosted static page
