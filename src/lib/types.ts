@@ -13,6 +13,8 @@ export interface ReunionConfig {
   coverImageUrl: string;
   passcodeHash: string;
   adminPasscodeHash: string;
+  /** When false, the family passcode step on the gate is skipped (open registration). Defaults to true. */
+  familyGateEnabled?: boolean;
 }
 
 export interface Rsvp {
@@ -40,6 +42,9 @@ export interface FamilyMember {
   livingStatus: "living" | "deceased";
   notes: string;
   dateOfBirth?: string;
+  /** Populated when a member self-registers (otherwise admin-managed). */
+  sex?: "male" | "female";
+  maritalStatus?: "married" | "single";
 }
 
 export interface MemberContributionData {
@@ -50,6 +55,10 @@ export interface MemberContributionData {
   maritalStatus: "married" | "single";
   livingStatus: "living" | "deceased";
   siblings: string;
+  relation?: "child" | "sibling" | "spouse";
+  targetId?: string;
+  targetName?: string;
+  branch?: string;
 }
 
 export interface ScheduleItem {
