@@ -63,22 +63,39 @@ export async function POST(request: Request) {
       }
 
       const parent = findParent(members, parentName);
+      const relation = typeof extra.relation === "string" ? extra.relation : "";
+
+      let parentIds: string[] = [];
+      let spouseId: string | null = null;
+      let generation: number;
+
+      if (target && relation === "child") {
+        parentIds = [target.id];
+        if (target.spouseId) parentIds.push(target.spouseId);
+        generation = (target.generation ?? 0) + 1;
+      } else if (target && relation === "sibling") {
+        parentIds = target.parentIds ?? [];
+        generation = target.generation ?? 0;
+      } else if (target && relation === "spouse") {
+        spouseId = target.id;
+        generation = target.generation ?? 0;
+      } else if (parent) {
+        parentIds = [parent.id];
+        generation = parent.generation + 1;
+      } else {
+        generation = 0;
+      }
 
       const submittedBranch =
         typeof extra.branch === "string" && BRANCH_ORDER.includes(extra.branch)
           ? extra.branch
           : null;
       const derivedBranch = target ? deriveBranch(target, byId) : null;
+      const parentMember = parent ? byId.get(parent.id) ?? null : null;
       const branch =
-        submittedBranch ?? derivedBranch ?? (parent ? parent.branch : "Unassigned");
-
-      const relation = typeof extra.relation === "string" ? extra.relation : "";
-      let generation: number;
-      if (target && relation === "child") generation = (target.generation ?? 0) + 1;
-      else if (target && (relation === "sibling" || relation === "spouse"))
-        generation = target.generation ?? 0;
-      else if (parent) generation = parent.generation + 1;
-      else generation = 0;
+        submittedBranch ??
+        derivedBranch ??
+        (parentMember ? deriveBranch(parentMember, byId) : "Unassigned");
 
       // Idempotent: if a member with this exact name already exists, link it
       // instead of creating a duplicate.
@@ -88,8 +105,13 @@ export async function POST(request: Request) {
       if (!memberId) {
         const created = await db
           .collection(MEMBERS)
-          .add(buildMember(memberData, parent, branch, generation));
+          .add(buildMember(memberData, parentIds, spouseId, branch, generation));
         memberId = created.id;
+      }
+
+      if (spouseId) {
+        await db.collection(MEMBERS).doc(memberId).update({ spouseId });
+        await db.collection(MEMBERS).doc(spouseId).update({ spouseId: memberId });
       }
 
       await contributionRef.update({
@@ -148,7 +170,8 @@ function findParent(
 
 function buildMember(
   d: MemberContributionData,
-  parent: ParentInfo | null,
+  parentIds: string[],
+  spouseId: string | null,
   branch: string,
   generation: number
 ) {
@@ -163,9 +186,9 @@ function buildMember(
     maritalStatus: d.maritalStatus,
     birthOrder: 0,
     photoUrl: null,
-    spouseId: null,
+    spouseId,
     notes: d.siblings ? `Siblings: ${d.siblings}` : "",
-    parentIds: parent ? [parent.id] : [],
+    parentIds,
     branch,
     generation,
   };
