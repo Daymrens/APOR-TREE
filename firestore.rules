@@ -19,16 +19,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Gallery: public read, anyone can create (light moderation via approved field)
+    // Gallery: only approved photos readable, uploads must start unapproved (moderated)
     match /gallery_photos/{doc} {
-      allow read: if true;
-      allow create: if true;
+      allow read: if resource.data.approved == true;
+      allow create: if request.resource.data.approved == false;
       allow update, delete: if false;
     }
 
-    // RSVPs: public read, anyone can create, no update/delete
+    // RSVPs: PII — never public; form submission (create) still works
     match /rsvps/{doc} {
-      allow read: if true;
+      allow read: if false;
       allow create: if true;
       allow update, delete: if false;
     }
@@ -51,10 +51,10 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Contributions: public read (for display on homepage), admin-only write/update/delete
+    // Contributions: pending PII — no client access, all writes via API (server-side)
     match /contributions/{doc} {
-      allow read: if true;
-      allow create: if true;
+      allow read: if false;
+      allow create: if false;
       allow update, delete: if false;
     }
   }

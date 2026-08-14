@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import emailjs from "@emailjs/browser";
-import { addRsvp, subscribeToRsvps } from "@/lib/firestore/rsvps";
+import { addRsvp } from "@/lib/firestore/rsvps";
 import { getBranches } from "@/lib/firestore/members";
-import type { Rsvp } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 import Skeleton from "@/components/ui/Skeleton";
 
@@ -59,23 +58,21 @@ export default function RsvpPage() {
         setLoadingBranches(false);
       });
 
-    const unsub = subscribeToRsvps((rsvps: Rsvp[]) => {
-      let confirmed = 0;
-      let maybe = 0;
-      let headcount = 0;
-      rsvps.forEach((r) => {
-        if (r.attending === "yes") {
-          confirmed++;
-          headcount += 1 + r.guestCount;
-        } else if (r.attending === "maybe") {
-          maybe++;
-          headcount += 1 + r.guestCount;
+    fetch("/api/rsvp-count")
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("rsvp-count failed"))))
+      .then((data) => {
+        const c = data.counts;
+        if (c) {
+          setCounts({
+            confirmed: c.yes ?? 0,
+            maybe: c.maybe ?? 0,
+            headcount: (c.yes ?? 0) + (c.maybe ?? 0),
+          });
         }
+      })
+      .catch((err) => {
+        if (process.env.NODE_ENV === "development") console.warn("rsvp-count unavailable:", err.message);
       });
-      setCounts({ confirmed, maybe, headcount });
-    });
-
-    return () => unsub();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
