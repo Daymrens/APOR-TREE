@@ -1,13 +1,46 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
-import { FieldValue, type Firestore } from "firebase-admin/firestore";
+import {
+  FieldValue,
+  type DocumentReference,
+  type Firestore,
+} from "firebase-admin/firestore";
 import { BRANCH_ORDER, deriveBranch } from "@/lib/branches";
 import type { FamilyMember, MemberContributionData } from "@/lib/types";
 
 const COLLECTION = "contributions";
 const MEMBERS = "family_members";
 
+const UPDATABLE_FIELDS = [
+  "nickname",
+  "dateOfBirth",
+  "maritalStatus",
+  "livingStatus",
+  "sex",
+  "photoUrl",
+  "notes",
+  "branch",
+  "generation",
+  "birthOrder",
+] as const;
+
+// Map field values sent by the static page (public/apor-family.html submitCorrect)
+// to family_members document fields.
+const FIELD_ALIASES: Record<string, string> = {
+  living_status: "livingStatus",
+  photo_url: "photoUrl",
+  marital_status: "maritalStatus",
+  birth_date: "dateOfBirth",
+  gender: "sex",
+};
+
 type ParentInfo = { id: string; branch: string; generation: number };
+
+type AddMemberResult =
+  | { kind: "ok"; memberId: string }
+  | { kind: "already" }
+  | { kind: "spouse-conflict" }
+  | { kind: "unresolved" };
 
 export async function POST(request: Request) {
   try {
@@ -25,102 +58,13 @@ export async function POST(request: Request) {
 
     const doc = contribution.data();
 
+    if (doc?.type === "correction" && doc.data) {
+      return applyCorrection(db, contributionRef, doc.data);
+    }
+
     // Add-member contributions create a real family_members doc on approval.
     if (doc?.type === "add_member" && doc.data && !doc.approvedMemberId) {
-      const memberData = doc.data as MemberContributionData;
-
-      if (
-        typeof memberData.fullName !== "string" ||
-        !memberData.fullName.trim()
-      ) {
-        return NextResponse.json(
-          { error: "Invalid contribution data: fullName is required" },
-          { status: 400 }
-        );
-      }
-
-      const parentName =
-        typeof memberData.parentName === "string" ? memberData.parentName : "";
-      const members = await fetchMembers(db);
-
-      const byId = new Map(
-        (members as FamilyMember[]).map((m) => [m.id, m])
-      );
-
-      const extra = memberData as MemberContributionData & {
-        branch?: unknown;
-        targetId?: unknown;
-        targetName?: unknown;
-        relation?: unknown;
-      };
-
-      let target: FamilyMember | null = null;
-      if (typeof extra.targetId === "string" && byId.has(extra.targetId)) {
-        target = byId.get(extra.targetId) ?? null;
-      } else if (typeof extra.targetName === "string") {
-        const byName = findMemberByFullName(members, extra.targetName);
-        if (byName) target = byId.get(byName.id) ?? null;
-      }
-
-      const parent = findParent(members, parentName);
-      const relation = typeof extra.relation === "string" ? extra.relation : "";
-
-      let parentIds: string[] = [];
-      let spouseId: string | null = null;
-      let generation: number;
-
-      if (target && relation === "child") {
-        parentIds = [target.id];
-        if (target.spouseId) parentIds.push(target.spouseId);
-        generation = (target.generation ?? 0) + 1;
-      } else if (target && relation === "sibling") {
-        parentIds = target.parentIds ?? [];
-        generation = target.generation ?? 0;
-      } else if (target && relation === "spouse") {
-        spouseId = target.id;
-        generation = target.generation ?? 0;
-      } else if (parent) {
-        parentIds = [parent.id];
-        generation = parent.generation + 1;
-      } else {
-        generation = 0;
-      }
-
-      const submittedBranch =
-        typeof extra.branch === "string" && BRANCH_ORDER.includes(extra.branch)
-          ? extra.branch
-          : null;
-      const derivedBranch = target ? deriveBranch(target, byId) : null;
-      const parentMember = parent ? byId.get(parent.id) ?? null : null;
-      const branch =
-        submittedBranch ??
-        derivedBranch ??
-        (parentMember ? deriveBranch(parentMember, byId) : "Unassigned");
-
-      // Idempotent: if a member with this exact name already exists, link it
-      // instead of creating a duplicate.
-      const existing = findMemberByFullName(members, memberData.fullName);
-      let memberId: string | null = existing?.id ?? null;
-
-      if (!memberId) {
-        const created = await db
-          .collection(MEMBERS)
-          .add(buildMember(memberData, parentIds, spouseId, branch, generation));
-        memberId = created.id;
-      }
-
-      if (spouseId) {
-        await db.collection(MEMBERS).doc(memberId).update({ spouseId });
-        await db.collection(MEMBERS).doc(spouseId).update({ spouseId: memberId });
-      }
-
-      await contributionRef.update({
-        status: "approved",
-        approvedMemberId: memberId,
-        approvedAt: FieldValue.serverTimestamp(),
-      });
-
-      return NextResponse.json({ success: true, memberId });
+      return applyAddMember(db, contributionRef, doc);
     }
 
     await contributionRef.update({ status: "approved" });
@@ -134,13 +78,251 @@ export async function POST(request: Request) {
   }
 }
 
+async function applyCorrection(
+  db: Firestore,
+  contributionRef: DocumentReference,
+  data: Record<string, unknown>
+) {
+  const rawField = typeof data.field === "string" ? data.field : "";
+  const field = FIELD_ALIASES[rawField] ?? rawField;
+  const correctedValue = data.correctedValue;
+  const targetId =
+    typeof data.targetId === "string"
+      ? data.targetId
+      : typeof data.personId === "string"
+        ? data.personId
+        : "";
+  const targetName =
+    typeof data.targetName === "string"
+      ? data.targetName
+      : typeof data.personName === "string"
+        ? data.personName
+        : "";
+
+  const acknowledge = async () => {
+    await contributionRef.update({ status: "approved" });
+    return NextResponse.json({ success: true, applied: false, reason: "no-field" });
+  };
+
+  if (!field || (!targetId && !targetName)) {
+    return acknowledge();
+  }
+  if (!(UPDATABLE_FIELDS as readonly string[]).includes(field)) {
+    return NextResponse.json({ error: `Field "${field}" is not updatable` }, { status: 400 });
+  }
+
+  let memberRef = db.collection(MEMBERS).doc(targetId);
+  if (!targetId) {
+    const members = await fetchMembers(db);
+    const byName = findMemberByFullName(members, targetName);
+    if (!byName) return acknowledge();
+    memberRef = db.collection(MEMBERS).doc(byName.id);
+  }
+
+  const memberSnap = await memberRef.get();
+  if (!memberSnap.exists) {
+    return acknowledge();
+  }
+
+  const validated = validateCorrectionValue(field, correctedValue);
+  if ("error" in validated) {
+    return NextResponse.json({ error: validated.error }, { status: 400 });
+  }
+
+  await memberRef.update({ [field]: validated.value });
+  await contributionRef.update({ status: "approved" });
+  return NextResponse.json({ success: true, applied: true, memberId: memberRef.id });
+}
+
+function validateCorrectionValue(
+  field: string,
+  value: unknown
+): { error: string } | { value: unknown } {
+  switch (field) {
+    case "generation":
+    case "birthOrder": {
+      const n = Number(value);
+      if (!isFinite(n)) return { error: `${field} must be a number` };
+      return { value: n };
+    }
+    case "branch":
+      if (
+        typeof value !== "string" ||
+        (!BRANCH_ORDER.includes(value) && value !== "Unassigned")
+      ) {
+        return { error: "branch must be a known family branch or Unassigned" };
+      }
+      return { value };
+    case "livingStatus":
+      if (value !== "living" && value !== "deceased") {
+        return { error: "livingStatus must be 'living' or 'deceased'" };
+      }
+      return { value };
+    case "maritalStatus":
+      if (value !== "married" && value !== "single") {
+        return { error: "maritalStatus must be 'married' or 'single'" };
+      }
+      return { value };
+    case "sex":
+      if (value !== "male" && value !== "female" && value !== "") {
+        return { error: "sex must be 'male' or 'female'" };
+      }
+      return { value };
+    default:
+      if (typeof value !== "string") {
+        return { error: `${field} must be a string` };
+      }
+      return { value };
+  }
+}
+
+async function applyAddMember(
+  db: Firestore,
+  contributionRef: DocumentReference,
+  doc: Record<string, unknown>
+) {
+  const memberData = doc.data as MemberContributionData;
+
+  if (
+    typeof memberData.fullName !== "string" ||
+    !memberData.fullName.trim()
+  ) {
+    return NextResponse.json(
+      { error: "Invalid contribution data: fullName is required" },
+      { status: 400 }
+    );
+  }
+
+  const parentName =
+    typeof memberData.parentName === "string" ? memberData.parentName : "";
+  const extra = memberData as MemberContributionData & {
+    branch?: unknown;
+    targetId?: unknown;
+    targetName?: unknown;
+    relation?: unknown;
+  };
+  const relation = typeof extra.relation === "string" ? extra.relation : "";
+
+  const result = await db.runTransaction(async (transaction) => {
+    const current = await transaction.get(contributionRef);
+    if (!current.exists || current.data()?.approvedMemberId) {
+      return { kind: "already" } as const;
+    }
+
+    const membersSnap = await transaction.get(db.collection(MEMBERS));
+    const members = membersSnap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as FamilyMember[];
+    const byId = new Map(members.map((m) => [m.id, m]));
+
+    let target: FamilyMember | null = null;
+    if (typeof extra.targetId === "string" && byId.has(extra.targetId)) {
+      target = byId.get(extra.targetId) ?? null;
+    } else if (typeof extra.targetName === "string") {
+      const byName = findMemberByFullName(members, extra.targetName);
+      if (byName) target = byId.get(byName.id) ?? null;
+    }
+
+    const parent = findParent(members, parentName);
+
+    // Do not overwrite an existing spouse link.
+    if (target && relation === "spouse" && target.spouseId) {
+      return { kind: "spouse-conflict" } as const;
+    }
+
+    // Relation-based submissions need a resolvable target; a silent
+    // Gen-0/Unassigned orphan is a data-integrity bug.
+    if (
+      (relation === "child" || relation === "sibling" || relation === "spouse") &&
+      !target &&
+      !parent
+    ) {
+      return { kind: "unresolved" } as const;
+    }
+
+    let parentIds: string[] = [];
+    let spouseId: string | null = null;
+    let generation: number;
+
+    if (target && relation === "child") {
+      parentIds = [target.id];
+      if (target.spouseId) parentIds.push(target.spouseId);
+      generation = (target.generation ?? 0) + 1;
+    } else if (target && relation === "sibling") {
+      parentIds = target.parentIds ?? [];
+      generation = target.generation ?? 0;
+    } else if (target && relation === "spouse") {
+      spouseId = target.id;
+      generation = target.generation ?? 0;
+    } else if (parent) {
+      parentIds = [parent.id];
+      generation = parent.generation + 1;
+    } else {
+      generation = 0;
+    }
+
+    const submittedBranch =
+      typeof extra.branch === "string" && BRANCH_ORDER.includes(extra.branch)
+        ? extra.branch
+        : null;
+    const derivedBranch = target ? deriveBranch(target, byId) : null;
+    const parentMember = parent ? byId.get(parent.id) ?? null : null;
+    const branch =
+      submittedBranch ??
+      derivedBranch ??
+      (parentMember ? deriveBranch(parentMember, byId) : "Unassigned");
+
+    // Idempotent: if a member with this exact name already exists, link it
+    // instead of creating a duplicate.
+    const existing = findMemberByFullName(members, memberData.fullName);
+    let memberId = existing?.id ?? null;
+
+    if (!memberId) {
+      const newRef = db.collection(MEMBERS).doc();
+      transaction.set(
+        newRef,
+        buildMember(memberData, parentIds, spouseId, branch, generation)
+      );
+      memberId = newRef.id;
+    }
+
+    if (spouseId) {
+      transaction.update(db.collection(MEMBERS).doc(memberId), { spouseId });
+      transaction.update(db.collection(MEMBERS).doc(spouseId), { spouseId: memberId });
+    }
+
+    transaction.update(contributionRef, {
+      status: "approved",
+      approvedMemberId: memberId,
+      approvedAt: FieldValue.serverTimestamp(),
+    });
+
+    return { kind: "ok", memberId } as const;
+  });
+
+  if (result.kind === "already") {
+    return NextResponse.json({ error: "Contribution already approved" }, { status: 400 });
+  }
+  if (result.kind === "spouse-conflict") {
+    return NextResponse.json({ error: "Target already has a spouse" }, { status: 409 });
+  }
+  if (result.kind === "unresolved") {
+    return NextResponse.json(
+      { error: "Could not resolve the target member for this relation" },
+      { status: 400 }
+    );
+  }
+  return NextResponse.json({ success: true, memberId: result.memberId });
+}
+
 async function fetchMembers(db: Firestore) {
   const snapshot = await db.collection(MEMBERS).get();
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 function findMemberByFullName(
-  members: Array<Record<string, unknown>>,
+  members: ReadonlyArray<{ id: string; fullName?: unknown }>,
   fullName: string
 ): { id: string } | null {
   const q = fullName.trim().toLowerCase();
@@ -150,7 +332,13 @@ function findMemberByFullName(
 }
 
 function findParent(
-  members: Array<Record<string, unknown>>,
+  members: ReadonlyArray<{
+    id: string;
+    fullName?: unknown;
+    nickname?: unknown;
+    branch?: unknown;
+    generation?: unknown;
+  }>,
   parentName: string
 ): ParentInfo | null {
   const q = parentName.trim().toLowerCase();
