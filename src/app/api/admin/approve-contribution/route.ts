@@ -22,6 +22,7 @@ const UPDATABLE_FIELDS = [
   "branch",
   "generation",
   "birthOrder",
+  "fullName",
 ] as const;
 
 // Map field values sent by the static page (public/apor-family.html submitCorrect)
@@ -32,6 +33,7 @@ const FIELD_ALIASES: Record<string, string> = {
   marital_status: "maritalStatus",
   birth_date: "dateOfBirth",
   gender: "sex",
+  name: "fullName",
 };
 
 type ParentInfo = { id: string; branch: string; generation: number };
@@ -129,7 +131,18 @@ async function applyCorrection(
     return NextResponse.json({ error: validated.error }, { status: 400 });
   }
 
-  await memberRef.update({ [field]: validated.value });
+  let newFullName = validated.value as string;
+  if (rawField === "name" && typeof validated.value === "string") {
+    const trimmed = validated.value.trim();
+    const existing = String(memberSnap.data()?.fullName ?? "").trim();
+    if (!trimmed.includes(" ") && existing.includes(" ")) {
+      newFullName = trimmed + existing.slice(existing.indexOf(" "));
+    } else {
+      newFullName = trimmed;
+    }
+  }
+
+  await memberRef.update({ [field]: newFullName });
   await contributionRef.update({ status: "approved" });
   return NextResponse.json({ success: true, applied: true, memberId: memberRef.id });
 }
@@ -166,6 +179,11 @@ function validateCorrectionValue(
     case "sex":
       if (value !== "male" && value !== "female" && value !== "") {
         return { error: "sex must be 'male' or 'female'" };
+      }
+      return { value };
+    case "fullName":
+      if (typeof value !== "string" || !value.trim()) {
+        return { error: "fullName must be a non-empty string" };
       }
       return { value };
     default:

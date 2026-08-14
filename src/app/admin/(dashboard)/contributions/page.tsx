@@ -138,7 +138,8 @@ export default function AdminContributionsPage() {
         body: JSON.stringify({ id }),
       });
       if (!res.ok) {
-        setActionError("Failed to approve contribution. Please try again.");
+        const body = await res.json().catch(() => null);
+        setActionError(body?.error ?? "Failed to approve contribution. Please try again.");
         return;
       }
       setContributions((prev) =>
@@ -161,7 +162,8 @@ export default function AdminContributionsPage() {
         body: JSON.stringify({ id }),
       });
       if (!res.ok) {
-        setActionError("Failed to delete contribution. Please try again.");
+        const body = await res.json().catch(() => null);
+        setActionError(body?.error ?? "Failed to delete contribution. Please try again.");
         return;
       }
       setContributions((prev) => prev.filter((c) => c.id !== id));
