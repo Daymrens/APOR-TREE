@@ -298,6 +298,45 @@
   .dir-search:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); background: var(--surface); }
   .dir-empty { padding: 1.25rem 1rem; text-align: center; color: var(--text-faint); font-size: .85rem; border: 1.5px dashed var(--line-strong); border-radius: var(--radius-sm); margin-top: .4rem; }
 
+  /* ─── Form mode selector + searchable dropdowns ──────────────── */
+  .hide { display: none !important; }
+  .form-mode.hidden { display: none; }
+  .mode-tabs { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: var(--space-5); }
+  .mode-tab {
+    border: 1px solid var(--line); background: var(--surface); color: var(--text-muted);
+    font: inherit; font-size: .85rem; font-weight: 600; padding: .5rem 1rem;
+    border-radius: 999px; cursor: pointer; transition: all .15s ease;
+  }
+  .mode-tab:hover { border-color: var(--primary); color: var(--primary); }
+  .mode-tab.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .sdd { position: relative; }
+  .sdd-input { width: 100%; }
+  .sdd-list {
+    display: none; position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg); max-height: 240px; overflow-y: auto; padding: .25rem;
+  }
+  .sdd-list.open { display: block; }
+  .sdd-row {
+    display: flex; align-items: center; gap: .5rem; width: 100%; font: inherit; font-size: .85rem;
+    text-align: left; border: none; background: var(--surface); border-radius: var(--radius-sm);
+    padding: .45rem .6rem; cursor: pointer;
+  }
+  .sdd-row:hover, .sdd-row.sel { background: var(--primary-soft); }
+  .sdd-row + .sdd-row { margin-top: .15rem; }
+  .sdd-row .dir-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+  .branch-info { background: var(--bg-elevated); border: 1px solid var(--line); border-radius: var(--radius); padding: .7rem .9rem; max-height: 220px; overflow-y: auto; }
+  .branch-info-head { font-size: .8rem; font-weight: 600; color: var(--text-muted); margin-bottom: .35rem; }
+  .bi-row { display: flex; align-items: center; gap: .5rem; font-size: .85rem; padding: .12rem 0; }
+  .bi-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bi-name em { font-style: italic; color: var(--primary); }
+  .rel-radios { display: flex; gap: 1.1rem; flex-wrap: wrap; padding: .25rem 0; }
+  .corr-card { background: var(--bg-elevated); border: 1px solid var(--line); border-radius: var(--radius); padding: .8rem 1rem; }
+  .corr-card-name { font-weight: 700; margin-bottom: .35rem; }
+  .detail-grid { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem .9rem; font-size: .85rem; }
+  .detail-grid dt { color: var(--text-faint); font-weight: 600; }
+  .detail-grid dd { margin: 0; }
+
   .footer-note { text-align: center; color: var(--text-faint); font-size: .8rem; margin-top: 2rem; }
 
   @media print {
@@ -351,78 +390,174 @@
       <div id="form-banner"></div>
 
       <form id="memberForm" novalidate onsubmit="return handleSubmit(event)">
-        <div class="grid2">
-          <div class="field full">
-            <label for="parentName" data-i18n="parentName">Parents / Root connection</label>
-            <input id="parentName" name="parentName" maxlength="200" placeholder="e.g. Basilio Jr. & Lydia" />
-            <span class="hint" data-i18n="parentHint">Who are this person's parents? Helps place them on the tree.</span>
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab active" data-mode="add" onclick="setFormMode('add')" data-i18n="addTab">Add Family Member</button>
+          <button type="button" class="mode-tab" data-mode="correct" onclick="setFormMode('correct')" data-i18n="correctionTab">Correction</button>
+          <button type="button" class="mode-tab" data-mode="suggest" onclick="setFormMode('suggest')" data-i18n="suggestionTab">Suggestion</button>
+        </div>
+
+        <div id="mode-add" class="form-mode">
+          <div class="grid2">
+            <div class="field full">
+              <label for="branchSearch" data-i18n="branchLbl">Branch</label>
+              <div class="sdd">
+                <input id="branchSearch" class="sdd-input" placeholder="" autocomplete="off" />
+                <div id="branchList" class="sdd-list"></div>
+              </div>
+              <span class="hint" data-i18n="pickBranch">Pick a Gen 1 branch to see its members.</span>
+            </div>
+            <div class="field full">
+              <div id="branchInfo" class="branch-info"></div>
+            </div>
+            <div class="field full">
+              <label for="targetSearch" data-i18n="targetLbl">Target person</label>
+              <div class="sdd">
+                <input id="targetSearch" class="sdd-input" placeholder="" autocomplete="off" />
+                <div id="targetList" class="sdd-list"></div>
+              </div>
+              <span class="hint" data-i18n="pickTarget">Who is this new person related to?</span>
+            </div>
+            <div class="field full">
+              <span data-i18n="relationLbl">Relation</span>
+              <div class="rel-radios">
+                <label class="check"><input type="radio" name="relation" value="sibling" onclick="setRelation('sibling')" /><span data-i18n="relSibling">Sibling</span></label>
+                <label class="check"><input type="radio" name="relation" value="child" onclick="setRelation('child')" /><span data-i18n="relChild">Child</span></label>
+                <label class="check"><input type="radio" name="relation" value="spouse" onclick="setRelation('spouse')" /><span data-i18n="relSpouse">Spouse</span></label>
+              </div>
+              <span class="hint" id="relHint"></span>
+            </div>
+            <div class="field full">
+              <label for="parentName" data-i18n="parentName">Parents / Root connection</label>
+              <input id="parentName" name="parentName" maxlength="200" placeholder="e.g. Basilio Jr. & Lydia" />
+              <span class="hint" data-i18n="parentHint">Who are this person's parents? Helps place them on the tree.</span>
+              <span class="hint" id="parentAutoHint" style="display:none" data-i18n="autoFillHint">auto-filled from target</span>
+            </div>
+            <div class="field">
+              <label for="firstName"><span data-i18n="firstName">First name</span> <span class="req">*</span></label>
+              <input id="firstName" name="firstName" required maxlength="100" />
+            </div>
+            <div class="field">
+              <label for="lastName"><span data-i18n="lastName">Last name</span> <span class="req">*</span></label>
+              <input id="lastName" name="lastName" required maxlength="100" value="Apor" />
+            </div>
+            <div class="field">
+              <label for="middleName" data-i18n="middleName">Middle name</label>
+              <input id="middleName" name="middleName" maxlength="100" />
+            </div>
+            <div class="field">
+              <label for="gender" data-i18n="gender">Gender</label>
+              <select id="gender" name="gender">
+                <option value="UNKNOWN" data-i18n="gUnknown">Prefer not to say</option>
+                <option value="MALE" data-i18n="gMale">Male</option>
+                <option value="FEMALE" data-i18n="gFemale">Female</option>
+                <option value="OTHER" data-i18n="gOther">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="maritalStatus" data-i18n="maritalStatus">Marital status</label>
+              <select id="maritalStatus" name="maritalStatus">
+                <option value="single" data-i18n="mSingle">Single</option>
+                <option value="married" data-i18n="mMarried">Married</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="birthDate" data-i18n="birthDate">Birth date</label>
+              <input id="birthDate" name="birthDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="deathDate"><span data-i18n="deathDate">Death date</span> <span style="font-weight:400" data-i18n="ifDeceased">(if deceased)</span></label>
+              <input id="deathDate" name="deathDate" type="date" />
+            </div>
+            <div class="field">
+              <label for="privacyLevel" data-i18n="visibility">Visibility</label>
+              <select id="privacyLevel" name="privacyLevel">
+                <option value="PUBLIC" data-i18n="vPublic">Public — everyone can see</option>
+                <option value="MEMBERS_ONLY" data-i18n="vMembers">Members only</option>
+                <option value="PRIVATE" data-i18n="vPrivate">Private — admins only</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="photoUrl" data-i18n="photoUrl">Photo URL</label>
+              <input id="photoUrl" name="photoUrl" type="url" placeholder="https://…" />
+              <span class="hint" data-i18n="photoHint">Link to a photo online (optional).</span>
+            </div>
+            <div class="field full check">
+              <input id="isLiving" name="isLiving" type="checkbox" checked />
+              <label for="isLiving" style="font-weight:500" data-i18n="living">Living</label>
+            </div>
+            <div class="field full">
+              <label for="siblings" data-i18n="siblings">Siblings</label>
+              <input id="siblings" name="siblings" maxlength="500" placeholder="e.g. Maria, Jose, Ana" />
+              <span class="hint" data-i18n="siblingsHint">Comma-separated names (optional).</span>
+            </div>
+            <div class="field full">
+              <label for="notes" data-i18n="notes">Notes</label>
+              <textarea id="notes" name="notes" maxlength="5000" placeholder=""></textarea>
+            </div>
           </div>
-          <div class="field">
-            <label for="firstName"><span data-i18n="firstName">First name</span> <span class="req">*</span></label>
-            <input id="firstName" name="firstName" required maxlength="100" />
+        </div>
+
+        <div id="mode-correct" class="form-mode hidden">
+          <div class="grid2">
+            <div class="field full">
+              <label for="personSearch" data-i18n="searchPerson">Search person</label>
+              <div class="sdd">
+                <input id="personSearch" class="sdd-input" placeholder="" autocomplete="off" />
+                <div id="personList" class="sdd-list"></div>
+              </div>
+            </div>
+            <div class="field full">
+              <div id="corrCard" class="corr-card hide"></div>
+            </div>
+            <div class="field full">
+              <label for="corrField" data-i18n="fieldLbl">Field to correct</label>
+              <select id="corrField">
+                <option value="" data-i18n="pickField">— pick a field —</option>
+                <option value="nickname" data-i18n="nickLbl">Nickname</option>
+                <option value="gender" data-i18n="gender">Gender</option>
+                <option value="marital_status" data-i18n="maritalStatus">Marital status</option>
+                <option value="birth_date" data-i18n="birthDate">Birth date</option>
+                <option value="living_status" data-i18n="living">Living status</option>
+                <option value="photo_url" data-i18n="photoUrl">Photo URL</option>
+                <option value="notes" data-i18n="notes">Notes</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="corrValue" data-i18n="correctedValue">Corrected value</label>
+              <input id="corrValue" type="text" />
+              <select id="corrLiving" class="hide">
+                <option value="living" data-i18n="livingBadge">Living</option>
+                <option value="deceased" data-i18n="deceasedBadge">Deceased</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="corrNote" data-i18n="correctionNote">Why / additional info</label>
+              <textarea id="corrNote"></textarea>
+            </div>
           </div>
-          <div class="field">
-            <label for="lastName"><span data-i18n="lastName">Last name</span> <span class="req">*</span></label>
-            <input id="lastName" name="lastName" required maxlength="100" value="Apor" />
-          </div>
-          <div class="field">
-            <label for="middleName" data-i18n="middleName">Middle name</label>
-            <input id="middleName" name="middleName" maxlength="100" />
-          </div>
-          <div class="field">
-            <label for="gender" data-i18n="gender">Gender</label>
-            <select id="gender" name="gender">
-              <option value="UNKNOWN" data-i18n="gUnknown">Prefer not to say</option>
-              <option value="MALE" data-i18n="gMale">Male</option>
-              <option value="FEMALE" data-i18n="gFemale">Female</option>
-              <option value="OTHER" data-i18n="gOther">Other</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="maritalStatus" data-i18n="maritalStatus">Marital status</label>
-            <select id="maritalStatus" name="maritalStatus">
-              <option value="single" data-i18n="mSingle">Single</option>
-              <option value="married" data-i18n="mMarried">Married</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="birthDate" data-i18n="birthDate">Birth date</label>
-            <input id="birthDate" name="birthDate" type="date" />
-          </div>
-          <div class="field">
-            <label for="deathDate"><span data-i18n="deathDate">Death date</span> <span style="font-weight:400" data-i18n="ifDeceased">(if deceased)</span></label>
-            <input id="deathDate" name="deathDate" type="date" />
-          </div>
-          <div class="field">
-            <label for="privacyLevel" data-i18n="visibility">Visibility</label>
-            <select id="privacyLevel" name="privacyLevel">
-              <option value="PUBLIC" data-i18n="vPublic">Public — everyone can see</option>
-              <option value="MEMBERS_ONLY" data-i18n="vMembers">Members only</option>
-              <option value="PRIVATE" data-i18n="vPrivate">Private — admins only</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="photoUrl" data-i18n="photoUrl">Photo URL</label>
-            <input id="photoUrl" name="photoUrl" type="url" placeholder="https://…" />
-            <span class="hint" data-i18n="photoHint">Link to a photo online (optional).</span>
-          </div>
-          <div class="field full check">
-            <input id="isLiving" name="isLiving" type="checkbox" checked />
-            <label for="isLiving" style="font-weight:500" data-i18n="living">Living</label>
-          </div>
-          <div class="field full">
-            <label for="siblings" data-i18n="siblings">Siblings</label>
-            <input id="siblings" name="siblings" maxlength="500" placeholder="e.g. Maria, Jose, Ana" />
-            <span class="hint" data-i18n="siblingsHint">Comma-separated names (optional).</span>
-          </div>
-          <div class="field full">
-            <label for="notes" data-i18n="notes">Notes</label>
-            <textarea id="notes" name="notes" maxlength="5000" placeholder=""></textarea>
+        </div>
+
+        <div id="mode-suggest" class="form-mode hidden">
+          <div class="grid2">
+            <div class="field full">
+              <label for="suggCat" data-i18n="suggestCategory">Category</label>
+              <select id="suggCat">
+                <option value="reunion" data-i18n="suggestCatReunion">Reunion event</option>
+                <option value="photo" data-i18n="suggestCatPhoto">Photo</option>
+                <option value="info" data-i18n="suggestCatInfo">Family info</option>
+                <option value="website" data-i18n="suggestCatWebsite">Website</option>
+                <option value="other" data-i18n="suggestCatOther">Other</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="suggText" data-i18n="suggestText">Your suggestion</label>
+              <textarea id="suggText" style="min-height:150px"></textarea>
+            </div>
           </div>
         </div>
 
         <div class="row">
-          <button type="submit" class="btn btn-primary" data-i18n="saveBtn">Save member</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn" data-i18n="saveAdd">Save member</button>
           <button type="button" class="btn btn-secondary" onclick="window.print()" data-i18n="printBtn">🖨️ Print / Save as PDF</button>
           <button type="button" class="btn btn-ghost" onclick="copyJson()" data-i18n="copyBtn">Copy as JSON</button>
           <button type="reset" class="btn btn-ghost" data-i18n="clearBtn">Clear</button>
@@ -505,6 +640,22 @@
       branchLbl: "Branch", genLbl: "Generation", spouseLbl: "Spouse", parentsLbl: "Parents", nickLbl: "Nickname",
       directory: "Directory", searchPlaceholder: "Search name or nickname...", noResults: "No results",
       sexLbl: "Sex", birthOrderLbl: "Birth order", photoLink: "View photo", missing: "Missing information",
+      saveAdd: "Save member", saveCorrect: "Submit correction", saveSuggest: "Submit suggestion",
+      thanksTitle: "Thank you!", thanksBody: "Thank you for the information. The family admin will review your submission.", thanksOk: "OK",
+      addTab: "Add Family Member", correctionTab: "Correction", suggestionTab: "Suggestion",
+      pickBranch: "Pick a Gen 1 branch to see its members.", pickTarget: "Who is this new person related to?", targetLbl: "Target person", branchMembers: "Branch members",
+      relationLbl: "Relation", relSibling: "Sibling", relChild: "Child", relSpouse: "Spouse",
+      relHintSibling: "A sibling of the target — the parents field is filled from the target's parents.",
+      relHintChild: "A child of the target — the parents field is the target (and spouse).",
+      relHintSpouse: "A spouse joining the family by marriage.",
+      searchPerson: "Search person", fieldLbl: "Field to correct", pickField: "— pick a field —",
+      correctedValue: "Corrected value", correctionNote: "Why / additional info",
+      suggestCategory: "Category", suggestText: "Your suggestion",
+      suggestCatReunion: "Reunion event", suggestCatPhoto: "Photo", suggestCatInfo: "Family info", suggestCatWebsite: "Website", suggestCatOther: "Other",
+      errSpouse: "{0} already has a spouse ({1})", errRootSpouse: "Cannot add a spouse for the root couple",
+      errNoParents: "Root couple has no parents — pick one of their children as target",
+      errPickAll: "Pick a branch, target person, and relation", errRequired: "Please fill in all required fields.",
+      autoFillHint: "auto-filled from target",
     },
     tl: {
       language: "Wika", title: "Pamilya Apor", subtitle: "Pagsasama & PunoTauhan — Form ng Miyembro",
@@ -534,6 +685,22 @@
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Asawa", parentsLbl: "Mga magulang", nickLbl: "Palayaw",
       directory: "Direktoryo", searchPlaceholder: "Maghanap ng pangalan o palayaw...", noResults: "Walang nahanap",
       sexLbl: "Kasarian", birthOrderLbl: "Pagkakasunod-sunod", photoLink: "Tingnan ang larawan", missing: "Kulang ang impormasyon",
+      saveAdd: "I-save ang miyembro", saveCorrect: "Isumite ang pagtul-id", saveSuggest: "Isumite ang suhestiyon",
+      thanksTitle: "Salamat!", thanksBody: "Salamat sa impormasyon. Susuriin ng family admin ang iyong isinumite.", thanksOk: "OK",
+      addTab: "Magdagdag ng Miyembro", correctionTab: "Pagwawasto", suggestionTab: "Mungkahi",
+      pickBranch: "Pumili ng sanga (Gen 1) para makita ang mga miyembro nito.", pickTarget: "Sino ang kadugo ng bagong miyembro?", targetLbl: "Target na tao", branchMembers: "Mga miyembro ng sanga",
+      relationLbl: "Ugnayan", relSibling: "Kapatid", relChild: "Anak", relSpouse: "Asawa",
+      relHintSibling: "Kapatid ng target — ang parents ay mula sa mga magulang ng target.",
+      relHintChild: "Anak ng target — ang parents ay ang target (at asawa).",
+      relHintSpouse: "Asawang sumasali sa pamilya sa pamamagitan ng kasal.",
+      searchPerson: "Maghanap ng tao", fieldLbl: "Field na itatama", pickField: "— pumili ng field —",
+      correctedValue: "Tamang halaga", correctionNote: "Bakit / karagdagang impormasyon",
+      suggestCategory: "Kategorya", suggestText: "Iyong mungkahi",
+      suggestCatReunion: "Reunion event", suggestCatPhoto: "Larawan", suggestCatInfo: "Impormasyon ng pamilya", suggestCatWebsite: "Website", suggestCatOther: "Iba pa",
+      errSpouse: "May asawa na si {0} ({1})", errRootSpouse: "Hindi maaaring magdagdag ng asawa sa mag-asawang ugat",
+      errNoParents: "Walang magulang ang mag-asawang ugat — pumili ng isa sa kanilang mga anak bilang target",
+      errPickAll: "Pumili ng sanga, target na tao, at ugnayan", errRequired: "Punan ang lahat ng kailangang field.",
+      autoFillHint: "auto-filled mula sa target",
     },
     ceb: {
       language: "Lengguwahe", title: "Pamilya Apor", subtitle: "Family Reunion & Tree — Form sa Miyembro",
@@ -563,6 +730,22 @@
       branchLbl: "Sanga", genLbl: "Henerasyon", spouseLbl: "Bana/Asawa", parentsLbl: "Mga ginikanan", nickLbl: "Tawag",
       directory: "Direktorya", searchPlaceholder: "Pangitaa ang ngalan o angga...", noResults: "Wala'y nakit-an",
       sexLbl: "Sekso", birthOrderLbl: "Pagkasunod-sunod", photoLink: "Tan-awon ang litrato", missing: "Kulang ang impormasyon",
+      saveAdd: "I-save ang miyembro", saveCorrect: "Isumite ang pagtul-id", saveSuggest: "Isumite ang suhestiyon",
+      thanksTitle: "Salamat!", thanksBody: "Salamat sa impormasyon. Susuriin sa family admin ang imong gisumite.", thanksOk: "OK",
+      addTab: "Dugang Miyembro", correctionTab: "Koreksyon", suggestionTab: "Sugyot",
+      pickBranch: "Pilia ang sanga (Gen 1) aron makita ang mga miyembro.", pickTarget: "Kinsa ang paryente sa bagong miyembro?", targetLbl: "Target nga tao", branchMembers: "Mga miyembro sa sanga",
+      relationLbl: "Relasyon", relSibling: "Igsuon", relChild: "Anak", relSpouse: "Bana/Asawa",
+      relHintSibling: "Igsuon sa target — ang parents gihulagway sa mga ginikanan sa target.",
+      relHintChild: "Anak sa target — ang parents mao ang target (ug bana/asawa).",
+      relHintSpouse: "Bana/asawa nga moapil sa pamilya pinaagi sa kaminyoon.",
+      searchPerson: "Pangitaa ang tao", fieldLbl: "Field nga tul-iron", pickField: "— pilia ang field —",
+      correctedValue: "Tul-id nga bili", correctionNote: "Ngano / dugang kasayuran",
+      suggestCategory: "Kategoriya", suggestText: "Imong sugyot",
+      suggestCatReunion: "Reunion event", suggestCatPhoto: "Litrato", suggestCatInfo: "Kasayuran sa pamilya", suggestCatWebsite: "Website", suggestCatOther: "Lain pa",
+      errSpouse: "Aduna nay asawa si {0} ({1})", errRootSpouse: "Dili madugang og asawa para sa gamot nga magtiayon",
+      errNoParents: "Walay ginikanan ang gamot nga magtiayon — pilia ang usa sa ilang mga anak",
+      errPickAll: "Pilia ang sanga, target nga tao, ug relasyon", errRequired: "Pun-a ang tanang gikinahanglan nga field.",
+      autoFillHint: "auto-filled gihulagway sa target",
     },
   };
   // fix ceb copyFirst key typo
@@ -602,6 +785,7 @@
     if (document.getElementById('detail').classList.contains('show')) {
       // noop — detail text is set on click; could re-open for current member
     }
+    refreshFormModeUI();
   }
 
   // ─── Tab switching ───────────────────────────────────────────────
@@ -614,24 +798,71 @@
   }
 
   // ─── Form submit (Firestore via contributions API) ─────────────
-  // Posts an "add_member" contribution to the live Next.js API at
+  // Posts a contribution to the live Next.js API at
   // https://apor-tree.vercel.app. It lands in the `contributions`
   // collection as status:"pending"; a family admin approves it, which
-  // creates the real family_members doc. Served from Firebase Hosting,
-  // so we use the absolute API URL instead of a relative fetch.
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const f = e.target;
-    const T = I18N[CUR];
-    const banner = document.getElementById('form-banner');
+  // creates/updates the real family_members doc. Served from Firebase
+  // Hosting, so we use the absolute API URL instead of a relative fetch.
+  let FORM_MODE = 'add';
 
+  function showBanner(banner, cls, txt) { banner.className = 'banner ' + cls; banner.textContent = txt; }
+
+  function openThanksModal() {
+    const T = I18N[CUR];
+    const m = document.getElementById('thanksModal');
+    const t = document.getElementById('thanksTitle');
+    const b = document.getElementById('thanksBody');
+    const o = document.getElementById('thanksOk');
+    if (t) t.textContent = T.thanksTitle;
+    if (b) b.textContent = T.thanksBody;
+    if (o) o.textContent = T.thanksOk;
+    if (m) m.style.display = 'flex';
+  }
+  function closeThanksModal() {
+    const m = document.getElementById('thanksModal');
+    if (m) m.style.display = 'none';
+  }
+
+  async function postPayload(payload, f, banner, T) {
+    window._lastMember = payload;
+    const submitBtn = f.querySelector('button[type="submit"]');
+    showBanner(banner, 'banner-info', T.saving);
+    if (submitBtn) submitBtn.disabled = true;
+    try {
+      const res = await fetch('https://apor-tree.vercel.app/api/contributions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      showBanner(banner, 'banner-ok', T.submittedOk);
+      openThanksModal();
+      f.reset();
+      if (FORM_MODE === 'add') f.lastName.value = 'Apor';
+      clearPicks();
+    } catch (err) {
+      showBanner(banner, 'banner-err', T.submitErr);
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  }
+
+  function submitAdd(f, T, banner) {
     const firstName = f.firstName.value.trim();
     const lastName = f.lastName.value.trim();
-    if (!firstName || !lastName) {
-      banner.className = 'banner banner-err';
-      banner.textContent = T.nameRequired;
-      return false;
+    if (!firstName || !lastName) { showBanner(banner, 'banner-err', T.nameRequired); return false; }
+    const rel = (f.querySelector('input[name="relation"]:checked') || {}).value;
+    const branchSt = SDD['branchSearch'];
+    const targetSt = SDD['targetSearch'];
+    const branch = branchSt && branchSt.selected ? branchSt.selected.branch : null;
+    const t = targetSt && targetSt.selected ? targetSt.selected.m : null;
+    if (!branch || !t || !rel) { showBanner(banner, 'banner-err', T.errPickAll); return false; }
+    const byId = id => { const p = MEMBERS.find(x => x.id === id); return p ? p.name : id; };
+    if (rel === 'spouse') {
+      if (t.gen === 0) { showBanner(banner, 'banner-err', T.errRootSpouse); return false; }
+      if (t.spouse) { showBanner(banner, 'banner-err', T.errSpouse.replace('{0}', t.name).replace('{1}', byId(t.spouse))); return false; }
     }
+    if (rel === 'sibling' && (!t.parents || !t.parents.length)) { showBanner(banner, 'banner-err', T.errNoParents); return false; }
 
     const middleName = f.middleName.value.trim();
     const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
@@ -640,6 +871,7 @@
     // MemberContributionData.sex only allows male/female; leave blank for the
     // unknown/other choices so the admin can set it on approval.
     const sex = { MALE: 'male', FEMALE: 'female' }[f.gender.value] || '';
+    const relLabel = { sibling: 'Sibling', child: 'Child', spouse: 'Spouse' }[rel];
 
     // Keep the offline copy working for "Copy as JSON" / "Print".
     const local = {
@@ -663,7 +895,8 @@
     if (local.deathDate) extra.push(`Died: ${local.deathDate}`);
     if (local.photoUrl) extra.push(`Photo: ${local.photoUrl}`);
     extra.push(`Visibility: ${vLabel[f.privacyLevel.value] || f.privacyLevel.value}`);
-    const description = [notes, extra.join(' · ')].filter(Boolean).join('\n\n');
+    const description = `Relation: ${relLabel} of ${t.name} (branch ${branch})\n\n`
+      + [notes, extra.join(' · ')].filter(Boolean).join('\n\n');
 
     const payload = {
       type: 'add_member',
@@ -678,32 +911,265 @@
         maritalStatus: f.maritalStatus.value,
         livingStatus: isLiving ? 'living' : 'deceased',
         siblings: f.siblings.value.trim(),
+        relation: rel,
+        targetId: t.id,
+        targetName: t.name,
+        branch,
       },
     };
-
-    const submitBtn = f.querySelector('button[type="submit"]');
-    banner.className = 'banner banner-info';
-    banner.textContent = T.saving;
-    if (submitBtn) submitBtn.disabled = true;
-
-    try {
-      const res = await fetch('https://apor-tree.vercel.app/api/contributions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      banner.className = 'banner banner-ok';
-      banner.textContent = T.submittedOk;
-      f.reset();
-      f.lastName.value = 'Apor';
-    } catch (err) {
-      banner.className = 'banner banner-err';
-      banner.textContent = T.submitErr;
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-    }
+    postPayload(payload, f, banner, T);
     return false;
+  }
+
+  function submitCorrect(f, T, banner) {
+    const personSt = SDD['personSearch'];
+    const p = personSt && personSt.selected ? personSt.selected.m : null;
+    const fieldSel = document.getElementById('corrField');
+    const field = fieldSel.value;
+    const isLivingField = field === 'living_status';
+    const value = isLivingField
+      ? document.getElementById('corrLiving').value
+      : document.getElementById('corrValue').value.trim();
+    const note = document.getElementById('corrNote').value.trim();
+    if (!p || !field || !value) { showBanner(banner, 'banner-err', T.errRequired); return false; }
+    const fieldLabel = fieldSel.selectedOptions[0] ? fieldSel.selectedOptions[0].textContent : field;
+    const payload = {
+      type: 'correction',
+      category: 'correction',
+      title: `Correction: ${p.name} — ${fieldLabel}`,
+      description: note || 'See data',
+      data: { personId: p.id, personName: p.name, field, correctedValue: value, note },
+    };
+    postPayload(payload, f, banner, T);
+    return false;
+  }
+
+  function submitSuggest(f, T, banner) {
+    const catSel = document.getElementById('suggCat');
+    const cat = catSel.value;
+    const text = document.getElementById('suggText').value.trim();
+    if (!text) { showBanner(banner, 'banner-err', T.errRequired); return false; }
+    const catLabel = catSel.selectedOptions[0] ? catSel.selectedOptions[0].textContent : cat;
+    const payload = {
+      type: 'suggestion',
+      category: cat,
+      title: `Suggestion: ${catLabel}`,
+      description: text,
+      data: { text, category: cat },
+    };
+    postPayload(payload, f, banner, T);
+    return false;
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const f = e.target;
+    const T = I18N[CUR];
+    const banner = document.getElementById('form-banner');
+    if (FORM_MODE === 'correct') return submitCorrect(f, T, banner);
+    if (FORM_MODE === 'suggest') return submitSuggest(f, T, banner);
+    return submitAdd(f, T, banner);
+  }
+
+  // ─── Form mode selector ─────────────────────────────────────────
+  function setFormMode(m) {
+    FORM_MODE = m;
+    document.querySelectorAll('.mode-tab').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+    document.getElementById('mode-add').classList.toggle('hidden', m !== 'add');
+    document.getElementById('mode-correct').classList.toggle('hidden', m !== 'correct');
+    document.getElementById('mode-suggest').classList.toggle('hidden', m !== 'suggest');
+    const banner = document.getElementById('form-banner');
+    banner.className = 'banner';
+    banner.textContent = '';
+    updateSubmitLabel();
+  }
+
+  function updateSubmitLabel() {
+    const btn = document.getElementById('submitBtn');
+    if (!btn) return;
+    const key = FORM_MODE === 'correct' ? 'saveCorrect' : FORM_MODE === 'suggest' ? 'saveSuggest' : 'saveAdd';
+    btn.textContent = I18N[CUR][key] || btn.textContent;
+  }
+
+  // ─── Searchable dropdown (reusable) ─────────────────────────────
+  const SDD = {};
+  const PICK = { branchSib: null, person: null };
+
+  function searchableDropdown(inputId, listId, options, onPick) {
+    SDD[inputId] = { listId, options, onPick, selected: null };
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    if (!input || !list) return;
+    if (!input._sddInit) {
+      input._sddInit = true;
+      input.addEventListener('click', () => {
+        if (list.classList.contains('open')) { list.classList.remove('open'); return; }
+        document.querySelectorAll('.sdd-list.open').forEach(l => l.classList.remove('open'));
+        list.classList.add('open');
+      });
+      input.addEventListener('input', () => {
+        SDD[inputId].selected = null;
+        renderSdd(inputId);
+        if (!list.classList.contains('open')) list.classList.add('open');
+      });
+      input.addEventListener('focus', () => renderSdd(inputId));
+      document.addEventListener('click', ev => {
+        if (!list.contains(ev.target) && ev.target !== input) list.classList.remove('open');
+      });
+    }
+    renderSdd(inputId);
+  }
+
+  function renderSdd(inputId) {
+    const st = SDD[inputId];
+    if (!st) return;
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(st.listId);
+    const q = input.value.trim().toLowerCase();
+    const shown = st.options.filter(o => !q || o.label.toLowerCase().includes(q));
+    list.innerHTML = shown.map(o =>
+      `<button type="button" class="sdd-row${st.selected && st.selected.id === o.id ? ' sel' : ''}" data-id="${esc(o.id)}"><span class="dir-name">${esc(o.label)}</span>${o.badge || ''}</button>`
+    ).join('') || `<div class="dir-empty">${esc(I18N[CUR].noResults)}</div>`;
+    [...list.querySelectorAll('.sdd-row')].forEach(r => r.addEventListener('click', () => {
+      const o = st.options.find(x => x.id === r.dataset.id);
+      if (!o) return;
+      st.selected = o;
+      input.value = o.label;
+      list.classList.remove('open');
+      if (st.onPick) st.onPick(o);
+    }));
+  }
+
+  // ─── Mode 1: add member helpers ─────────────────────────────────
+  function getBranches() {
+    return MEMBERS
+      .filter(m => m.gen === 1 && m.parents.includes('gerbacio-apor') && m.parents.includes('marciana-apor'))
+      .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+  }
+
+  function branchPeople(rootId) {
+    const byId = {}; MEMBERS.forEach(m => byId[m.id] = m);
+    const kidsOf = {};
+    MEMBERS.forEach(m => { const p = m.parents[0]; if (p && byId[p]) (kidsOf[p] ||= []).push(m); });
+    const out = [];
+    const walk = id => {
+      const m = byId[id]; if (!m || out.includes(m)) return;
+      out.push(m);
+      (kidsOf[id] || []).sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)).forEach(k => walk(k.id));
+    };
+    walk(rootId);
+    return out;
+  }
+
+  function renderBranchInfo(sib) {
+    const T = I18N[CUR];
+    const people = branchPeople(sib.id);
+    document.getElementById('branchInfo').innerHTML =
+      `<div class="branch-info-head">${esc(T.branchMembers)}: <strong>${esc(sib.name)}</strong></div>`
+      + people.map(m =>
+        `<div class="bi-row" style="padding-left:${(m.gen - sib.gen) * 20}px"><span class="bi-name">${esc(m.name)}${m.nick ? ' <em>(' + esc(m.nick) + ')</em>' : ''}</span><span class="dir-gen">G${esc(m.gen)}</span><span class="badge${m.living ? '' : ' rose'}">${m.living ? esc(T.livingBadge) : esc(T.deceasedBadge)}</span></div>`
+      ).join('');
+  }
+
+  function setRelation(rel) {
+    const hint = document.getElementById('relHint');
+    if (hint) hint.textContent = I18N[CUR]['relHint' + (rel === 'sibling' ? 'Sibling' : rel === 'child' ? 'Child' : 'Spouse')];
+    autoParent();
+  }
+
+  function autoParent() {
+    const f = document.getElementById('memberForm');
+    const rel = (f.querySelector('input[name="relation"]:checked') || {}).value;
+    const st = SDD['targetSearch'];
+    const t = st && st.selected ? st.selected.m : null;
+    const byId = id => { const p = MEMBERS.find(x => x.id === id); return p ? p.name : id; };
+    const ph = document.getElementById('parentAutoHint');
+    if (!rel || !t) { if (ph) ph.style.display = 'none'; return; }
+    let val = '';
+    if (rel === 'child') val = t.name + (t.spouse ? ' & ' + byId(t.spouse) : '');
+    else if (rel === 'sibling') val = t.parents && t.parents.length ? t.parents.map(byId).join(' & ') : '';
+    f.parentName.value = val;
+    if (ph) ph.style.display = (rel === 'spouse' || !val) ? 'none' : 'inline';
+  }
+
+  // ─── Mode 2: correction helpers ─────────────────────────────────
+  function renderCorrCard(m) {
+    const T = I18N[CUR];
+    const byId = id => { const p = MEMBERS.find(x => x.id === id); return p ? p.name : id; };
+    const spouse = m.spouse ? byId(m.spouse) : '—';
+    const parents = m.parents && m.parents.length ? m.parents.map(byId).join(', ') : '—';
+    const rows = [
+      [T.nickLbl, m.nick || '—'],
+      [T.genLbl, 'G' + m.gen],
+      [T.branchLbl, m.branch],
+      [T.spouseLbl, spouse],
+      [T.parentsLbl, parents],
+      [T.livingBadge + '/' + T.deceasedBadge, m.living ? T.livingBadge : T.deceasedBadge],
+      [T.note, m.notes || '—'],
+    ];
+    const card = document.getElementById('corrCard');
+    card.innerHTML = `<div class="corr-card-name">${esc(m.name)}</div><dl class="detail-grid">`
+      + rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('') + '</dl>';
+    card.classList.remove('hide');
+  }
+
+  // ─── Shared helpers ─────────────────────────────────────────────
+  function clearPicks() {
+    Object.values(SDD).forEach(st => { st.selected = null; });
+    PICK.branchSib = null; PICK.person = null;
+    const bi = document.getElementById('branchInfo'); if (bi) bi.innerHTML = '';
+    const cc = document.getElementById('corrCard'); if (cc) { cc.classList.add('hide'); cc.innerHTML = ''; }
+    const ph = document.getElementById('parentAutoHint'); if (ph) ph.style.display = 'none';
+    const cl = document.getElementById('corrLiving'); if (cl) cl.classList.add('hide');
+    const cv = document.getElementById('corrValue'); if (cv) cv.classList.remove('hide');
+    document.querySelectorAll('.sdd-list').forEach(l => l.classList.remove('open'));
+  }
+
+  function refreshRelationHint() {
+    const f = document.getElementById('memberForm');
+    if (!f) return;
+    const rel = (f.querySelector('input[name="relation"]:checked') || {}).value;
+    const hint = document.getElementById('relHint');
+    if (hint && rel) hint.textContent = I18N[CUR]['relHint' + (rel === 'sibling' ? 'Sibling' : rel === 'child' ? 'Child' : 'Spouse')];
+  }
+
+  function refreshFormModeUI() {
+    Object.keys(SDD).forEach(k => renderSdd(k));
+    if (PICK.branchSib) renderBranchInfo(PICK.branchSib);
+    if (PICK.person) renderCorrCard(PICK.person);
+    refreshRelationHint();
+    updateSubmitLabel();
+  }
+
+  function initModeForm() {
+    const branches = getBranches().map(s => ({
+      id: s.id, label: s.name.split(' ')[0], branch: s.name.split(' ')[0], sibling: s,
+    }));
+    searchableDropdown('branchSearch', 'branchList', branches, o => {
+      PICK.branchSib = o.sibling;
+      renderBranchInfo(o.sibling);
+      const people = branchPeople(o.sibling.id).map(m => ({
+        id: m.id, label: m.name + (m.nick ? ' (' + m.nick + ')' : ''),
+        badge: `<span class="badge${m.living ? '' : ' rose'}">${esc(I18N[CUR].livingBadge)}</span>`, m,
+      }));
+      searchableDropdown('targetSearch', 'targetList', people, () => autoParent());
+    });
+    searchableDropdown('personSearch', 'personList',
+      MEMBERS.slice().sort((a, b) => a.name.localeCompare(b.name)).map(m => ({
+        id: m.id, label: `${m.name} (G${m.gen} — ${m.branch})`, m,
+      })),
+      o => { PICK.person = o.m; renderCorrCard(o.m); });
+    const cf = document.getElementById('corrField');
+    if (cf && !cf._corrInit) {
+      cf._corrInit = true;
+      cf.addEventListener('change', () => {
+        const isLiving = cf.value === 'living_status';
+        document.getElementById('corrLiving').classList.toggle('hide', !isLiving);
+        document.getElementById('corrValue').classList.toggle('hide', isLiving);
+      });
+    }
+    const form = document.getElementById('memberForm');
+    if (form && !form._resetInit) { form._resetInit = true; form.addEventListener('reset', clearPicks); }
   }
 
   function copyJson() {
@@ -1092,6 +1558,7 @@
   renderLegend();
   renderChips();
   renderTree();
+  initModeForm();
   window.addEventListener('resize', () => { if (document.getElementById('view-tree').classList.contains('active')) fitTree(); });
 
   // ─── Live sync (cached API endpoint; embedded MEMBERS is first paint + fallback) ───
@@ -1140,5 +1607,14 @@
   fetchLiveMembers();
   setInterval(() => { if (document.visibilityState === 'visible') fetchLiveMembers(); }, 300000);
 </script>
+
+<div id="thanksModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,16,.55);z-index:999;align-items:center;justify-content:center;">
+  <div class="modal-card" style="background:#fff;border-radius:14px;max-width:420px;width:90%;padding:28px 24px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.25);">
+    <div style="font-size:44px;line-height:1;">🌳</div>
+    <h3 id="thanksTitle" style="margin:14px 0 8px;font-size:20px;"></h3>
+    <p id="thanksBody" style="margin:0 0 20px;color:#555;font-size:15px;line-height:1.5;"></p>
+    <button type="button" class="btn btn-primary" id="thanksOk" onclick="closeThanksModal()"></button>
+  </div>
+</div>
 </body>
 </html>
