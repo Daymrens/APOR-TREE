@@ -1,0 +1,26 @@
+{
+  "gateSearchDemelito": {
+    "status": "PASS",
+    "details": "Branch label \"Panfilo · Gen N\" present. \"Apor\" is surname only."
+  },
+  "gateSearchWilda": {
+    "status": "PASS",
+    "details": "Branch label \"Consorcia · Gen N\" present. No \"Lumbab\"."
+  },
+  "rsvpDropdown": {
+    "status": "PASS",
+    "details": "6 options: Panfilo, Feliciano, Pedro, Pablo, Purificasion, Consorcia. No invalid."
+  },
+  "treeChips": {
+    "status": "FAIL",
+    "details": "All=false, branches=6/6, invalid=[Apor, Presbitero, Lumbab, Jose, Antonio, Rosa]"
+  },
+  "chatPage": {
+    "status": "PASS",
+    "details": "No critical errors. Branch chips: "
+  },
+  "screenshotRsvp": {
+    "status": "PASS",
+    "details": "D:\\PROJECTS\\FamilyReunion\\armada\\screenshots\\apor-family-tree\\qa-rsvp-branches.png"
+  }
+}

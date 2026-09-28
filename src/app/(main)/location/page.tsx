@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getConfig } from "@/lib/firestore/config";
+import { restoreConfig } from "@/lib/firestore/config-restore";
 import type { ReunionConfig } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 
@@ -10,8 +10,10 @@ export default function LocationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getConfig()
-      .then(setConfig)
+    fetch("/api/config")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setConfig(restoreConfig(data?.config ?? null)))
+      .catch(() => setConfig(null))
       .finally(() => setLoading(false));
   }, []);
 
@@ -51,6 +53,7 @@ export default function LocationPage() {
       )}
 
       <div className="space-y-4">
+      {(config?.venueName || config?.venueAddress) && (
         <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-mango/15 to-mango/5 flex items-center justify-center text-mango">
@@ -61,13 +64,14 @@ export default function LocationPage() {
             </div>
             <div>
               <h2 className="font-heading text-lg text-balete">Venue</h2>
-              <p className="font-sans text-ink text-sm">{config?.venueName || "TBA"}</p>
+              <p className="font-sans text-ink text-sm">{config.venueName}</p>
             </div>
           </div>
           {config?.venueAddress && (
             <p className="font-sans text-soft text-sm mt-1 ml-[52px]">{config.venueAddress}</p>
           )}
         </div>
+      )}
 
         {config?.parkingNotes && (
           <div className="clay p-5 animate-slide-up" style={{ animationDelay: "0.15s" }}>

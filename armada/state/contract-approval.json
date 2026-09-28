@@ -1,0 +1,13 @@
+{
+  "status": "APPROVED",
+  "approvedAt": "2026-08-14T17:35:12.195Z",
+  "approver": "user",
+  "contractHash": "fefe9848f55da66a8bf2e9e1c02068aeeadee3af12a72babda83a978d040b663",
+  "liveContractPath": "D:\\PROJECTS\\FamilyReunion\\armada\\REQUIREMENTS.md",
+  "lastSyncedAt": null,
+  "lastSyncedTo": [],
+  "clarificationRequested": false,
+  "clarificationReason": null,
+  "hashAlgo": "sha256",
+  "schemaVersion": 1
+}

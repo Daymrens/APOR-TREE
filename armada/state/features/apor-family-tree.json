@@ -1,0 +1,17 @@
+{
+  "name": "apor-family-tree",
+  "status": "shipped",
+  "contract": "armada/REQUIREMENTS.md",
+  "createdAt": "2026-08-12T22:21:54.991Z",
+  "updatedAt": "2026-08-13T00:49:04.000Z",
+  "shippedAt": "2026-08-13T00:49:04.000Z",
+  "pr": "https://github.com/Daymrens/APOR-TREE/pull/1",
+  "phases": [
+    { "id": "p1", "status": "passed" },
+    { "id": "p2", "status": "passed" },
+    { "id": "p3", "status": "passed" },
+    { "id": "p4", "status": "passed" },
+    { "id": "p5", "status": "passed" },
+    { "id": "p6", "status": "passed" }
+  ]
+}

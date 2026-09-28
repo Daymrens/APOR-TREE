@@ -31,3 +31,13 @@ apor-tree-firebase-adminsdk-*.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tools, worktrees, and private runtime data
+.firebase/
+.vercel/
+.opencode/
+.remember/
+sandbox/
+test-results/
+*.pid
+members.json

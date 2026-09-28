@@ -1,0 +1,112 @@
+# armada.yaml — armada manifest (source of truth)
+# Regenerate identical config with: armada init --from-armada armada/armada.yaml
+
+project:
+  # Display name of the project (used in dashboards + prompt headers)
+  name: "D:\\PROJECTS\\FamilyReunion"
+  # Model budget tier: free | balanced (default) | power
+  budget: "balanced"
+  # Enable agent-browser for e2e testing
+  browserTesting: false
+  # Emit .devcontainer/ config for sandboxed dev
+  devcontainer: false
+  # Use opencode's agent-browser tool for e2e tests
+  useAgentBrowser: false
+  # CI-safe: orchestrator bash set to allow (for opencode run)
+  headless: false
+  # Autonomous: no permission prompts (strict superset of headless)
+  yolo: false
+  # Path to the contract file (default: armada/REQUIREMENTS.md)
+  requirementsFile: "armada/REQUIREMENTS.md"
+  supervision:
+    # Emit .opencode/plugins/armada-supervision.js
+    plugin: false
+    # Emit per-lane fleet dashboard (default: true)
+    fleet: true
+    # Emit subagent watchdog plugin
+    watchdog: false
+    # Emit shipnames TUI-prefix plugin (default: true)
+    shipnames: true
+  stack:
+    # Frontend framework (nextjs, vite, etc.) or null
+    frontend: "nextjs"
+    # Backend framework (express, fastapi, etc.) or null
+    backend: null
+    # Database (postgres, sqlite, etc.) or null
+    database: null
+    # Test runner (vitest, jest, etc.)
+    testing: null
+    # Source directories the agents should focus on
+    srcDirs: ["src"]
+    # Primary languages in the codebase
+    languages: ["typescript"]
+    # Project instruction files agents should read
+    instructions: ["AGENTS.md", "README.md"]
+
+team:
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "orchestrator"
+    # Primary model ID (provider/model format)
+    model: "opencode-go/minimax-m3"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/z-ai/glm-5.2"
+    # (optional) Model variant — e.g. 'thinking' for extended reasoning
+    variant: "thinking"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "backend-dev"
+    # Primary model ID (provider/model format)
+    model: "opencode-go/deepseek-v4-pro"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/deepseek/deepseek-v4-pro"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "frontend-dev"
+    # Primary model ID (provider/model format)
+    model: "opencode-go/minimax-m3"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/minimax/minimax-m3"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "qa"
+    # Primary model ID (provider/model format)
+    model: "opencode/mimo-v2.5-free"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/xiaomi/mimo-v2.5"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "adversary"
+    # Primary model ID (provider/model format)
+    model: "opencode-go/deepseek-v4-pro"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/deepseek/deepseek-v4-pro"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "security"
+    # Primary model ID (provider/model format)
+    model: "opencode/big-pickle"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/deepseek/deepseek-v4-pro"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "docs"
+    # Primary model ID (provider/model format)
+    model: "opencode/deepseek-v4-flash-free"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/minimax/minimax-m3"
+    # Whether this role is active in the team
+    enabled: true
+  - # Role name: orchestrator, backend-dev, frontend-dev, qa, adversary, security, docs, architect
+    role: "architect"
+    # Primary model ID (provider/model format)
+    model: "opencode/big-pickle"
+    # Fallback model if primary unavailable (or null)
+    fallback: "openrouter/z-ai/glm-5.2"
+    # Whether this role is active in the team
+    enabled: true

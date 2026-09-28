@@ -6,6 +6,7 @@ const publicPaths = [
   "/api/verify-passcode",
   "/api/members",
   "/api/rsvp-count",
+  "/api/config",
   "/manifest.json",
 ];
 

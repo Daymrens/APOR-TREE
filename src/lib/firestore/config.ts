@@ -8,7 +8,11 @@ export async function getConfig(): Promise<ReunionConfig | null> {
   try {
     const snap = await getDoc(doc(db, "reunion_config", DOC_ID));
     if (!snap.exists()) return null;
-    return snap.data() as ReunionConfig;
+    const data = snap.data() as Partial<ReunionConfig>;
+    return {
+      ...(data as ReunionConfig),
+      reunionScheduled: data.reunionScheduled ?? false,
+    };
   } catch (error) {
     if (process.env.NODE_ENV === "development") console.warn("Firestore not available:", error);
     return null;

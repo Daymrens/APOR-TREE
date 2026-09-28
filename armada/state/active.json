@@ -1,0 +1,39 @@
+{
+  "feature": "apor-family-platform",
+  "contract": "armada/REQUIREMENTS.md",
+  "status": "in_progress",
+  "currentPhase": "phase-1",
+  "phaseGraph": {
+    "phases": {
+      "phase-1": {
+        "name": "Scaffold, design system & Family Book UI",
+        "status": "in_progress",
+        "dependsOn": []
+      },
+      "phase-2": {
+        "name": "Supabase schema, auth & authorization",
+        "status": "pending",
+        "dependsOn": ["phase-1"]
+      },
+      "phase-3": {
+        "name": "Profiles, claims & review workflow",
+        "status": "pending",
+        "dependsOn": ["phase-2"]
+      },
+      "phase-4": {
+        "name": "Connect Book, photos & reunion",
+        "status": "pending",
+        "dependsOn": ["phase-3"]
+      },
+      "phase-5": {
+        "name": "Hardening & handoff",
+        "status": "pending",
+        "dependsOn": ["phase-4"]
+      }
+    }
+  },
+  "nextAction": "Scaffold Next.js project at D:\\PROJECTS\\APOR_WEB and implement Phase 1",
+  "evidence": [],
+  "createdAt": "2026-09-18T00:00:00Z",
+  "updatedAt": "2026-09-18T00:00:00Z"
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getSchedule } from "@/lib/firestore/schedule";
-import { getConfig } from "@/lib/firestore/config";
+import { restoreConfig } from "@/lib/firestore/config-restore";
 import type { ScheduleItem, ReunionConfig } from "@/lib/types";
 import BackButton from "@/components/ui/BackButton";
 import Skeleton from "@/components/ui/Skeleton";
@@ -64,7 +64,13 @@ export default function SchedulePage() {
   const [now, setNow] = useState<Date>(new Date());
 
   useEffect(() => {
-    Promise.all([getSchedule(), getConfig()])
+    Promise.all([
+      getSchedule(),
+      fetch("/api/config")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => restoreConfig(data?.config ?? null))
+        .catch(() => null),
+    ])
       .then(([schedule, cfg]) => {
         setItems(schedule);
         setConfig(cfg);
@@ -87,8 +93,15 @@ export default function SchedulePage() {
     .sort((a, b) => a - b);
 
   function getItemStatus(item: ScheduleItem): "happening" | "next" | "past" | "future" {
-    if (!config?.eventDates?.start) return "future";
-    const eventStart = config.eventDates.start.toDate();
+    const start = config?.eventDates?.start;
+    if (
+      !start ||
+      typeof start.toDate !== "function" ||
+      isNaN(start.toDate().getTime())
+    ) {
+      return "future";
+    }
+    const eventStart = start.toDate();
     const itemDate = new Date(eventStart);
     itemDate.setDate(itemDate.getDate() + item.day - 1);
     const [h, m] = item.startTime.split(":").map(Number);

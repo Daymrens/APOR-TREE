@@ -1,0 +1,236 @@
+{
+  "defect": "DEF-002",
+  "timestamp": "2026-08-13T18:54:07.111Z",
+  "passCount": 43,
+  "failCount": 0,
+  "results": [
+    {
+      "label": "Branch dropdown opens (class \"open\")",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Branch dropdown shows 6 options",
+      "status": "PASS",
+      "detail": "count=6"
+    },
+    {
+      "label": "Branch names match expected",
+      "status": "PASS",
+      "detail": "[\"Panfilo\",\"Feliciano\",\"Pedro\",\"Pablo\",\"Purificasion\",\"Consorcia\"]"
+    },
+    {
+      "label": "Typing \"Pan\" filters to 1 result (Panfilo)",
+      "status": "PASS",
+      "detail": "count=1"
+    },
+    {
+      "label": "Branch input value set to Panfilo",
+      "status": "PASS",
+      "detail": "value=\"Panfilo\""
+    },
+    {
+      "label": "Branch dropdown closes after pick",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Branch info panel appears with Gen 2 members",
+      "status": "PASS",
+      "detail": "html_len=1531"
+    },
+    {
+      "label": "Target dropdown opens",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Search \"Demelito\" shows 1 result",
+      "status": "PASS",
+      "detail": "count=1"
+    },
+    {
+      "label": "Target value set",
+      "status": "PASS",
+      "detail": "value=\"Demelito Apor\""
+    },
+    {
+      "label": "Target dropdown closes after pick",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Sibling: parentName auto-filled from target parents",
+      "status": "PASS",
+      "detail": "parentName=\"Panfilo Apor & Antonia Montecalvo\""
+    },
+    {
+      "label": "Child: parentName auto-filled with target + spouse",
+      "status": "PASS",
+      "detail": "parentName=\"Demelito Apor & Reina Bajo\""
+    },
+    {
+      "label": "Spouse: parentName is empty",
+      "status": "PASS",
+      "detail": "parentName=\"\""
+    },
+    {
+      "label": "Spouse guard: \"already has a spouse\" banner shown",
+      "status": "PASS",
+      "detail": "banner=\"Demelito Apor already has a spouse (Reina Bajo)\""
+    },
+    {
+      "label": "Spouse guard: no add_member POST fired",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Add submit: success banner shown",
+      "status": "PASS",
+      "detail": "banner=\"✓ Submitted for review. A family admin will approve it and add it to the live tree.\""
+    },
+    {
+      "label": "Add submit: POST body type is \"add_member\"",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Add submit: data.relation is \"child\"",
+      "status": "PASS",
+      "detail": "relation=\"child\""
+    },
+    {
+      "label": "Add submit: data.targetId is \"demelito-apor\"",
+      "status": "PASS",
+      "detail": "targetId=\"demelito-apor\""
+    },
+    {
+      "label": "Add submit: data.branch is \"Panfilo\" (root first name)",
+      "status": "PASS",
+      "detail": "branch=\"Panfilo\""
+    },
+    {
+      "label": "Add submit: firstName in title",
+      "status": "PASS",
+      "detail": "title=\"Add member: QA Retest Apor\""
+    },
+    {
+      "label": "Correction: person dropdown opens",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Correction: search \"Purificasion\" shows result(s)",
+      "status": "PASS",
+      "detail": "count=1"
+    },
+    {
+      "label": "Correction: details card shows Purificasion",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Correction: POST type is \"correction\"",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Correction: field is \"birth_date\"",
+      "status": "PASS",
+      "detail": "field=\"birth_date\""
+    },
+    {
+      "label": "Correction: personId present",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Correction: success banner",
+      "status": "PASS",
+      "detail": "banner=\"✓ Submitted for review. A family admin will approve it and add it to the live tree.\""
+    },
+    {
+      "label": "Suggestion: POST type is \"suggestion\"",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Suggestion: category is \"reunion\"",
+      "status": "PASS",
+      "detail": "category=\"reunion\""
+    },
+    {
+      "label": "Suggestion: text in description",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Suggestion: success banner",
+      "status": "PASS",
+      "detail": "banner=\"✓ Submitted for review. A family admin will approve it and add it to the live tree.\""
+    },
+    {
+      "label": "Branch dropdown opens for outside-click test",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Branch dropdown closes on outside click",
+      "status": "PASS",
+      "detail": "still_open=false"
+    },
+    {
+      "label": "Branch dropdown open before target click",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "Branch dropdown closed when target opens",
+      "status": "PASS",
+      "detail": "branch_open=false"
+    },
+    {
+      "label": "Target dropdown opened",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "i18n: add tab text changed",
+      "status": "PASS",
+      "detail": "en=\"Add Family Member\" tl=\"Magdagdag ng Miyembro\""
+    },
+    {
+      "label": "i18n: branch label changed",
+      "status": "PASS",
+      "detail": "en=\"Branch\" tl=\"Sanga\""
+    },
+    {
+      "label": "i18n: branch dropdown still opens in Tagalog",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "label": "i18n: no console errors throughout tests",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "label": "Screenshot qa-sdd-fix.png exists and is valid",
+      "status": "PASS",
+      "detail": "size=54491"
+    }
+  ],
+  "consoleErrors": [],
+  "capturedPosts": [
+    {
+      "type": "suggestion",
+      "category": "reunion",
+      "title": "Suggestion: Reunion event",
+      "description": "QA retest suggestion body",
+      "data": {
+        "text": "QA retest suggestion body",
+        "category": "reunion"
+      }
+    }
+  ]
+}

@@ -43,6 +43,7 @@ export default function AdminConfigPage() {
   const [config, setConfig] = useState<ReunionConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -60,6 +61,8 @@ export default function AdminConfigPage() {
     coverImageUrl: "",
   });
 
+  const [reunionScheduled, setReunionScheduled] = useState(false);
+
   const showToast = useCallback(
     (message: string, type: "success" | "error") => {
       setToast({ message, type });
@@ -67,35 +70,42 @@ export default function AdminConfigPage() {
     []
   );
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/admin/get-config");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.config) {
-            setConfig(data.config);
-            setForm({
-              eventDateStart: toDatetimeLocal(data.config.eventDates?.start),
-              eventDateEnd: toDatetimeLocal(data.config.eventDates?.end),
-              venueName: data.config.venueName ?? "",
-              venueAddress: data.config.venueAddress ?? "",
-              mapEmbedUrl: data.config.mapEmbedUrl ?? "",
-              contactPerson: data.config.contactPerson ?? "",
-              contactNumber: data.config.contactNumber ?? "",
-              parkingNotes: data.config.parkingNotes ?? "",
-              coverImageUrl: data.config.coverImageUrl ?? "",
-            });
-          }
-        }
-      } catch {
-        showToast("Failed to load config", "error");
-      } finally {
-        setLoading(false);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await fetch("/api/admin/get-config");
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setLoadError(data?.error ?? "Failed to load config");
+        return;
       }
+      const data = await res.json();
+      if (data.config) {
+        setConfig(data.config);
+        setReunionScheduled(data.config.reunionScheduled ?? false);
+        setForm({
+          eventDateStart: toDatetimeLocal(data.config.eventDates?.start),
+          eventDateEnd: toDatetimeLocal(data.config.eventDates?.end),
+          venueName: data.config.venueName ?? "",
+          venueAddress: data.config.venueAddress ?? "",
+          mapEmbedUrl: data.config.mapEmbedUrl ?? "",
+          contactPerson: data.config.contactPerson ?? "",
+          contactNumber: data.config.contactNumber ?? "",
+          parkingNotes: data.config.parkingNotes ?? "",
+          coverImageUrl: data.config.coverImageUrl ?? "",
+        });
+      }
+    } catch {
+      showToast("Failed to load config", "error");
+    } finally {
+      setLoading(false);
     }
-    load();
   }, [showToast]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -104,7 +114,7 @@ export default function AdminConfigPage() {
       const res = await fetch("/api/admin/update-config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, reunionScheduled }),
       });
       if (!res.ok) throw new Error("Update failed");
       showToast("Config saved", "success");
@@ -144,7 +154,66 @@ export default function AdminConfigPage() {
         Manage event details, venue info, and contact details.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      {loadError ? (
+        <div className="clay p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-hibiscus/10 flex items-center justify-center text-hibiscus flex-shrink-0">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-heading text-lg text-balete">Could not load config</h2>
+              <p className="font-sans text-soft text-sm mt-1">{loadError}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={load}
+            className="px-5 py-2.5 bg-hibiscus text-parchment rounded-xl font-sans font-medium text-sm hover:bg-hibiscus/90 transition-colors shadow-sm"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Reunion status */}
+        <div className="clay p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-mango/10 flex items-center justify-center">
+              <svg className="w-4 h-4 text-mango" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.7.106-4.03.318a2.25 2.25 0 0 0-1.954 2.1l-.204 5.72a.75.75 0 0 0 .746.786h11.884a.75.75 0 0 0 .746-.786l-.204-5.72a2.25 2.25 0 0 0-1.954-2.1C14.7 8.356 13.355 8.25 12 8.25ZM9 10.5h.008v.008H9V10.5Zm3 0h.008v.008H12V10.5Zm3 0h.008v.008H15V10.5Zm-6 3h.008v.008H9V13.5Zm3 0h.008v.008H12V13.5Zm3 0h.008v.008H15V13.5Z" />
+              </svg>
+            </div>
+            <h2 className="font-heading text-lg text-balete">Reunion status</h2>
+          </div>
+          <div className="space-y-2">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="reunionScheduled"
+                checked={!reunionScheduled}
+                onChange={() => {
+                  setReunionScheduled(false);
+                  setForm({ ...form, eventDateStart: "", eventDateEnd: "" });
+                }}
+                className="accent-hibiscus"
+              />
+              <span className="font-sans text-sm text-ink">No reunion yet</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="reunionScheduled"
+                checked={reunionScheduled}
+                onChange={() => setReunionScheduled(true)}
+                className="accent-hibiscus"
+              />
+              <span className="font-sans text-sm text-ink">Schedule the reunion</span>
+            </label>
+          </div>
+        </div>
+
         {/* Event Dates */}
         <div className="clay p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -162,7 +231,8 @@ export default function AdminConfigPage() {
                 type="datetime-local"
                 value={form.eventDateStart}
                 onChange={(e) => setForm({ ...form, eventDateStart: e.target.value })}
-                className={inputClass}
+                disabled={!reunionScheduled}
+                className={`${inputClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               />
             </div>
             <div>
@@ -171,7 +241,8 @@ export default function AdminConfigPage() {
                 type="datetime-local"
                 value={form.eventDateEnd}
                 onChange={(e) => setForm({ ...form, eventDateEnd: e.target.value })}
-                className={inputClass}
+                disabled={!reunionScheduled}
+                className={`${inputClass} disabled:opacity-50 disabled:cursor-not-allowed`}
               />
             </div>
           </div>
@@ -283,7 +354,8 @@ export default function AdminConfigPage() {
         >
           {saving ? "Saving..." : "Save config"}
         </button>
-      </form>
+        </form>
+      )}
     </div>
   );
 }

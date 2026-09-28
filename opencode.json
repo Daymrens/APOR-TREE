@@ -1,0 +1,49 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/hy3",
+  "permission": {
+    "external_directory": "deny"
+  },
+  "default_agent": "commodore",
+  "provider": {
+    "openrouter": {
+      "models": {
+        "z-ai/glm-5.2": {
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        },
+        "anthropic/claude-sonnet-4.6": {
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        },
+        "deepseek/deepseek-v4-pro": {
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        },
+        "minimax/minimax-m3": {
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        },
+        "xiaomi/mimo-v2.5": {
+          "options": {
+            "provider": {
+              "allow_fallbacks": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

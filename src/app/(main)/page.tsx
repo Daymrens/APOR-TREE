@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import FamilyWordmark from "@/components/FamilyWordmark";
 import Countdown from "@/components/ui/Countdown";
 import ShareButton from "@/components/ShareButton";
-import { getConfig } from "@/lib/firestore/config";
+import { restoreConfig } from "@/lib/firestore/config-restore";
 import type { ReunionConfig } from "@/lib/types";
 
 const safeDecode = (s: string) => {
@@ -57,7 +57,10 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    getConfig().then(setConfig);
+    fetch("/api/config")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setConfig(restoreConfig(data?.config ?? null)))
+      .catch(() => setConfig(null));
   }, []);
 
   useEffect(() => {
@@ -110,9 +113,15 @@ export default function HomePage() {
     { href: "/contribute", title: "Leave a contribution", desc: "Suggest corrections or additions to reunion details.", icon: "✏️", delay: 0.8, span: "bento--full", dot: "bg-mango" },
   ];
 
-  const years = config?.eventDates?.start
-    ? config.eventDates.start.toDate().getFullYear()
-    : new Date().getFullYear();
+  const startTs = config?.eventDates?.start;
+  const hasValidStart =
+    config?.reunionScheduled === true &&
+    !!startTs &&
+    typeof startTs.toDate === "function" &&
+    !isNaN(startTs.toDate().getTime());
+  const startDate = hasValidStart ? startTs.toDate() : null;
+
+  const years = startDate ? startDate.getFullYear() : new Date().getFullYear();
 
   return (
     <div className="min-h-screen">
@@ -214,22 +223,17 @@ export default function HomePage() {
         </svg>
 
         {/* Countdown */}
-        <section className="mb-10 relative animate-fade-in" style={{ zIndex: 1 }}>
-          <div className="flex items-start gap-4">
-            <div className="w-3 h-3 rounded-full bg-hibiscus mt-3 flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-sans text-xs text-soft/60 uppercase tracking-wider mb-3">Countdown</p>
-              {config?.eventDates?.start ? (
-                <Countdown targetDate={config.eventDates.start.toDate()} />
-              ) : (
-                <div className="card p-6">
-                  <p className="font-heading text-2xl text-ink mb-1">Event date TBA</p>
-                  <p className="text-soft text-sm font-sans">Stay tuned for announcements.</p>
-                </div>
-              )}
+        {hasValidStart && (
+          <section className="mb-10 relative animate-fade-in" style={{ zIndex: 1 }}>
+            <div className="flex items-start gap-4">
+              <div className="w-3 h-3 rounded-full bg-hibiscus mt-3 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="font-sans text-xs text-soft/60 uppercase tracking-wider mb-3">Countdown</p>
+                <Countdown targetDate={startDate!} />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Leaf bento */}
         <section className="bento grid-cols-2 sm:grid-cols-4 relative reveal" style={{ zIndex: 1 }}>

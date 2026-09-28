@@ -3,7 +3,9 @@ import { Timestamp } from "firebase/firestore";
 export interface ReunionConfig {
   familyName: string;
   eventTitle: string;
-  eventDates: { start: Timestamp; end: Timestamp };
+  /** When true, the reunion is scheduled and eventDates are valid. Defaults to false on read. */
+  reunionScheduled: boolean;
+  eventDates: { start: Timestamp | null; end: Timestamp | null };
   venueName: string;
   venueAddress: string;
   mapEmbedUrl: string;

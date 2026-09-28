@@ -1,0 +1,9 @@
+[
+  {
+    "name": "apor-family-tree",
+    "status": "shipped",
+    "contract": "armada/REQUIREMENTS.md",
+    "worktree": "sandbox/apor-family-tree",
+    "branch": "feat/apor-family-tree"
+  }
+]
